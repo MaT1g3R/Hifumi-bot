@@ -27,7 +27,7 @@ class BotInfo:
         """
         Says the support server for the bot
         """
-        await self.bot.say(handle_support)
+        await self.bot.say(handle_support())
 
     @commands.command()
     async def donate(self):

@@ -17,11 +17,12 @@ class Hifumi(Bot):
     The hifumi bot class
     """
 
-    def __init__(self, prefix, data_handler, shard_count=1, shard_id=0):
+    def __init__(self, prefix, data_handler, token, shard_count=1, shard_id=0):
         """
         Initialize the bot object
         :param prefix: the function to get prefix for a server
         :param data_handler: the database handler
+        :param token: the bot token
         :param shard_count: the shard count, default is 1
         :param shard_id: shard id, default is 0
         """
@@ -32,6 +33,7 @@ class Hifumi(Bot):
         self.shard_id = shard_id
         self.shard_count = shard_count
         self.start_time = time.time()
+        self.token = token
 
     async def on_ready(self):
         """
@@ -56,3 +58,13 @@ class Hifumi(Bot):
             await message_sender(self, context.message.channel, str(exception))
         else:
             raise exception
+
+    def start_bot(self, cogs: list):
+        """
+        Start the bot
+        :param cogs: a list of cogs
+        """
+        self.remove_command('help')
+        for cog in cogs:
+            self.add_cog(cog)
+        self.run(self.token)

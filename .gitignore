@@ -4,3 +4,11 @@
 core/__pycache__/
 
 test_run\.py
+
+cogs/__pycache__/
+
+config/__pycache__/
+
+shell/__pycache__/
+
+data/shard_info/shard_0\.json

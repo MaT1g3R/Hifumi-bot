@@ -57,7 +57,7 @@ def generate_shard_info(bot):
         'user_count': user_count,
         'text_channel_count': text_channel_count,
         'voice_count': voice_count,
-        'logged_in': bot.is_logged_in()
+        'logged_in': bot.is_logged_in
     }
 
 
@@ -66,7 +66,7 @@ def update_shard_info(bot):
     Updates the bot shard info every second
     :param bot: the bot
     """
-    Timer(1, update_shard_info, args=bot).start()
+    Timer(1, update_shard_info, args=[bot]).start()
     shard_id = bot.shard_id
     file_name = join('data', 'shard_info', 'shard_{}.json'.format(shard_id))
     content = generate_shard_info(bot)
@@ -115,7 +115,7 @@ def build_info_embed(ctx, bot):
 
     body = [
         (NAME, 'Stats order are shown as shard/general.', False),
-        ('RAM used', '{0:.2f}MB/{0:.2f}GB'.format(shard_ram, total_ram)),
+        ('RAM used', '{0:.2f}MB/{1:.2f}GB'.format(shard_ram, total_ram)),
         ('Uptime', time_elapsed(bot.start_time)),
         ('Python version', sys.version[:5]),
         ('Library',
@@ -146,4 +146,4 @@ def handle_support():
     """
     return "Looking for support? Here's our support server (recommendable): " \
            + SUPPORT + '\n\nAnd also our social networks:\nTwitter: ' \
-           + TWITTER + '\nWebsite: ' + WEBSITE
+           + '<' + TWITTER + '>' + '\nWebsite: <' + WEBSITE + '>'
