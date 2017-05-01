@@ -62,3 +62,50 @@ def build_embed(content: list, colour, **kwargs):
         res.set_footer(text=kwargs['footer'])
     return res
 
+
+def check_message(bot, message, expected):
+    """
+    A helper method to check if a message's content matches with expected 
+    result and the author isn't the bot.
+    :param bot: the bot
+    :param message: the message to be checked
+    :param expected: the expected result
+    :return: true if the message's content equals the expected result and 
+    the author isn't the bot
+    """
+    return \
+        message.content == expected and \
+        message.author.id != bot.user.id and \
+        not message.author.bot
+
+
+def check_message_startwith(bot, message, expected):
+    """
+    A helper method to check if a message's content start with expected 
+    result and the author isn't the bot.
+    :param bot: the bot
+    :param message: the message to be checked
+    :param expected: the expected result
+    :return: true if the message's content equals the expected result and 
+    the author isn't the bot
+    """
+    return \
+        message.content.startswith(expected) and \
+        message.author.id != bot.user.id and \
+        not message.author.bot
+
+
+def clense_prefix(message, prefix: str):
+    """
+    Clean the message's prefix
+    :param message: the message
+    :param prefix: the prefix to be cleaned
+    :return: A new message without the prefix
+    """
+    if not message.content.startswith(prefix):
+        return message.content
+    else:
+        temp = message.content[len(prefix):]
+        while temp.startswith(' '):
+            temp = temp[1:]
+        return temp

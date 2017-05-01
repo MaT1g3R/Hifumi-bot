@@ -8,3 +8,4 @@ TWITTER = 'https://twitter.com/HifumiBot'
 WEBSITE = 'http://www.hifumibot.xyz/'
 TOKEN = 'INSERT_YOUR_TOKEN'
 INVITE = 'http://www.hifumibot.xyz/invite'
+OWNER = ['145735970342305792', '99271746347110400']

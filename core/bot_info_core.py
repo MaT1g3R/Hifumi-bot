@@ -13,7 +13,8 @@ from discord import ChannelType, version_info
 from core.file_io import read_all_files, read_json, write_json
 from core.helpers import combine_dicts, get_distro
 from core.discord_functions import build_embed, get_prefix
-from config.settings import NAME, DEVS, HELPERS, COLOUR, SUPPORT, TWITTER, WEBSITE
+from config.settings import NAME, DEVS, HELPERS, COLOUR, SUPPORT, TWITTER, \
+    WEBSITE
 
 
 def time_elapsed(start_time):

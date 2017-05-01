@@ -4,7 +4,7 @@ The hifumi bot object
 import time
 from asyncio import coroutine
 
-from discord.ext.commands import Bot, CommandOnCooldown
+from discord.ext.commands import Bot, CommandOnCooldown, CheckFailure
 from discord.game import Game
 
 from core.discord_functions import message_sender
@@ -56,6 +56,8 @@ class Hifumi(Bot):
         """
         if isinstance(exception, CommandOnCooldown):
             await message_sender(self, context.message.channel, str(exception))
+        elif str(exception) == 'Command "eval" is not found':
+            return
         else:
             raise exception
 
