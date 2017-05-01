@@ -24,7 +24,10 @@ class BotInfo:
 
     @commands.command()
     async def support(self):
-        pass
+        """
+        Says the support server for the bot
+        """
+        await self.bot.say()
 
     @commands.command()
     async def donate(self):

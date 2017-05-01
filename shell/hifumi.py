@@ -8,7 +8,7 @@ from discord.ext.commands import Bot, CommandOnCooldown
 from discord.game import Game
 
 from core.discord_functions import message_sender
-from core.bot_info_core import update_shard_info, generate_shard_info
+from core.bot_info_core import update_shard_info
 
 
 class Hifumi(Bot):
