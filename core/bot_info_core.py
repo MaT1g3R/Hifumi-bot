@@ -13,6 +13,7 @@ from discord import ChannelType, version_info
 from core.file_io import read_all_files, read_json, write_json
 from core.helpers import combine_dicts, get_distro
 from core.discord_functions import build_embed
+from config.settings import NAME, DEVS, HELPERS, COLOUR
 
 
 def time_elapsed(start_time):
@@ -112,7 +113,7 @@ def build_info_embed(bot):
     total_voice = total_stat['voice_count']
 
     body = [
-        (bot.name, 'Stats order are shown as shard/general.', False),
+        (NAME, 'Stats order are shown as shard/general.', False),
         ('RAM used', '{0:.2f}MB/{0:.2f}GB'.format(shard_ram, total_ram)),
         ('Uptime', time_elapsed(bot.start_time)),
         ('Python version', sys.version[:5]),
@@ -120,8 +121,8 @@ def build_info_embed(bot):
          'Discord.py v{}.{}.{}'.format(
              version_info.major, version_info.minor, version_info.micro)),
         ('System', get_distro()),
-        ('Developers', '\n'.join(bot.devs)),
-        ('Helper', '\n'.join(bot.helpers)),
+        ('Developers', '\n'.join(DEVS)),
+        ('Helper', '\n'.join(HELPERS)),
         ('Servers', '{}/{}'.format(shard_server, total_server)),
         ('Users', '{}/{}'.format(shard_user, total_user)),
         ('Text channels', '{}/{}'.format(shard_text, total_text)),
@@ -133,4 +134,4 @@ def build_info_embed(bot):
              'Keep Hifumi alive doing ~donate. ' \
              'Open source can be found with ~git.'
 
-    return build_embed(body, bot.colour, author=author, footer=footer)
+    return build_embed(body, COLOUR, author=author, footer=footer)

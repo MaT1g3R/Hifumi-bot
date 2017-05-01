@@ -9,6 +9,7 @@ from discord.game import Game
 
 from core.discord_functions import message_sender
 from core.bot_info_core import update_shard_info
+from config.settings import DEFAULT_PREFIX
 
 
 class Hifumi(Bot):
@@ -16,32 +17,21 @@ class Hifumi(Bot):
     The hifumi bot class
     """
 
-    def __init__(self, prefix, default_prefix, data_handler,
-                 devs: list, helpers: list,
-                 shard_count=1, shard_id=0, colour=0x4286f4, name='Hifumi+'):
+    def __init__(self, prefix, data_handler, shard_count=1, shard_id=0):
         """
         Initialize the bot object
         :param prefix: the function to get prefix for a server
-        :param default_prefix: the default bot prefix
         :param data_handler: the database handler
-        :param devs: list of developers 
-        :param helpers: list of bot helpers
         :param shard_count: the shard count, default is 1
         :param shard_id: shard id, default is 0
-        :param colour: the bot colour, default is 0x4286f4
-        :param name: the bot name, default is Hifumi+
         """
         super().__init__(command_prefix=prefix, shard_count=shard_count,
                          shard_id=shard_id)
-        self.default_prefix = default_prefix
+        self.default_prefix = DEFAULT_PREFIX
         self.data_handler = data_handler
         self.shard_id = shard_id
         self.shard_count = shard_count
         self.start_time = time.time()
-        self.colour = colour
-        self.name = name
-        self.devs = devs
-        self.helpers = helpers
 
     async def on_ready(self):
         """

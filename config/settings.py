@@ -1,0 +1,5 @@
+COLOUR = 0x4286f4
+NAME = 'Hifumi+'
+DEVS = ['FOO']
+HELPERS = ['BAR']
+DEFAULT_PREFIX = '~'
