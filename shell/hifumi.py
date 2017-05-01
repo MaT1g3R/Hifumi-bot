@@ -4,12 +4,13 @@ The hifumi bot object
 import time
 from asyncio import coroutine
 
-from discord.ext.commands import Bot, CommandOnCooldown, CheckFailure
+from discord.ext.commands import Bot, CommandOnCooldown
 from discord.game import Game
 
 from core.discord_functions import message_sender
 from core.bot_info_core import update_shard_info
 from config.settings import DEFAULT_PREFIX
+from core.checks import nsfw_exception
 
 
 class Hifumi(Bot):
@@ -54,10 +55,15 @@ class Hifumi(Bot):
         :param exception: the expection raised
         :param context: the context of the command
         """
+        nsfw_str = 'NSFW commands must be used in DM or channel ' \
+                   'with name that equal to or start with ' \
+                   '`nsfw` (case insensitive)'
         if isinstance(exception, CommandOnCooldown):
             await message_sender(self, context.message.channel, str(exception))
         elif str(exception) == 'Command "eval" is not found':
             return
+        elif nsfw_exception(exception):
+            await message_sender(self, context.message.channel, nsfw_str)
         else:
             raise exception
 
@@ -70,8 +76,8 @@ class Hifumi(Bot):
 
     def mention_nick(self):
         """
-        Returns the bot id in <@!> format
-        :return: the bot id in <@!> format
+        Returns the bot id in <!@> format
+        :return: the bot id in <!@> format
         """
         return '<@!%s>' % self.user.id
 
