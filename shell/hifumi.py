@@ -61,6 +61,20 @@ class Hifumi(Bot):
         else:
             raise exception
 
+    def mention_normal(self):
+        """
+        Returns the bot id in <@> format
+        :return: bot id in <@> format
+        """
+        return '<@%s>' % self.user.id
+
+    def mention_nick(self):
+        """
+        Returns the bot id in <@!> format
+        :return: the bot id in <@!> format
+        """
+        return '<@!%s>' % self.user.id
+
     def start_bot(self, cogs: list):
         """
         Start the bot
