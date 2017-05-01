@@ -2,3 +2,5 @@
 \.idea/
 
 core/__pycache__/
+
+test_run\.py

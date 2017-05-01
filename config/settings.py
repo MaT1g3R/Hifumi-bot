@@ -3,3 +3,7 @@ NAME = 'Hifumi+'
 DEVS = ['FOO']
 HELPERS = ['BAR']
 DEFAULT_PREFIX = '~'
+SUPPORT = 'http://discord.gg/FtDbNrd'
+TWITTER = 'https://twitter.com/HifumiBot'
+WEBSITE = 'http://www.hifumibot.xyz/'
+TOKEN = 'INSERT_YOUR_TOKEN'

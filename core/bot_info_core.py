@@ -12,8 +12,8 @@ from discord import ChannelType, version_info
 
 from core.file_io import read_all_files, read_json, write_json
 from core.helpers import combine_dicts, get_distro
-from core.discord_functions import build_embed
-from config.settings import NAME, DEVS, HELPERS, COLOUR
+from core.discord_functions import build_embed, get_prefix
+from config.settings import NAME, DEVS, HELPERS, COLOUR, SUPPORT, TWITTER, WEBSITE
 
 
 def time_elapsed(start_time):
@@ -90,9 +90,10 @@ def get_all_shard_info():
     return combine_dicts(dicts)
 
 
-def build_info_embed(bot):
+def build_info_embed(ctx, bot):
     """
     build the info embed
+    :param ctx: the discord context object
     :param bot: the bot object
     :return: the info embed
     """
@@ -130,8 +131,19 @@ def build_info_embed(bot):
         ('Sharding',
          '{}/{}'.format(str(bot.shard_id + 1), str(bot.shard_count)))
     ]
-    footer = 'For support please type ~support. ' \
-             'Keep Hifumi alive doing ~donate. ' \
-             'Open source can be found with ~git.'
+    footer = 'For support please type {0}support. ' \
+             'Keep Hifumi alive doing {0}donate. ' \
+             'Open source can be found with {0}git.'\
+        .format(get_prefix(bot, ctx.message))
 
     return build_embed(body, COLOUR, author=author, footer=footer)
+
+
+def handle_support():
+    """
+    build the message for supoort command
+    :return: the support string
+    """
+    return "Looking for support? Here's our support server (recommendable): " \
+           + SUPPORT + '\n\nAnd also our social networks:\nTwitter: ' \
+           + TWITTER + '\nWebsite: ' + WEBSITE
