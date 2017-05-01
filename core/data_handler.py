@@ -32,4 +32,3 @@ class DataHandler:
         sql = '''REPLACE INTO prefix VALUES(?, ?)'''
         self.cursor.execute(sql, (server_id, prefix))
         self.connection.commit()
-
