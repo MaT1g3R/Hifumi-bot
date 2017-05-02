@@ -4,7 +4,7 @@ A sample settings file, please fill this out and rename it to "settings.py"
 
 
 TOKEN = 'INSERT_YOUR_TOKEN'  # The bot token
-COLOUR = 0x4286f4  # A colour in hex
+COLOUR = 0xff0000  # A colour in hex
 NAME = 'BOT_NAME'  # The name of the bot
 DEVS = ['FOO']  # A list of developers
 HELPERS = ['BAR']  # A list of bot helpers
