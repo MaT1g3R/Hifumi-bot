@@ -3,16 +3,30 @@ A collection of functions that's related to discord
 """
 import discord
 from discord.embeds import Embed
+from discord.ext.commands import CommandOnCooldown
+from core.checks import nsfw_exception
+from core.helpers import strip_letters
 
 
-async def message_sender(bot, channel, msg):
+async def command_error_handler(bot, exception, context):
     """
-    A helper function to send a message 
-    :param bot: the bot
-    :param channel: the channel to send the messsage to
-    :param msg: the message to send
+    A function that handles command errors
+    :param bot: the bot object
+    :param exception: the exception raised
+    :param context: the discord context object
     """
-    await bot.send_message(channel, msg)
+    localize = bot.get_language_dict(context)
+    channel = context.message.channel
+    if isinstance(exception, CommandOnCooldown):
+        base_str = str(exception)
+        time_out_str = localize['time_out'].format(strip_letters(base_str)[0])
+        await bot.send_message(channel, time_out_str)
+    elif nsfw_exception(exception):
+        await bot.send_message(channel, localize['nsfw_str'])
+    else:
+        # This case should never happen, since it's should be checked in
+        # bot.on_command_error
+        raise exception
 
 
 def get_prefix(bot, message: discord.Message):

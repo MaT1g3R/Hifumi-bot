@@ -167,3 +167,15 @@ def gelbooru(search, db_controller, limit=0, fuzzy=False):
             return SORRY
         else:
             return gelbooru(tags, db_controller, limit + 1, fuzzy)
+
+
+def random_str(bot, ctx):
+    """
+    Get the string for random search result
+    :param bot: the bot
+    :param ctx: the discord context object
+    :return: the random str
+    """
+    return bot.get_language_dict(ctx)['random_nsfw']
+
+

@@ -2,6 +2,7 @@
 Useful helper functions
 """
 from os.path import join
+import re
 
 
 def combine_dicts(dicts):
@@ -73,3 +74,25 @@ def get_distro():
         res = res[:-1]
 
     return res
+
+
+def strip_letters(s: str):
+    """
+    Strip all letters from a input string and leave only the numbers
+    :param s: the input
+    :return: the stripped string
+    :rtype: list
+    >>> strip_letters('You are on cooldown. Try again in 2.16s')
+    ['2.16']
+    """
+    regex = re.compile('[-.0-9]+')
+    return [r for r in regex.findall(s) if r != '.']
+
+
+def comma(val):
+    """
+    Return a comma seprated number
+    :param val: the number
+    :return: the comma seprated number
+    """
+    return "{:,}".format(int(val))

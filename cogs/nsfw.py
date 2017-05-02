@@ -5,7 +5,8 @@ from discord.ext import commands
 from pybooru import Danbooru
 
 from core.checks import is_nsfw
-from core.nsfw_core import danbooru, gelbooru, k_or_y
+from core.nsfw_core import danbooru, gelbooru, k_or_y, random_str
+from config.settings import DANBOORU_API, DANBOORU_USERNAME
 
 
 class Nsfw:
@@ -15,43 +16,41 @@ class Nsfw:
         :param bot: the discord bot object
         """
         self.bot = bot
-        self.random = 'You didn\'t specify a search term, here\'s a ' \
-                      'random result.'
-        self.danbooru_api = Danbooru('danbooru')
+        self.danbooru_api = Danbooru(
+            'danbooru', username=DANBOORU_USERNAME, api_key=DANBOORU_API)
 
-    @commands.command()
+    @commands.command(pass_context=True)
     @commands.check(is_nsfw)
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.server)
-    async def danbooru(self, *query: str):
+    async def danbooru(self, ctx, *query: str):
         if len(query) > 2:
-            await self.bot.say(
-                'You cannot search for more than 2 tags at a time')
+            await self.bot.say(self.bot.get_language_dict(ctx)['two_term'])
             return
         if len(query) == 0:
-            await self.bot.say(self.random)
+            await self.bot.say(random_str(self.bot, ctx))
         await self.bot.say(danbooru(query, self.danbooru_api,
                                     self.bot.data_handler))
 
-    @commands.command()
+    @commands.command(pass_context=True)
     @commands.check(is_nsfw)
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.server)
-    async def konachan(self, *query: str):
+    async def konachan(self, ctx, *query: str):
         if len(query) == 0:
-            await self.bot.say(self.random)
+            await self.bot.say(random_str(self.bot, ctx))
         await self.bot.say(k_or_y(query, 'Konachan', self.bot.data_handler))
 
-    @commands.command()
+    @commands.command(pass_context=True)
     @commands.check(is_nsfw)
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.server)
-    async def yandere(self, *query: str):
+    async def yandere(self, ctx, *query: str):
         if len(query) == 0:
-            await self.bot.say(self.random)
+            await self.bot.say(random_str(self.bot, ctx))
         await self.bot.say(k_or_y(query, 'Yandere', self.bot.data_handler))
 
-    @commands.command()
+    @commands.command(pass_context=True)
     @commands.check(is_nsfw)
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.server)
-    async def gelbooru(self, *query: str):
+    async def gelbooru(self, ctx, *query: str):
         if len(query) == 0:
-            await self.bot.say(self.random)
+            await self.bot.say(random_str(self.bot, ctx))
         await self.bot.say(gelbooru(query, self.bot.data_handler))

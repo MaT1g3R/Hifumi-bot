@@ -72,3 +72,23 @@ class DataHandler:
         """.format(tag)
         res = self.cursor.execute(sql, [site]).fetchone()
         return res[0] if res is not None else None
+
+    def get_language(self, server_id: str):
+        """
+        Get the server language from databse
+        :param server_id: the server id
+        :return: the server language if found else none
+        """
+        sql = '''SELECT lan FROM language WHERE server=?'''
+        res = self.cursor.execute(sql, [server_id]).fetchone()
+        return res[0] if res is not None else None
+
+    def set_language(self, server_id: str, language: str):
+        """
+        Set the language for a server
+        :param server_id: the server id
+        :param language: the language
+        """
+        sql = '''REPLACE INTO language VALUES(?, ?)'''
+        self.cursor.execute(sql, (server_id, language))
+        self.connection.commit()

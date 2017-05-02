@@ -3,14 +3,17 @@ The hifumi bot object
 """
 import time
 from asyncio import coroutine
+from os.path import join
 
+from discord import ChannelType
 from discord.ext.commands import Bot, CommandOnCooldown
 from discord.game import Game
 
 from config.settings import DEFAULT_PREFIX
 from core.bot_info_core import update_shard_info
 from core.checks import nsfw_exception
-from core.discord_functions import message_sender
+from core.discord_functions import command_error_handler
+from core.file_io import read_all_files, read_json
 
 
 class Hifumi(Bot):
@@ -18,14 +21,15 @@ class Hifumi(Bot):
     The hifumi bot class
     """
 
-    def __init__(self, prefix, data_handler, token, shard_count=1, shard_id=0):
+    def __init__(self, prefix, data_handler, shard_count=1, shard_id=0,
+                 default_language='en'):
         """
         Initialize the bot object
         :param prefix: the function to get prefix for a server
         :param data_handler: the database handler
-        :param token: the bot token
         :param shard_count: the shard count, default is 1
         :param shard_id: shard id, default is 0
+        :param default_language: the default language of the bot, default is en
         """
         super().__init__(command_prefix=prefix, shard_count=shard_count,
                          shard_id=shard_id)
@@ -34,7 +38,10 @@ class Hifumi(Bot):
         self.shard_id = shard_id
         self.shard_count = shard_count
         self.start_time = time.time()
-        self.token = token
+        self.language = {f[14:-5]: read_json(open(f))
+                         for f in read_all_files(join('data', 'language'))
+                         if f.endswith('.json')}
+        self.default_language = default_language
 
     async def on_ready(self):
         """
@@ -55,15 +62,11 @@ class Hifumi(Bot):
         :param exception: the expection raised
         :param context: the context of the command
         """
-        nsfw_str = 'NSFW commands must be used in DM or channel ' \
-                   'with name that equal to or start with ' \
-                   '`nsfw` (case insensitive)'
-        if isinstance(exception, CommandOnCooldown):
-            await message_sender(self, context.message.channel, str(exception))
+        if isinstance(exception, CommandOnCooldown) \
+                or nsfw_exception(exception):
+            await command_error_handler(self, exception, context)
         elif str(exception) == 'Command "eval" is not found':
             return
-        elif nsfw_exception(exception):
-            await message_sender(self, context.message.channel, nsfw_str)
         else:
             raise exception
 
@@ -81,12 +84,29 @@ class Hifumi(Bot):
         """
         return '<@!%s>' % self.user.id
 
-    def start_bot(self, cogs: list):
+    def start_bot(self, cogs: list, token):
         """
         Start the bot
         :param cogs: a list of cogs
+        :param token: the bot token
         """
         self.remove_command('help')
         for cog in cogs:
             self.add_cog(cog)
-        self.run(self.token)
+        self.run(token)
+
+    def get_language_dict(self, ctx):
+        """
+        Get the language of the given context
+        :param ctx: the discord context object
+        :return: the language dict
+        :rtype: dict
+        """
+        channel = ctx.message.channel
+        if channel.type == ChannelType.text:
+            server_id = ctx.message.server.id
+            lan = self.data_handler.get_language(str(server_id))
+            return self.language[lan] if lan is not None \
+                else self.language[self.default_language]
+        else:
+            return self.language[self.default_language]
