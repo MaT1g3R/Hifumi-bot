@@ -18,47 +18,6 @@ FUZZY = 'You have entered invalid {} tags, ' \
             'that I tried to match: `{}`\n'
 
 
-def danbooru(search, api: Danbooru, db_controller):
-    """
-    Search danbooru for lewds
-    :param search: the search terms
-    :param api: the danbooru api object
-    :param db_controller: the db controller
-    :return: lewds
-    """
-    if len(search) == 0:
-        try:
-            res = api.post_list(tags=' '.join(search), random=True, limit=1)
-        except PybooruAPIError:
-            return ERROR.format('Danbooru')
-        base = 'https://danbooru.donmai.us'
-        return base + res[0]['large_file_url'] \
-            if len(res) > 0 and 'large_file_url' in res[0] \
-            else SORRY
-    else:
-        tag_finder_res = [tag_finder(t, 'danbooru',  db_controller, api)
-                          for t in search]
-        is_fuzzy = False
-        for entry in tag_finder_res:
-            if entry[1] is True:
-                is_fuzzy = True
-                break
-        search = [t[0] for t in tag_finder_res if t[0] is not None]
-        fuzzy_string = '' if not is_fuzzy else \
-            FUZZY.format('Danbooru', ', '.join(search))
-        if len(search) > 0:
-            try:
-                res = api.post_list(tags=' '.join(search), random=True, limit=1)
-            except PybooruAPIError:
-                return ERROR.format('Danbooru')
-            base = 'https://danbooru.donmai.us'
-            return fuzzy_string + base + res[0]['large_file_url'] \
-                if len(res) > 0 and 'large_file_url' in res[0] \
-                else SORRY
-        else:
-            return SORRY
-
-
 def tag_finder(tag, site, db_controller, api: Danbooru=None):
     """
     Try to find or fuzzy match tag in db then the site after the attempt
@@ -79,6 +38,51 @@ def tag_finder(tag, site, db_controller, api: Danbooru=None):
         else:
             return db_controller.fuzzy_match_tag(site, tag), True
     return db_controller.fuzzy_match_tag(site, tag), True
+
+
+def danbooru(search, api: Danbooru, db_controller):
+    """
+    Search danbooru for lewds
+    :param search: the search terms
+    :param api: the danbooru api object
+    :param db_controller: the db controller
+    :return: lewds
+    """
+    if len(search) == 0:
+        return __danbooru(search, api)
+    else:
+        tag_finder_res = [tag_finder(t, 'danbooru',  db_controller, api)
+                          for t in search]
+        is_fuzzy = False
+        for entry in tag_finder_res:
+            if entry[1] is True:
+                is_fuzzy = True
+                break
+        search = [t[0] for t in tag_finder_res if t[0] is not None]
+        fuzzy_string = '' if not is_fuzzy else \
+            FUZZY.format('Danbooru', ', '.join(search))
+        if len(search) > 0:
+            return fuzzy_string + __danbooru(search, api)
+        else:
+            return SORRY
+
+
+def __danbooru(search, api):
+    """
+    A helper function for danbooru search
+    :param search: the search terms
+    :param api: the danbooru api 
+    :return: a danbooru url if something is found else sorry string,
+    or error string if API error is raised
+    """
+    base = 'https://danbooru.donmai.us'
+    try:
+        res = api.post_list(tags=' '.join(search), random=True, limit=1)
+    except PybooruAPIError:
+        return ERROR.format('Danbooru')
+    return base + res[0]['large_file_url'] \
+        if len(res) > 0 and 'large_file_url' in res[0] \
+        else SORRY
 
 
 def k_or_y(search, site_name, db_controller, limit=0, fuzzy=False):
