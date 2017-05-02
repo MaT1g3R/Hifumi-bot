@@ -37,7 +37,7 @@ class Nsfw:
     async def konachan(self, *query: str):
         if len(query) == 0:
             await self.bot.say(self.random)
-        await self.bot.say(k_or_y(query, 'Konachan'))
+        await self.bot.say(k_or_y(query, 'Konachan', self.bot.data_handler))
 
     @commands.command()
     @commands.check(is_nsfw)
@@ -45,7 +45,7 @@ class Nsfw:
     async def yandere(self, *query: str):
         if len(query) == 0:
             await self.bot.say(self.random)
-        await self.bot.say(k_or_y(query, 'Yandere'))
+        await self.bot.say(k_or_y(query, 'Yandere', self.bot.data_handler))
 
     @commands.command()
     @commands.check(is_nsfw)
@@ -53,4 +53,4 @@ class Nsfw:
     async def gelbooru(self, *query: str):
         if len(query) == 0:
             await self.bot.say(self.random)
-        await self.bot.say(gelbooru(query))
+        await self.bot.say(gelbooru(query, self.bot.data_handler))
