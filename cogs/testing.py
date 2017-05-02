@@ -1,9 +1,9 @@
 """
 Testing commands
 """
+from config.settings import OWNER
 from core.discord_functions import check_message_startwith, clense_prefix, \
     get_prefix
-from config.settings import OWNER
 from core.testing_core import handle_eval
 
 
@@ -11,6 +11,7 @@ class Testing:
     """
     Testing commands
     """
+
     def __init__(self, bot):
         """
         Initialize the Testing class

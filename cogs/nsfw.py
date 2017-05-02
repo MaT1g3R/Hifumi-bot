@@ -2,9 +2,10 @@
 NSFW cog
 """
 from discord.ext import commands
+from pybooru import Danbooru
+
 from core.checks import is_nsfw
 from core.nsfw_core import danbooru, gelbooru, k_or_y
-from pybooru import Danbooru
 
 
 class Nsfw:

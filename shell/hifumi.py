@@ -7,10 +7,10 @@ from asyncio import coroutine
 from discord.ext.commands import Bot, CommandOnCooldown
 from discord.game import Game
 
-from core.discord_functions import message_sender
-from core.bot_info_core import update_shard_info
 from config.settings import DEFAULT_PREFIX
+from core.bot_info_core import update_shard_info
 from core.checks import nsfw_exception
+from core.discord_functions import message_sender
 
 
 class Hifumi(Bot):

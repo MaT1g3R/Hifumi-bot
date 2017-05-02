@@ -10,11 +10,11 @@ from threading import Timer
 
 from discord import ChannelType, version_info
 
-from core.file_io import read_all_files, read_json, write_json
-from core.helpers import combine_dicts, get_distro
-from core.discord_functions import build_embed, get_prefix
 from config.settings import NAME, DEVS, HELPERS, COLOUR, SUPPORT, TWITTER, \
     WEBSITE
+from core.discord_functions import build_embed, get_prefix
+from core.file_io import read_all_files, read_json, write_json
+from core.helpers import combine_dicts, get_distro
 
 
 def time_elapsed(start_time):
@@ -134,7 +134,7 @@ def build_info_embed(ctx, bot):
     ]
     footer = 'For support please type {0}support. ' \
              'Keep Hifumi alive doing {0}donate. ' \
-             'Open source can be found with {0}git.'\
+             'Open source can be found with {0}git.' \
         .format(get_prefix(bot, ctx.message))
 
     return build_embed(body, COLOUR, author=author, footer=footer)

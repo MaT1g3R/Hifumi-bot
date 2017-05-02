@@ -8,17 +8,16 @@ from random import choice
 from pybooru import Danbooru, PybooruAPIError
 from requests import get, ConnectionError, HTTPError
 
-
 SORRY = 'Sorry! nothing found'
 ERROR = 'Something went wrong with the {} API. ' \
         'Please report this to my owner or await a fix.'
 SEARCH = '//post.json?tags={}'
 FUZZY = 'You have entered invalid {} tags, ' \
-            'here\'s the result of the search using these tags ' \
-            'that I tried to match: `{}`\n'
+        'here\'s the result of the search using these tags ' \
+        'that I tried to match: `{}`\n'
 
 
-def tag_finder(tag, site, db_controller, api: Danbooru=None):
+def tag_finder(tag, site, db_controller, api: Danbooru = None):
     """
     Try to find or fuzzy match tag in db then the site after the attempt
     :param tag: the tag to look for
@@ -51,7 +50,7 @@ def danbooru(search, api: Danbooru, db_controller):
     if len(search) == 0:
         return __danbooru(search, api)
     else:
-        tag_finder_res = [tag_finder(t, 'danbooru',  db_controller, api)
+        tag_finder_res = [tag_finder(t, 'danbooru', db_controller, api)
                           for t in search]
         is_fuzzy = False
         for entry in tag_finder_res:
@@ -118,7 +117,7 @@ def k_or_y(search, site_name, db_controller, limit=0, fuzzy=False):
         if not tags:
             return SORRY
         else:
-            return k_or_y(tags, site_name, db_controller, limit+1, fuzzy)
+            return k_or_y(tags, site_name, db_controller, limit + 1, fuzzy)
     else:
         for tag in search:
             db_controller.write_tag(site_name.lower(), tag)
@@ -167,4 +166,4 @@ def gelbooru(search, db_controller, limit=0, fuzzy=False):
         if not tags:
             return SORRY
         else:
-            return gelbooru(tags, db_controller, limit+1, fuzzy)
+            return gelbooru(tags, db_controller, limit + 1, fuzzy)
