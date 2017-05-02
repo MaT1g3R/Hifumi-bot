@@ -5,6 +5,7 @@ import math
 import resource
 import sys
 import time
+import platform
 from os.path import join
 from threading import Timer
 
@@ -118,7 +119,7 @@ def build_info_embed(ctx, bot):
         (NAME, 'Stats order are shown as shard/general.', False),
         ('RAM used', '{0:.2f}MB/{1:.2f}GB'.format(shard_ram, total_ram)),
         ('Uptime', time_elapsed(bot.start_time)),
-        ('Python version', sys.version[:5]),
+        ('Python version', platform.python_version()),
         ('Library',
          'Discord.py v{}.{}.{}'.format(
              version_info.major, version_info.minor, version_info.micro)),
