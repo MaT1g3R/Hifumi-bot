@@ -21,7 +21,6 @@ class BotInfo:
     async def info(self, ctx):
         """
         Displays the bot info
-        :return: 
         """
         await self.bot.say(embed=build_info_embed(ctx, self.bot))
 
@@ -34,6 +33,9 @@ class BotInfo:
 
     @commands.command()
     async def donate(self):
+        """
+        Display the donate message
+        """
         await self.bot.say("Thanks for your generosity! "
                            "Hifumi#8451 and Rem#5307 are alive thanks to "
                            "your help and our dearest contributor (Wolke) help."
@@ -51,6 +53,9 @@ class BotInfo:
 
     @commands.command()
     async def git(self):
+        """
+        Display the git repo
+        """
         await self.bot.say(
             'Open source can be found here: '
             '<https://github.com/hifumibot/hifumibot>\n'
@@ -59,10 +64,16 @@ class BotInfo:
 
     @commands.command()
     async def help(self):
+        """
+        help command
+        """
         await self.bot.say('Coming Soon')
 
     @commands.command()
     async def ping(self):
+        """
+        ping command
+        """
         start_time = int(round(time.time() * 1000))
         msg = await self.bot.say('Pong! :hourglass:')
         end_time = int(round(time.time() * 1000))
@@ -71,6 +82,9 @@ class BotInfo:
 
     @commands.command()
     async def invite(self):
+        """
+        Display invite link
+        """
         await self.bot.say(
             "Use this link to invite me to your server:\n"
             "**NOTE: Select all permissions as needed but it's"
