@@ -26,6 +26,8 @@
   "nsfw_error": "Something went wrong with the {} API. Please report this to my owner or await a fix.",
   "nsfw_fuzzy": "You have entered invalid {} tags, here is the result of the search using these tags that I tried to match: `{}`\n",
   "language": "The language for this server is: `{}`",
-  "language_list": "The list of available languages are: ```{}```"
+  "language_list": "The list of available languages are: ```{}```",
+  "bad_word": ":no_entry_sign: Sorry! Search is not happening. The following query: `{}` contains a word that is against Discord guidelines regarding NSFW. Please try again with something else.",
+  "gtn_artist": "Support the artist: <https://www.patreon.com/collateralds>"
 }
 

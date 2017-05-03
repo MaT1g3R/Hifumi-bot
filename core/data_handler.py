@@ -10,6 +10,7 @@ class DataHandler:
         Initialize a instance of DataHandler
         :param path: the path to the database
         """
+        self.path = path
         self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()
 
@@ -45,6 +46,15 @@ class DataHandler:
             sql = '''INSERT INTO nsfw_tags(site, tag) VALUES (?, ?)'''
             self.cursor.execute(sql, (site, tag))
             self.connection.commit()
+
+    def write_tag_list(self, site, tags):
+        """
+        Writes a list of tags into the db
+        :param site: the site name
+        :param tags: the list of tags
+        """
+        for tag in tags:
+            self.write_tag(site, tag)
 
     def tag_in_db(self, site, tag):
         """

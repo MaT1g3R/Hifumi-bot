@@ -7,7 +7,7 @@ from random import choice
 
 from pybooru import Danbooru, PybooruAPIError
 from requests import get, ConnectionError, HTTPError
-
+from config.settings import BAD_WORD
 SEARCH = '//post.json?tags={}'
 
 
@@ -41,6 +41,29 @@ def fuzzy(bot, ctx):
     return bot.get_language_dict(ctx)['nsfw_fuzzy']
 
 
+def random_str(bot, ctx):
+    """
+    Get the string for random search result
+    :param bot: the bot
+    :param ctx: the discord context object
+    :return: the random str
+    """
+    return bot.get_language_dict(ctx)['random_nsfw']
+
+
+def has_bad_word(input_words):
+    """
+    Determine if the search queries has a bad word
+    :param input_words: an iterable of strings
+    :return: the first bad word found
+    """
+    for badword in BAD_WORD:
+        for s in input_words:
+            if badword in s.lower():
+                return s
+    return None
+
+
 def tag_finder(tag, site, db_controller, api: Danbooru = None):
     """
     Try to find or fuzzy match tag in db then the site after the attempt
@@ -56,11 +79,26 @@ def tag_finder(tag, site, db_controller, api: Danbooru = None):
     elif site == 'danbooru':
         tag_response = api.tag_list(name=tag, hide_empty='yes')
         if tag_response and tag_response[0]['name'] == tag:
-            db_controller.write_tag('danbooru', tag)
             return tag, False
         else:
             return db_controller.fuzzy_match_tag(site, tag), True
     return db_controller.fuzzy_match_tag(site, tag), True
+
+
+def tag_list_gen(all_results, site_name):
+    """
+    Generate all the tags from a search
+    :param all_results: all sarch results
+    :param site_name: the site name
+    :return: a list of all tags
+    """
+    site_name = site_name.lower()
+    tag_str = 'tags' if site_name != 'danbooru' else 'tag_string'
+    result = []
+    for r in all_results:
+        tags = str.split(r[tag_str], ' ')
+        result += tags
+    return result
 
 
 def danbooru(bot, ctx, search, api: Danbooru):
@@ -87,9 +125,10 @@ def danbooru(bot, ctx, search, api: Danbooru):
         fuzzy_string = '' if not is_fuzzy else \
             fuzzy(bot, ctx).format('Danbooru', ', '.join(search))
         if len(search) > 0:
-            return fuzzy_string + __danbooru(bot, ctx, search, api)
+            res, tag = __danbooru(bot, ctx, search, api)
+            return fuzzy_string + res, tag
         else:
-            return sorry(bot, ctx)
+            return sorry(bot, ctx), None
 
 
 def __danbooru(bot, ctx, search, api):
@@ -106,10 +145,11 @@ def __danbooru(bot, ctx, search, api):
     try:
         res = api.post_list(tags=' '.join(search), random=True, limit=1)
     except PybooruAPIError:
-        return error(bot, ctx).format('Danbooru')
-    return base + res[0]['large_file_url'] \
-        if len(res) > 0 and 'large_file_url' in res[0] \
-        else sorry(bot, ctx)
+        return error(bot, ctx).format('Danbooru'), None
+    if len(res) > 0 and 'large_file_url' in res[0]:
+        return base + res[0]['large_file_url'], tag_list_gen(res, 'danbooru')
+    else:
+        return sorry(bot, ctx), None
 
 
 def k_or_y(bot, ctx, search, site_name, limit=0, is_fuzzy=False):
@@ -135,7 +175,7 @@ def k_or_y(bot, ctx, search, site_name, limit=0, is_fuzzy=False):
     try:
         res = loads(get(r_url).content)
     except decoder.JSONDecodeError:
-        return error(bot, ctx).format(site_name)
+        return error(bot, ctx).format(site_name), None
     if len(res) <= 0:
         tags = []
         for query in search:
@@ -145,17 +185,16 @@ def k_or_y(bot, ctx, search, site_name, limit=0, is_fuzzy=False):
             if fuz:
                 is_fuzzy = fuz
         if not tags:
-            return sorry(bot, ctx)
+            return sorry(bot, ctx), None
         else:
             return k_or_y(bot, ctx, tags, site_name, limit + 1, is_fuzzy)
     else:
-        for tag in search:
-            db_controller.write_tag(site_name.lower(), tag)
+        tags = tag_list_gen(res, site_name)
         img = choice(res)['file_url']
         res = 'https:' + img if site_name == 'Konachan' else img
         if is_fuzzy:
             res = fuzzy(bot, ctx).format(site_name, ', '.join(search)) + res
-        return res
+        return res, tags
 
 
 def gelbooru(bot, ctx, search, limit=0, is_fuzzy=False):
@@ -198,15 +237,57 @@ def gelbooru(bot, ctx, search, limit=0, is_fuzzy=False):
         if not tags:
             return sorry(bot, ctx)
         else:
-            return gelbooru(bot, ctx, tags,  limit + 1, is_fuzzy)
+            return gelbooru(bot, ctx, tags, limit + 1, is_fuzzy)
 
 
-def random_str(bot, ctx):
+def e621(bot, ctx, search, limit=0, is_fuzzy=False):
     """
-    Get the string for random search result
+    Search e621 for lewds
     :param bot: the bot
-    :param ctx: the discord context object
-    :return: the random str
+    :param ctx: the discord context
+    :param search: the search terms
+    :param limit: max recursion depth to prevent infinite recursion
+    :param is_fuzzy: if the search is fuzzy
+    :return: the lewds
     """
-    return bot.get_language_dict(ctx)['random_nsfw']
+    db_controller = bot.data_handler
+    if limit > 2:
+        return sorry(bot, ctx)
+    url = 'https://e621.net/post/index.json?limit=30&tags=' + '%20'.join(search)
+    try:
+        res = loads(get(url).content)
+    except decoder.JSONDecodeError:
+        return error(bot, ctx).format('e621'), None
+    if len(res) > 0:
+        img = choice(res)['file_url']
+        fuz = fuzzy(bot, ctx).format('e621', ', '.join(search)) if is_fuzzy \
+            else ''
+        return fuz + img, tag_list_gen(res, 'e621')
+    else:
+        tags = []
+        for query in search:
+            res, fuz = tag_finder(query, 'e621', db_controller)
+            if fuz:
+                is_fuzzy = fuz
+            if res is not None:
+                tags.append(res)
+        if not tags:
+            return sorry(bot, ctx), None
+        else:
+            return e621(bot, ctx, tags, limit + 1, is_fuzzy)
 
+
+def greenteaneko(ctx, bot):
+    """
+    Get a random green tea neko comic
+    :param ctx: the discord context
+    :param bot: the bot
+    :return: the green tea neko comic
+    """
+    url = 'https://rra.ram.moe/i/r?type=nsfw-gtn&nsfw=true'
+    try:
+        result = loads(get(url).content)
+        credit = bot.get_language_dict(ctx)['gtn_artist']
+        return 'https://rra.ram.moe' + result['path'] + '\n' + credit
+    except decoder.JSONDecodeError:
+        error(bot, ctx).format('rra.ram.moe')
