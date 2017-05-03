@@ -8,13 +8,37 @@ from random import choice
 from pybooru import Danbooru, PybooruAPIError
 from requests import get, ConnectionError, HTTPError
 
-SORRY = 'Sorry! nothing found'
-ERROR = 'Something went wrong with the {} API. ' \
-        'Please report this to my owner or await a fix.'
 SEARCH = '//post.json?tags={}'
-FUZZY = 'You have entered invalid {} tags, ' \
-        'here\'s the result of the search using these tags ' \
-        'that I tried to match: `{}`\n'
+
+
+def sorry(bot, ctx):
+    """
+    Get the sorry string for nsfw
+    :param bot: the bot
+    :param ctx: the discord context object
+    :return: the nsfw sorry message
+    """
+    return bot.get_language_dict(ctx)['nsfw_sorry']
+
+
+def error(bot, ctx):
+    """
+    Get the nsfw error string
+    :param bot: the bot
+    :param ctx: the discord context 
+    :return: the nsfw error sting
+    """
+    return bot.get_language_dict(ctx)['nsfw_error']
+
+
+def fuzzy(bot, ctx):
+    """
+    Get the nsfw fuzzy string
+    :param bot: the bot
+    :param ctx: the discord context
+    :return: the nsfw fuzzy string
+    """
+    return bot.get_language_dict(ctx)['nsfw_fuzzy']
 
 
 def tag_finder(tag, site, db_controller, api: Danbooru = None):
@@ -39,16 +63,18 @@ def tag_finder(tag, site, db_controller, api: Danbooru = None):
     return db_controller.fuzzy_match_tag(site, tag), True
 
 
-def danbooru(search, api: Danbooru, db_controller):
+def danbooru(bot, ctx, search, api: Danbooru):
     """
     Search danbooru for lewds
     :param search: the search terms
+    :param bot: the bot
+    :param ctx: the discord context
     :param api: the danbooru api object
-    :param db_controller: the db controller
     :return: lewds
     """
+    db_controller = bot.data_handler
     if len(search) == 0:
-        return __danbooru(search, api)
+        return __danbooru(bot, ctx, search, api)
     else:
         tag_finder_res = [tag_finder(t, 'danbooru', db_controller, api)
                           for t in search]
@@ -59,17 +85,19 @@ def danbooru(search, api: Danbooru, db_controller):
                 break
         search = [t[0] for t in tag_finder_res if t[0] is not None]
         fuzzy_string = '' if not is_fuzzy else \
-            FUZZY.format('Danbooru', ', '.join(search))
+            fuzzy(bot, ctx).format('Danbooru', ', '.join(search))
         if len(search) > 0:
-            return fuzzy_string + __danbooru(search, api)
+            return fuzzy_string + __danbooru(bot, ctx, search, api)
         else:
-            return SORRY
+            return sorry(bot, ctx)
 
 
-def __danbooru(search, api):
+def __danbooru(bot, ctx, search, api):
     """
     A helper function for danbooru search
     :param search: the search terms
+    :param bot: the bot
+    :param ctx: the discord context
     :param api: the danbooru api 
     :return: a danbooru url if something is found else sorry string,
     or error string if API error is raised
@@ -78,25 +106,27 @@ def __danbooru(search, api):
     try:
         res = api.post_list(tags=' '.join(search), random=True, limit=1)
     except PybooruAPIError:
-        return ERROR.format('Danbooru')
+        return error(bot, ctx).format('Danbooru')
     return base + res[0]['large_file_url'] \
         if len(res) > 0 and 'large_file_url' in res[0] \
-        else SORRY
+        else sorry(bot, ctx)
 
 
-def k_or_y(search, site_name, db_controller, limit=0, fuzzy=False):
+def k_or_y(bot, ctx, search, site_name, limit=0, is_fuzzy=False):
     """
     Search konachan or yandere for lewds
+    :param bot: the bot
+    :param ctx: the discord context
     :param search: the search terms
     :param site_name: which site to search for 
-    :param db_controller: the database controller
     :param limit: the limit of the recursion depth, 
     to prevent infinite recursion
-    :param fuzzy: indicates if this search is a fuzzy result
+    :param is_fuzzy: indicates if this search is a fuzzy result
     :return: lewds
     """
+    db_controller = bot.data_handler
     if limit > 2:
-        return SORRY
+        return sorry(bot, ctx)
     base = {
         'Konachan': 'https://konachan.com',
         'Yandere': 'https://yande.re'
@@ -105,7 +135,7 @@ def k_or_y(search, site_name, db_controller, limit=0, fuzzy=False):
     try:
         res = loads(get(r_url).content)
     except decoder.JSONDecodeError:
-        return ERROR.format(site_name)
+        return error(bot, ctx).format(site_name)
     if len(res) <= 0:
         tags = []
         for query in search:
@@ -113,47 +143,49 @@ def k_or_y(search, site_name, db_controller, limit=0, fuzzy=False):
             if res is not None:
                 tags.append(res)
             if fuz:
-                fuzzy = fuz
+                is_fuzzy = fuz
         if not tags:
-            return SORRY
+            return sorry(bot, ctx)
         else:
-            return k_or_y(tags, site_name, db_controller, limit + 1, fuzzy)
+            return k_or_y(bot, ctx, tags, site_name, limit + 1, is_fuzzy)
     else:
         for tag in search:
             db_controller.write_tag(site_name.lower(), tag)
         img = choice(res)['file_url']
         res = 'https:' + img if site_name == 'Konachan' else img
-        if fuzzy:
-            res = FUZZY.format(site_name, ', '.join(search)) + res
+        if is_fuzzy:
+            res = fuzzy(bot, ctx).format(site_name, ', '.join(search)) + res
         return res
 
 
-def gelbooru(search, db_controller, limit=0, fuzzy=False):
+def gelbooru(bot, ctx, search, limit=0, is_fuzzy=False):
     """
     Search gelbooru for lewds
+    :param bot: the bot
+    :param ctx: the discord context
     :param search: the search terms
-    :param db_controller: the database controller
     :param limit: the limit of the recursion depth, 
     to prevent infinite recursion
-    :param fuzzy: indicates if this search is a fuzzy result
+    :param is_fuzzy: indicates if this search is a fuzzy result
     :return: lewds
     """
+    db_controller = bot.data_handler
     if limit > 2:
-        return SORRY
+        return sorry(bot, ctx)
     url = "https://gelbooru.com//index.php?page=dapi&s=post&q=index&tags={}" \
         .format('%20'.join(search))
     try:
         result = get(url).content
     except ConnectionError and HTTPError:
-        return ERROR.format('Gelbooru')
+        return error(bot, ctx).format('Gelbooru')
     root = Et.fromstring(result)
     res = ['https:' + child.attrib['file_url'] for child in root]
     if len(res) > 0:
         res = choice(res)
         for tag in search:
             db_controller.write_tag('gelbooru', tag)
-        if fuzzy:
-            res = FUZZY.format('Gelbooru', ', '.join(search)) + res
+        if is_fuzzy:
+            res = fuzzy(bot, ctx).format('Gelbooru', ', '.join(search)) + res
         return res
     else:
         tags = []
@@ -162,11 +194,11 @@ def gelbooru(search, db_controller, limit=0, fuzzy=False):
             if t is not None:
                 tags.append(t)
             if fuz:
-                fuzzy = fuz
+                is_fuzzy = fuz
         if not tags:
-            return SORRY
+            return sorry(bot, ctx)
         else:
-            return gelbooru(tags, db_controller, limit + 1, fuzzy)
+            return gelbooru(bot, ctx, tags,  limit + 1, is_fuzzy)
 
 
 def random_str(bot, ctx):
@@ -177,5 +209,4 @@ def random_str(bot, ctx):
     :return: the random str
     """
     return bot.get_language_dict(ctx)['random_nsfw']
-
 

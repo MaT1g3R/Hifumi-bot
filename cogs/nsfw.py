@@ -28,8 +28,7 @@ class Nsfw:
             return
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
-        await self.bot.say(danbooru(query, self.danbooru_api,
-                                    self.bot.data_handler))
+        await self.bot.say(danbooru(self.bot, ctx, query, self.danbooru_api))
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -37,7 +36,7 @@ class Nsfw:
     async def konachan(self, ctx, *query: str):
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
-        await self.bot.say(k_or_y(query, 'Konachan', self.bot.data_handler))
+        await self.bot.say(k_or_y(self.bot, ctx, query, 'Konachan'))
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -45,7 +44,7 @@ class Nsfw:
     async def yandere(self, ctx, *query: str):
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
-        await self.bot.say(k_or_y(query, 'Yandere', self.bot.data_handler))
+        await self.bot.say(k_or_y(self.bot, ctx, query, 'Yandere'))
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -53,4 +52,4 @@ class Nsfw:
     async def gelbooru(self, ctx, *query: str):
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
-        await self.bot.say(gelbooru(query, self.bot.data_handler))
+        await self.bot.say(gelbooru(self.bot, ctx, query))
