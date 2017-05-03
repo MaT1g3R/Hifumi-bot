@@ -102,11 +102,18 @@ class Hifumi(Bot):
         :return: the language dict
         :rtype: dict
         """
+        return self.language[self.get_language_key(ctx)]
+
+    def get_language_key(self, ctx):
+        """
+        Get the language key of the context
+        :param ctx: the discord context
+        :return: the language key
+        """
         channel = ctx.message.channel
         if channel.type == ChannelType.text:
             server_id = ctx.message.server.id
             lan = self.data_handler.get_language(str(server_id))
-            return self.language[lan] if lan is not None \
-                else self.language[self.default_language]
+            return lan if lan is not None else self.default_language
         else:
-            return self.language[self.default_language]
+            return self.default_language

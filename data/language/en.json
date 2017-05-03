@@ -21,8 +21,11 @@
   "git": "Open source can be found here: <https://github.com/hifumibot/hifumibot>\nAs well as the documentation: <http://hifumibot.xyz/docs>",
   "random_nsfw": "You did not specify a search term, here is a random result.",
   "two_term": "You cannot search for more than 2 tags at a time",
+  "invite": "Use this link to invite me to your server:\n<{}>\n**NOTE: Select all permissions as needed but it's recommended to keep all enabled , so I can work fine.**",
   "nsfw_sorry": "Sorry! nothing found.",
   "nsfw_error": "Something went wrong with the {} API. Please report this to my owner or await a fix.",
-  "nsfw_fuzzy": "You have entered invalid {} tags, here is the result of the search using these tags that I tried to match: `{}`\n"
+  "nsfw_fuzzy": "You have entered invalid {} tags, here is the result of the search using these tags that I tried to match: `{}`\n",
+  "language": "The language for this server is: `{}`",
+  "language_list": "The list of available languages are: ```{}```"
 }
 

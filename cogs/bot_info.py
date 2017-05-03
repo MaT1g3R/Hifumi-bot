@@ -7,10 +7,10 @@ from discord.ext import commands
 
 from config.settings import INVITE, SUPPORT, WEBSITE, TWITTER
 from core.bot_info_core import build_info_embed
-from shell.hifumi import Hifumi
+
 
 class BotInfo:
-    def __init__(self, bot: Hifumi):
+    def __init__(self, bot):
         """
         Initialized the BotInfo class
         :param bot: the bot object
@@ -64,14 +64,32 @@ class BotInfo:
         await self.bot.edit_message(
             msg, 'Pong! | :timer: {}ms'.format(end_time - start_time))
 
-    @commands.command()
-    async def invite(self):
+    @commands.command(pass_context=True)
+    async def invite(self, ctx):
         """
         Display invite link
         """
         await self.bot.say(
-            "Use this link to invite me to your server:\n"
-            "**NOTE: Select all permissions as needed but it's"
-            " recommendable to keep enabled all, so I can work fine.**\n"
-            "<{}>".format(INVITE)
+            self.bot.get_language_dict(ctx)['invite'].format(INVITE))
+
+    @commands.command(pass_context=True, no_pm=True)
+    async def language(self, ctx):
+        """
+        Get the language of the server
+        :param ctx: the context
+        """
+        lan = self.bot.get_language_key(ctx)
+        await self.bot.say(
+            self.bot.get_language_dict(ctx)['language'].format(lan))
+
+    @commands.command(pass_context=True)
+    async def languagelist(self, ctx):
+        """
+        Get a list of languages
+        :param ctx: the discord context
+        """
+        lst = sorted(list(self.bot.language.keys()))
+        await self.bot.say(
+            self.bot.get_language_dict(ctx)['language_list']
+                .format('\n'.join(lst))
         )
