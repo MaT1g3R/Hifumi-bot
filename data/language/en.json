@@ -17,7 +17,7 @@
   "sharding": "Sharding",
   "footer": "For support please type {0}support. Keep Hifumi alive doing {0}donate. Open source can be found with {0}git.",
   "support": "Looking for support? Here's our support server: {} \n\nAnd also our social networks:\nTwitter: <{}>\nWebsite: <{}>",
-  "donate": "Thanks for your generosity! Hifumi#8451 and Rem#5307 are alive thanks to your help and our dearest contributor (Wolke) help. If you want to donate, please consider going to the following link: <http://www.hifumibot.xyz/donate>. Once you donate, make sure to DM Underforest#1284 with a proof of your donation, so you can get a special bonus for you. This includes a personal \"thank you\" from Wolke and Underforest, Donators role for Hifumi and Rem support servers, early beta testing for both bots, special Hifumi features for donators and so much more.",
+  "donate": "Thanks for your generosity! Hifumi#8451 and Rem#5307 are alive thanks to your help and our dearest contributor (Wolke) help. If you want to donate, please consider going to the following link: <http://www.hifumibot.xyz/donate.html>. Once you donate, make sure to DM Underforest#1284 with a proof of your donation, so you can get a special bonus for you. This includes a personal \"thank you\" from Wolke and Underforest, Donators role for Hifumi and Rem support servers, early beta testing for both bots, special Hifumi features for donators and so much more.",
   "git": "Open source can be found here: <https://github.com/hifumibot/hifumibot>\nAs well as the documentation: <http://hifumibot.xyz/docs>",
   "random_nsfw": "You did not specify a search term, here is a random result.",
   "two_term": "You cannot search for more than 2 tags at a time"
