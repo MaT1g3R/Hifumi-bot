@@ -435,7 +435,7 @@ def maintenance_menu():
         clear_screen()
 
 
-def run_hifumi(autorestart, shardmode):
+def run_hifumi(autorestart):
     """
     Prints the options from the requirement menu.
     :return: The requirements menu.
