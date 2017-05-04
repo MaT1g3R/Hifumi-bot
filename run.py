@@ -16,3 +16,4 @@ if __name__ == '__main__':
             channel_reader.ChannelReader(bot), nsfw.Nsfw(bot)]
 
     bot.start_bot(cogs, TOKEN)
+
