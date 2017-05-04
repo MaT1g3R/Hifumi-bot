@@ -4,10 +4,10 @@ A sqlite3 database handler
 import sqlite3
 
 
-class DataHandler:
+class DataController:
     def __init__(self, path):
         """
-        Initialize a instance of DataHandler
+        Initialize a instance of DataController
         :param path: the path to the database
         """
         self.path = path
