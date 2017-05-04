@@ -276,7 +276,6 @@ def download_ffmpeg(bitness):
 
     for filename in FFMPEG_FILES:
         if os.path.isfile(filename):
-            # TODO What is the end argument for?
             warning("{} already present. Verifying integrity... "
                     "".format(filename), end="")
             _hash = calculate_md5(filename)
@@ -298,7 +297,6 @@ def download_ffmpeg(bitness):
     for filename, _hash in FFMPEG_FILES.items():
         if filename in verified:
             continue
-        # TODO What is the end argument for?
         info("Verifying {}... ".format(filename), end="")
         if not calculate_md5(filename) != _hash:
             info("Passed.")
@@ -605,15 +603,14 @@ def edit_settings():
     Opens settings.py file in the notepad if present.
     :return: The action or an exception if an error ocurred.
     """
-    # TODO Don't use note pad to edit this
-    try:
+    if os.path.isfile(os.path.join('config', 'settings.py')):
         if IS_WINDOWS:
             subprocess.call(['start', 'notepad', './config/settings.py'])
         elif IS_MAC:
             subprocess.call(['open', '-a', 'TextEdit', './config/settings.py'])
         else:
             subprocess.call(['sudo', 'nano', './config/settings.py'])
-    except FileNotFoundError:
+    else:
         error(
             "An error ocurred while opening the "
             "settings into editor. Please check "
