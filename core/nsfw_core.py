@@ -7,7 +7,9 @@ from random import choice
 
 from pybooru import Danbooru, PybooruAPIError
 from requests import get, ConnectionError, HTTPError
+
 from config.settings import BAD_WORD
+
 SEARCH = '//post.json?tags={}'
 
 
@@ -64,25 +66,19 @@ def has_bad_word(input_words):
     return None
 
 
-def tag_finder(tag, site, db_controller, api: Danbooru = None):
+def tag_finder(tag, site, db_controller):
     """
     Try to find or fuzzy match tag in db then the site after the attempt
     :param tag: the tag to look for
     :param site: the site name
-    :param api: the danbooru api
     :param db_controller: the db controller
     :return: (tag, is_fuzzy)
     :rtype: tuple
     """
     if db_controller.tag_in_db(site, tag):
         return tag, False
-    elif site == 'danbooru':
-        tag_response = api.tag_list(name=tag, hide_empty='yes')
-        if tag_response and tag_response[0]['name'] == tag:
-            return tag, False
-        else:
-            return db_controller.fuzzy_match_tag(site, tag), True
-    return db_controller.fuzzy_match_tag(site, tag), True
+    else:
+        return db_controller.fuzzy_match_tag(site, tag), True
 
 
 def tag_list_gen(all_results, site_name):
@@ -98,35 +94,37 @@ def tag_list_gen(all_results, site_name):
     for r in all_results:
         tags = str.split(r[tag_str], ' ')
         result += tags
-    return result
+    return result + ['rating:safe', 'rating:explicit', 'rating:questionable']
 
 
-def danbooru(bot, ctx, search, api: Danbooru):
+def danbooru(bot, ctx, search, api: Danbooru, limit=0, is_fuzzy=False):
     """
     Search danbooru for lewds
     :param search: the search terms
     :param bot: the bot
     :param ctx: the discord context
     :param api: the danbooru api object
+    :param limit: limit to prevent infinite recursion
+    :param is_fuzzy: if the search is is_fuzzy
     :return: lewds
     """
+    if limit > 2:
+        return sorry(bot, ctx), None
     db_controller = bot.data_handler
-    if len(search) == 0:
-        return __danbooru(bot, ctx, search, api)
+    res, tags, success = __danbooru(bot, ctx, search, api)
+    if success:
+        if is_fuzzy:
+            res = fuzzy(bot, ctx).format('danbooru', ', '.join(search)) + res
+        return res, tags
     else:
-        tag_finder_res = [tag_finder(t, 'danbooru', db_controller, api)
-                          for t in search]
-        is_fuzzy = False
-        for entry in tag_finder_res:
-            if entry[1] is True:
+        tag_res = [tag_finder(t, 'danbooru', db_controller) for t in search]
+        new_tags = [t[0] for t in tag_res if t[0] is not None]
+        for t in tag_res:
+            if t[1]:
                 is_fuzzy = True
                 break
-        search = [t[0] for t in tag_finder_res if t[0] is not None]
-        fuzzy_string = '' if not is_fuzzy else \
-            fuzzy(bot, ctx).format('Danbooru', ', '.join(search))
-        if len(search) > 0:
-            res, tag = __danbooru(bot, ctx, search, api)
-            return fuzzy_string + res, tag
+        if new_tags:
+            return danbooru(bot, ctx, new_tags, api, limit + 1, is_fuzzy)
         else:
             return sorry(bot, ctx), None
 
@@ -145,11 +143,12 @@ def __danbooru(bot, ctx, search, api):
     try:
         res = api.post_list(tags=' '.join(search), random=True, limit=1)
     except PybooruAPIError:
-        return error(bot, ctx).format('Danbooru'), None
+        return error(bot, ctx).format('Danbooru'), None, False
     if len(res) > 0 and 'large_file_url' in res[0]:
-        return base + res[0]['large_file_url'], tag_list_gen(res, 'danbooru')
+        return base + res[0]['large_file_url'], \
+               tag_list_gen(res, 'danbooru'), True
     else:
-        return sorry(bot, ctx), None
+        return sorry(bot, ctx), None, False
 
 
 def k_or_y(bot, ctx, search, site_name, limit=0, is_fuzzy=False):
