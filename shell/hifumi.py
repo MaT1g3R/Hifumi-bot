@@ -1,6 +1,7 @@
 """
 The hifumi bot object
 """
+import logging
 import time
 from asyncio import coroutine
 from os.path import join
@@ -44,6 +45,16 @@ class Hifumi(Bot):
                          for f in read_all_files(join('data', 'language'))
                          if f.endswith('.json')}
         self.default_language = default_language
+        logger = logging.getLogger('discord')
+        logger.setLevel(logging.DEBUG)
+        handler = logging.FileHandler(
+            filename=join('data', 'logs', '{}.log'.format(self.start_time)),
+            encoding='utf-8',
+            mode='w')
+        handler.setFormatter(
+            logging.Formatter(
+                '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+        logger.addHandler(handler)
 
     async def on_ready(self):
         """
