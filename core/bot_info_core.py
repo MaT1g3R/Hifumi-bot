@@ -9,7 +9,7 @@ from os.path import join
 
 from discord import ChannelType, version_info
 
-from config.settings import NAME, DEVS, HELPERS, COLOUR
+from config.settings import NAME, DEVS, HELPERS, COLOUR, SHARDED
 from core.discord_functions import build_embed, get_prefix
 from core.file_io import read_all_files, read_json
 from core.helpers import combine_dicts, get_distro, comma
@@ -91,22 +91,34 @@ def build_info_embed(ctx, bot):
     total_stat = get_all_shard_info()
     user = bot.user
     author = {'name': user.name, 'icon_url': '{0.avatar_url}'.format(user)}
+    lan = bot.get_language_dict(ctx)
 
     shard_ram = shard_stat['ram']
-    total_ram = total_stat['ram'] / 1024
     shard_server = comma(shard_stat['server_count'])
-    total_server = comma(total_stat['server_count'])
     shard_user = comma(shard_stat['user_count'])
-    total_user = comma(total_stat['user_count'])
     shard_text = comma(shard_stat['text_channel_count'])
-    total_text = comma(total_stat['text_channel_count'])
     shard_voice = comma(shard_stat['voice_count'])
-    total_voice = comma(total_stat['voice_count'])
 
-    lan = bot.get_language_dict(ctx)
-    body = [
-        (NAME, lan['stats_order'], False),
-        (lan['ram_used'], '{0:.2f}MB/{1:.2f}GB'.format(shard_ram, total_ram)),
+    ram_str = '{0:.2f}MB'.format(shard_ram)
+    server_str = shard_server
+    users_str = shard_user
+    text_str = shard_text
+    voice_str = shard_voice
+    if SHARDED:
+        total_ram = total_stat['ram'] / 1024
+        total_server = comma(total_stat['server_count'])
+        total_user = comma(total_stat['user_count'])
+        total_text = comma(total_stat['text_channel_count'])
+        total_voice = comma(total_stat['voice_count'])
+        ram_str += '/{0:.2f}GB'.format(total_ram)
+        server_str += '/' + total_server
+        users_str += '/' + total_user
+        text_str += '/' + total_text
+        voice_str += '/' + total_voice
+
+    body = [(NAME, lan['stats_order'], False)] if SHARDED else []
+    body += [
+        (lan['ram_used'], ram_str),
         (lan['uptime'], time_elapsed(bot, ctx)),
         (lan['python_ver'], platform.python_version()),
         (lan['lib'],
@@ -115,13 +127,15 @@ def build_info_embed(ctx, bot):
         (lan['sys'], get_distro()),
         (lan['devs'], '\n'.join(DEVS)),
         (lan['helper'], '\n'.join(HELPERS)),
-        (lan['servers'], '{}/{}'.format(shard_server, total_server)),
-        (lan['users'], '{}/{}'.format(shard_user, total_user)),
-        (lan['text_channels'], '{}/{}'.format(shard_text, total_text)),
-        (lan['voice_channels'], '{}/{}'.format(shard_voice, total_voice)),
-        (lan['sharding'],
-         '{}/{}'.format(str(bot.shard_id + 1), str(bot.shard_count)))
+        (lan['servers'], server_str),
+        (lan['users'], users_str),
+        (lan['text_channels'], text_str),
+        (lan['voice_channels'], voice_str),
     ]
+    if SHARDED:
+        body += [(lan['sharding'],
+                  '{}/{}'.format(str(bot.shard_id + 1), str(bot.shard_count)))]
+
     footer = lan['footer'].format(get_prefix(bot, ctx.message))
 
     return build_embed(body, COLOUR, author=author, footer=footer)

@@ -11,6 +11,7 @@ from discord.ext.commands import Bot, CommandOnCooldown
 from discord.game import Game
 
 from config.settings import DEFAULT_PREFIX
+from config.settings import SHARDED
 from core.bot_info_core import generate_shard_info
 from core.checks import nsfw_exception
 from core.discord_functions import command_error_handler
@@ -48,13 +49,16 @@ class Hifumi(Bot):
         """
         Event for the bot is ready
         """
-        g = '{}/{} | ~help'.format(self.shard_id + 1, self.shard_count)
+        g = '{}help'.format(self.default_prefix)
+        if SHARDED:
+            g = '{}/{} | '.format(self.shard_id + 1, self.shard_count) + g
         print('Logged in as')
         print(self.user.name)
         print(self.user.id)
         print('------')
         await self.change_presence(game=Game(name=g))
-        self.update_shard_info()
+        if SHARDED:
+            self.update_shard_info()
 
     @coroutine
     async def on_command_error(self, exception, context):

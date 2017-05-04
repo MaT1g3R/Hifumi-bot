@@ -47,3 +47,8 @@ BAD_WORD = ['loli', 'l0l1', 'lol1', 'l0li', '7071', 'lolii', 'looli', 'lolli',
             'takimoto', 'child', 'children', 'cp', 'preteen', 'teen', 'gore',
             'g0r3', 'g0re', 'underforest', 'ch1ld', 'kid', 'k1d', 'kiddo',
             'ロリ', 'ロリコン', 'pico', 'ショタコン', 'ショタ']
+
+# Setting for sharding, defualts to not sharded
+SHARDED = False
+SHARD_ID = 0
+SHARD_COUNT = 1
