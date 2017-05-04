@@ -6,13 +6,12 @@ import platform
 import resource
 import time
 from os.path import join
-from threading import Timer
 
 from discord import ChannelType, version_info
 
 from config.settings import NAME, DEVS, HELPERS, COLOUR
 from core.discord_functions import build_embed, get_prefix
-from core.file_io import read_all_files, read_json, write_json
+from core.file_io import read_all_files, read_json
 from core.helpers import combine_dicts, get_distro, comma
 
 
@@ -62,18 +61,6 @@ def generate_shard_info(bot):
         'voice_count': voice_count,
         'logged_in': bot.is_logged_in
     }
-
-
-def update_shard_info(bot):
-    """
-    Updates the bot shard info every second
-    :param bot: the bot
-    """
-    Timer(1, update_shard_info, args=[bot]).start()
-    shard_id = bot.shard_id
-    file_name = join('data', 'shard_info', 'shard_{}.json'.format(shard_id))
-    content = generate_shard_info(bot)
-    write_json(open(file_name, 'w+'), content)
 
 
 def get_all_shard_info():

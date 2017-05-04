@@ -4,16 +4,17 @@ The hifumi bot object
 import time
 from asyncio import coroutine
 from os.path import join
+from threading import Timer
 
 from discord import ChannelType
 from discord.ext.commands import Bot, CommandOnCooldown
 from discord.game import Game
 
 from config.settings import DEFAULT_PREFIX
-from core.bot_info_core import update_shard_info
+from core.bot_info_core import generate_shard_info
 from core.checks import nsfw_exception
 from core.discord_functions import command_error_handler
-from core.file_io import read_all_files, read_json
+from core.file_io import read_all_files, read_json, write_json
 
 
 class Hifumi(Bot):
@@ -52,8 +53,8 @@ class Hifumi(Bot):
         print(self.user.name)
         print(self.user.id)
         print('------')
-        update_shard_info(self)
         await self.change_presence(game=Game(name=g))
+        self.update_shard_info()
 
     @coroutine
     async def on_command_error(self, exception, context):
@@ -117,3 +118,13 @@ class Hifumi(Bot):
             return lan if lan is not None else self.default_language
         else:
             return self.default_language
+
+    def update_shard_info(self):
+        """
+        Updates the bot shard info every second
+        """
+        Timer(1, self.update_shard_info).start()
+        file_name = join('data', 'shard_info',
+                         'shard_{}.json'.format(self.shard_id))
+        content = generate_shard_info(self)
+        write_json(open(file_name, 'w+'), content)
