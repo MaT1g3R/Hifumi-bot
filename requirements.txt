@@ -1,0 +1,15 @@
+cffi
+PyNaCl
+Pybooru
+aiohttp
+beautifulsoup4
+discord.py
+osu-sig
+pip
+requests
+setuptools
+six
+urllib3
+websockets
+wheel
+youtube-dl
