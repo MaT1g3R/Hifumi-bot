@@ -399,6 +399,26 @@ def maintenance_menu():
     :return: The maintenance menu.
     """
     clear_screen()
+    if not IS_WINDOWS or IS_MAC:
+        warning("Before you continue, please verify this launcher and "
+                "the bot are NOT installed in root folder, in '/' or "
+                "any other important folder from the system to prevent "
+                "that those ones get severely damaged. Proceed?")
+        if user_pick_yes_no():
+                clear_screen()
+                pass
+            else:
+                main()
+    else:
+        warning("Before you continue, please verify this launcher and "
+                "the bot are NOT installed in a system important folder "
+	        "or an instance ran by the system, this to prevent "
+                "that those ones get severely damaged. Proceed?")
+        if user_pick_yes_no():
+                clear_screen()
+                pass
+            else:
+                main()
     while True:
         print("Maintenance:\n")
         print("1. Repair environment (this won't include data)")
