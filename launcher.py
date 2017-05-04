@@ -1,8 +1,10 @@
 from __future__ import print_function
+
 import os
-import sys
 import subprocess
+import sys
 from pathlib import Path
+
 try:
     import urllib.request
     from importlib.util import find_spec
@@ -11,11 +13,10 @@ except ImportError:
 import platform
 import webbrowser
 import hashlib
-import argparse
 import shutil
-import stat
 import time
 import socket
+
 try:
     import pip
 except ImportError:
@@ -28,26 +29,40 @@ FFMPEG_BUILDS_URL = "https://ffmpeg.zeranoe.com/builds/"
 IS_WINDOWS = os.name == "nt"
 IS_MAC = sys.platform == "darwin"
 IS_64BIT = platform.machine().endswith("64")
-PYTHON_OK = sys.version_info >= (3, 6)
-#Python 3.6 or higher due to functions not available in old pythons, specially below 3.0
-BOT_VERSION = "1.0.0" #This one must be a string for the window title for Windows version
 
-FFMPEG_FILES = { #Names encoded for md5 function
-    "ffmpeg.exe"  : "e0d60f7c0d27ad9d7472ddf13e78dc89",
-    "ffplay.exe"  : "d100abe8281cbcc3e6aebe550c675e09",
-    "ffprobe.exe" : "0e84b782c0346a98434ed476e937764f"
+# Python 3.6 or higher due to functions not available in old pythons,
+# specially below 3.0
+PYTHON_OK = sys.version_info >= (3, 6)
+
+# This one must be a string for the window title for Windows version
+BOT_VERSION = "1.0.0"
+
+FFMPEG_FILES = {  # Names encoded for md5 function
+    "ffmpeg.exe": "e0d60f7c0d27ad9d7472ddf13e78dc89",
+    "ffplay.exe": "d100abe8281cbcc3e6aebe550c675e09",
+    "ffprobe.exe": "0e84b782c0346a98434ed476e937764f"
 }
 
-def warning(text):
+
+def warning(text, end=None):
     """
-    Prints a yellow warning. At the moment it's only supported for Linux and Mac.
+    Prints a yellow warning. 
+    At the moment it's only supported for Linux and Mac.
     :return: A warning.
     """
     if IS_WINDOWS:
-        print(text) #Normal white text because Windows shell doesn't support ANSI color :(
+        # Normal white text because Windows shell doesn't support ANSI color :(
+        if end:
+            print(text, end=end)
+        else:
+            print(text)
     else:
-        print('\x1b[33m{}\x1b[0m'.format(text))
-  
+        if end:
+            print('\x1b[33m{}\x1b[0m'.format(text), end=end)
+        else:
+            print('\x1b[33m{}\x1b[0m'.format(text))
+
+
 def error(text):
     """
     Prints a red error. At the moment it's only supported for Linux and Mac.
@@ -58,29 +73,40 @@ def error(text):
     else:
         print('\x1b[31m{}\x1b[0m'.format(text))
 
-def info(text):
+
+def info(text, end=None):
     """
     Prints a green info. At the moment it's only supported for Linux and Mac.
     :return: An info.
     """
     if IS_WINDOWS:
-        print(text)
+        # Normal white text because Windows shell doesn't support ANSI color :(
+        if end:
+            print(text, end=end)
+        else:
+            print(text)
     else:
-        print('\x1b[32m{}\x1b[0m'.format(text))
+        if end:
+            print('\x1b[32m{}\x1b[0m'.format(text), end=end)
+        else:
+            print('\x1b[32m{}\x1b[0m'.format(text))
+
 
 def is_internet_on():
     """
-    Checks if the computer or device that the process it's executing in has stable
+    Checks if the computer or device that the process
+    it's executing in has stable
     Internet connection. This is done by testing the websocket.
     :return: True if Internet is present, otherwise return False.
     """
     try:
-      host = socket.gethostbyname("www.google.com") #Using Google because ¯\_(ツ)_/¯
-      s = socket.create_connection((host, 80), 2)
-      return True
+        # Using Google because ¯\_(ツ)_/¯
+        host = socket.gethostbyname('www.google.com')
+        socket.create_connection((host, 80), 2)
+        return True
     except:
-      pass
-      return False
+        return False
+
 
 def pause():
     """
@@ -89,10 +115,12 @@ def pause():
     """
     input("Press ENTER key to continue.")
 
+
 def install_reqs():
     """
     Installs the required requirements for the environment.
-    :return: Pip call, then exit code. 0 if everything is fine, 1 if error ocurred.
+    :return: Pip call, then exit code. 
+    0 if everything is fine, 1 if error ocurred.
     """
     remove_reqs_readonly()
     interpreter = sys.executable
@@ -120,14 +148,15 @@ def install_reqs():
     if code == 0:
         info("\nPython requirements installed successfully!")
     else:
-        error("\nUh oh! An error ocurred and installation is going to be aborted.\n"
-             "Please fix the error above basing in the docs.\n")
+        error("\nUh oh! An error ocurred and installation is going to "
+              "be aborted.\nPlease fix the error above basing in the docs.\n")
 
 
 def update_pip():
     """
     Updates pip, a.k.a the Python package manager.
-    :return: Pip call, then exit code. 0 if everything is fine, 1 if error ocurred.
+    :return: Pip call, then exit code. 
+    0 if everything is fine, 1 if error ocurred.
     """
     interpreter = sys.executable
 
@@ -146,14 +175,17 @@ def update_pip():
     if code == 0:
         info("\nPip updated successfully to the latest version!")
     else:
-        error("\nUh oh! An error ocurred and installation is going to be aborted.\n"
-             "Please fix the error above basing in the docs.\n")
+        error(
+            "\nUh oh! An error ocurred and installation is going "
+            "to be aborted.\nPlease fix the error above basing in the docs.\n")
 
 
 def update_hifumi():
     """
-    Updates Hifumi via Git. Useful if something wents wrong or if a new version comes out.
-    :return: Git call, then exit code. 0 if went fine, 1 or exception if error ocurred.
+    Updates Hifumi via Git. 
+    Useful if something wents wrong or if a new version comes out.
+    :return: Git call, then exit code. 
+    0 if went fine, 1 or exception if error ocurred.
     """
     try:
         code = subprocess.call(("git", "pull", "--ff-only"))
@@ -165,8 +197,8 @@ def update_hifumi():
         info("\nHifumi is now updated successfully!")
     else:
         error("\nUh oh! An error ocurred and update is going to be aborted.\n"
-             "This error is caused due to environment edits you maybe made. ",
-             "Please fix this by going to the maintenance menu.")
+              "This error is caused due to environment edits you maybe made. "
+              "Please fix this by going to the maintenance menu.")
 
 
 def reset_hifumi(reqs=False, data=False, cogs=False, git_reset=False):
@@ -176,9 +208,11 @@ def reset_hifumi(reqs=False, data=False, cogs=False, git_reset=False):
     :param reqs: Choose to reset the local packages.
     :param data: Choose to reset the data folder.
     :param cogs: Choose to reset the cogs (command modules).
-    :param git_reset: Choose to replace all the environment with the latest commit.
+    :param git_reset: Choose to replace all the 
+    environment with the latest commit.
     :return: For reqs, data, cogs. Folder removing and result or exception
-    (FileNotFoundError or another). If git_reset an exit code. 0 if went fine, 1 if otherwise.
+    (FileNotFoundError or another). 
+    If git_reset an exit code. 0 if went fine, 1 if otherwise.
     """
     if reqs:
         try:
@@ -210,17 +244,21 @@ def reset_hifumi(reqs=False, data=False, cogs=False, git_reset=False):
     if git_reset:
         code = subprocess.call(("git", "reset", "--hard"))
         if code == 0:
-            info("Hifumi repaired successfully! to the last local commit. If the bot",
-                  "it's started, please restart it to make effect.")
+            info(
+                "Hifumi repaired successfully! to the last local commit. "
+                "If the bot is started, please restart it to make effect.")
         else:
             error("The repair has failed.")
 
 
 def download_ffmpeg(bitness):
     """
-    Downloads FFMPEG from the official page. It's a required tool for music commands.
-    :param bitness: Can be 32bit or 64bit in string. This is choosen for the download version.
-    :return: FFMPEG download and a message with instructions for the first time use.
+    Downloads FFMPEG from the official page. 
+    It's a required tool for music commands.
+    :param bitness: Can be 32bit or 64bit in string. 
+    This is choosen for the download version.
+    :return: FFMPEG download and a message 
+    with instructions for the first time use.
     """
     clear_screen()
     repo = "https://github.com/hifumibot/hifumibot"
@@ -228,18 +266,19 @@ def download_ffmpeg(bitness):
 
     if bitness == "32bit":
         info("Please download 'ffmpeg 32bit static' from the page that "
-              "is about to open.\nOnce done, open the 'bin' folder located "
-              "inside the zip.\nThere should be 3 files: ffmpeg.exe, "
-              "ffplay.exe, ffprobe.exe.\nPut all three of them into the "
-              "bot's main folder.")
+             "is about to open.\nOnce done, open the 'bin' folder located "
+             "inside the zip.\nThere should be 3 files: ffmpeg.exe, "
+             "ffplay.exe, ffprobe.exe.\nPut all three of them into the "
+             "bot's main folder.")
         time.sleep(5)
         webbrowser.open(FFMPEG_BUILDS_URL)
         return
 
     for filename in FFMPEG_FILES:
         if os.path.isfile(filename):
+            # TODO What is the end argument for?
             warning("{} already present. Verifying integrity... "
-                  "".format(filename), end="")
+                    "".format(filename), end="")
             _hash = calculate_md5(filename)
             if _hash == FFMPEG_FILES[filename]:
                 verified.append(filename)
@@ -252,13 +291,14 @@ def download_ffmpeg(bitness):
             with open(filename, "wb") as f:
                 f.write(data.read())
         info("FFMPEG downloaded! Please follow the instructions! "
-              "Open the 'bin' folder located inside the zip.\nThere should "
-              "be 3 files: ffmpeg.exe, ffplay.exe, ffprobe.exe.\nPut all "
-              "three of them into the bot's main folder.")
+             "Open the 'bin' folder located inside the zip.\nThere should "
+             "be 3 files: ffmpeg.exe, ffplay.exe, ffprobe.exe.\nPut all "
+             "three of them into the bot's main folder.")
 
     for filename, _hash in FFMPEG_FILES.items():
         if filename in verified:
             continue
+        # TODO What is the end argument for?
         info("Verifying {}... ".format(filename), end="")
         if not calculate_md5(filename) != _hash:
             info("Passed.")
@@ -276,9 +316,10 @@ def verify_requirements():
     sys.path_importer_cache = {}
     spec1 = find_spec("discord")
     spec2 = find_spec("nacl")
-    if (not spec1 and not spec2) or (not spec1 and spec2) or (spec1 and not spec2):
-	#This thing is too messy for my eyes >_<
-        return False 
+    if not spec1 or not spec2:
+        # This thing is too messy for my eyes >_<
+        # Fixed the logic for you >_<
+        return False
     else:
         return True
 
@@ -290,8 +331,8 @@ def is_ffmpeg_installed():
     """
     try:
         subprocess.call(["ffmpeg", "-version"], stdout=subprocess.DEVNULL,
-                                              stdin =subprocess.DEVNULL,
-                                              stderr=subprocess.DEVNULL)
+                        stdin=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL)
     except FileNotFoundError:
         return False
     else:
@@ -305,8 +346,8 @@ def is_git_installed():
     """
     try:
         subprocess.call(["git", "--version"], stdout=subprocess.DEVNULL,
-                                              stdin =subprocess.DEVNULL,
-                                              stderr=subprocess.DEVNULL)
+                        stdin=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL)
     except FileNotFoundError:
         return False
     else:
@@ -405,20 +446,20 @@ def maintenance_menu():
                 "any other important folder from the system to prevent "
                 "that those ones get severely damaged. Proceed?")
         if user_pick_yes_no():
-                clear_screen()
-                pass
+            clear_screen()
+            pass
         else:
-                main()
+            main()
     else:
         warning("Before you continue, please verify this launcher and "
                 "the bot are NOT installed in a system important folder "
-	            "or an instance ran by the system, this to prevent "
+                "or an instance ran by the system, this to prevent "
                 "that those ones get severely damaged. Proceed?")
         if user_pick_yes_no():
-                clear_screen()
-                pass
+            clear_screen()
+            pass
         else:
-                main()
+            main()
     while True:
         print("Maintenance:\n")
         print("1. Repair environment (this won't include data)")
@@ -429,14 +470,14 @@ def maintenance_menu():
         choice = user_choice()
         if choice == "1":
             warning("Any code modification you have made will be lost. Data/"
-                  "non-default cogs will be left intact. Are you sure?")
+                    "non-default cogs will be left intact. Are you sure?")
             if user_pick_yes_no():
                 reset_hifumi(git_reset=True)
                 pause()
         elif choice == "2":
             warning("Are you sure? This will wipe the 'data' folder, which "
-                  "contains all your settings and cogs' data.\nThe 'cogs' "
-                  "folder, however, will be left intact.")
+                    "contains all your settings and cogs' data.\nThe 'cogs' "
+                    "folder, however, will be left intact.")
             if user_pick_yes_no():
                 reset_hifumi(data=True)
                 pause()
@@ -445,9 +486,9 @@ def maintenance_menu():
             pause()
         elif choice == "4":
             warning("Are you sure? This will wipe ALL the installation "
-                  "data.\nYou'll lose all your settings, cogs and any "
-                  "modification you have made.\nThere is no going back, "
-                  "so please be careful and choose wisely.")
+                    "data.\nYou'll lose all your settings, cogs and any "
+                    "modification you have made.\nThere is no going back, "
+                    "so please be careful and choose wisely.")
             if user_pick_yes_no():
                 reset_hifumi(reqs=True, data=True, cogs=True, git_reset=True)
                 pause()
@@ -472,12 +513,14 @@ def run_hifumi(autorestart):
         pause()
         main()
 
-    runScript = Path("./run.py")
-    if runScript.is_file():
+    run_script = Path("./run.py")
+    if run_script.is_file():
         pass
-	#Don't worry about shard mode, that's toggleable via settings.py
+    # Don't worry about shard mode, that's toggleable via settings.py
     else:
-        error("Hifumi's main file to run is not available. Please reinstall Hifumi!")
+        error(
+            "Hifumi's main file to run is not available. "
+            "Please reinstall Hifumi!")
         pause()
         main()
 
@@ -485,7 +528,7 @@ def run_hifumi(autorestart):
         try:
             cmd = (interpreter, "run.py")
             code = subprocess.call(cmd)
-        except KeyboardInterrupt: #Triggered!
+        except KeyboardInterrupt:  # Triggered!
             code = 0
             break
         else:
@@ -501,13 +544,16 @@ def run_hifumi(autorestart):
     error("Hifumi has been terminated recently. Exit code: %d" % code)
     pause()
 
+
 def incorrect_choice():
     """
     Returns an error of menu choose.
-    :return: A message to the user telling that the valid (s)he choosed is invalid.
+    :return: A message to the user 
+    telling that the valid (s)he choosed is invalid.
     """
     error("Incorrect choice! Please try again with a valid choice.")
     pause()
+
 
 def about():
     """
@@ -516,24 +562,39 @@ def about():
     """
     print("Hifumi ~The Discord bot~\n\nGeneral:"
           "Developers: Underforest#1284, InternalLight#9391, "
-          "ラブアローシュート#6728\nVersion: {}".format(BOT_VERSION), "\nHelpers: Wolke#6746\n\n"
-		  #RIP non-UTF8/Unicode encoding users due to 3rd developer Discord name
+          "ラブアローシュート#6728\nVersion: {}".format(BOT_VERSION),
+          "\nHelpers: Wolke#6746\n\n"
+          # RIP non-UTF8/Unicode encoding users 
+          # due to 3rd developer Discord name
           "Website: http://hifumibot.xyz\n\n"
           "Copyright (c) 2017 Hifumi - the Discord Bot Project\n\n"
-          "Permission is hereby granted, free of charge, to any person obtaining a copy\n"
-          "of this software and associated documentation files (the \"Software\"), to deal\n"
-          "in the Software without restriction, including without limitation the rights\n"
-          "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n"
-          "copies of the Software, and to permit persons to whom the Software is\n"
-          "furnished to do so, subject to the following conditions:\n\n"
-          "The above copyright notice and this permission notice shall be included in all\n"
+          "Permission is hereby granted, free of charge, "
+          "to any person obtaining a copy\n"
+          "of this software and associated documentation "
+          "files (the \"Software\"), to deal\n"
+          "in the Software without restriction, "
+          "including without limitation the rights\n"
+          "to use, copy, modify, merge, publish, distribute, "
+          "sublicense, and/or sell\n"
+          "copies of the Software, and to permit persons "
+          "to whom the Software is\n"
+          "furnished to do so, subject to the "
+          "following conditions:\n\n"
+          "The above copyright notice and this "
+          "permission notice shall be included in all\n"
           "copies or substantial portions of the Software.\n\n"
-          "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
-          "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"
-          "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"
-          "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
-          "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"
-          "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n"
+          "THE SOFTWARE IS PROVIDED \"AS IS\", "
+          "WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+          "IMPLIED, INCLUDING BUT NOT LIMITED TO THE "
+          "WARRANTIES OF MERCHANTABILITY,\n"
+          "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. "
+          "IN NO EVENT SHALL THE\n"
+          "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR "
+          "ANY CLAIM, DAMAGES OR OTHER\n"
+          "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, "
+          "TORT OR OTHERWISE, ARISING FROM,\n"
+          "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR "
+          "THE USE OR OTHER DEALINGS IN THE\n"
           "SOFTWARE.\n"
           "\n\n")
     pause()
@@ -544,19 +605,24 @@ def edit_settings():
     Opens settings.py file in the notepad if present.
     :return: The action or an exception if an error ocurred.
     """
+    # TODO Don't use note pad to edit this
     try:
-          if IS_WINDOWS:
-              subprocess.call(['start', 'notepad', './config/settings.py'])
-          elif IS_MAC:
-              subprocess.call(['open', '-a', 'TextEdit', './config/settings.py'])
-          else:
-              subprocess.call(['sudo', 'nano', './config/settings.py'])
+        if IS_WINDOWS:
+            subprocess.call(['start', 'notepad', './config/settings.py'])
+        elif IS_MAC:
+            subprocess.call(['open', '-a', 'TextEdit', './config/settings.py'])
+        else:
+            subprocess.call(['sudo', 'nano', './config/settings.py'])
     except FileNotFoundError:
-          error("An error ocurred while opening the settings into editor. Please check "
-                "that the 'config' folder has the file 'settings.py'. If it has the file "
-                "'sample_settings.py' instead, rename it to 'settings.py', then try again. "
-                "Otherwise reinstall Hifumi from zero.\n")
-          pause()
+        error(
+            "An error ocurred while opening the "
+            "settings into editor. Please check "
+            "that the 'config' folder has the file "
+            "'settings.py'. If it has the file "
+            "'sample_settings.py' instead, rename it "
+            "to 'settings.py', then try again. "
+            "Otherwise reinstall Hifumi from zero.\n")
+        pause()
 
 
 def clear_screen():
@@ -591,7 +657,7 @@ def user_pick_yes_no():
     return choice in yes
 
 
-def remove_readonly(func, path, excinfo):
+def remove_readonly(func, path):
     """
     Removes the files that are read-only and causes a bug in update.
     :return: Read-only files removed.
@@ -634,40 +700,46 @@ def main():
     """
     if not is_internet_on():
         print("You're not connected to Internet! Please check your "
-               "connection and try again")
+              "connection and try again")
         exit(1)
     print("Verifying Git installation...")
     has_git = is_git_installed()
     has_ffmpeg = is_ffmpeg_installed()
-    is_git_installation = os.path.isdir(".git") #Check if .git folder exists
+    is_git_installation = os.path.isdir(".git")  # Check if .git folder exists
     if IS_WINDOWS:
-        os.system("TITLE Hifumi {} ~ Launcher".format(BOT_VERSION)) #Yep!
+        os.system("TITLE Hifumi {} ~ Launcher".format(BOT_VERSION))  # Yep!
 
     while True:
         clear_screen()
-		#ASCII art by RafisStuff (someone#3025)
+        # ASCII art by RafisStuff (someone#3025)
         if not is_git_installation:
             warning("WARNING: This installation was not done via Git\n"
-                  "You probably won't be able to update some things that "
-                  "require this util, for example the bot environment. Please "
-                  "read the license file for more information. "
-                  "If you got this from another source, please reinstall Hifumi"
-                  "as it follows in the guide. "
-                  "http://www.hifumibot.xyz/docs\n\n")
+                    "You probably won't be able to update some things that "
+                    "require this util, "
+                    "for example the bot environment. Please "
+                    "read the license file for more information. "
+                    "If you got this from another "
+                    "source, please reinstall Hifumi"
+                    "as it follows in the guide. "
+                    "http://www.hifumibot.xyz/docs\n\n")
 
         if not has_git:
             warning("WARNING: Git not found. This means that it's either not "
-                  "installed or not in the PATH environment variable like "
-                  "it should be.\n\n")
-				  
+                    "installed or not in the PATH environment variable like "
+                    "it should be.\n\n")
+
         if not has_ffmpeg:
-            warning("WARNING: FFMPEG not found. This means that it's either not "
-                  "installed or not in the PATH environment variable like "
-                  "it should be. This program is needed to run music commands, "
-                  "so please install it before continue!\n\n")
+            warning(
+                "WARNING: FFMPEG not found. This means that it's either not "
+                "installed or not in the PATH environment variable like "
+                "it should be. This program is needed to run music commands, "
+                "so please install it before continue!\n\n")
         if not verify_requirements():
-            error("It looks like you're missing some packages, please install them or "
-			      "you won't be able to run Hifumi. For that, proceed to step 4.\n\n")
+            error(
+                "It looks like you're missing some "
+                "packages, please install them or "
+                "you won't be able to run Hifumi. "
+                "For that, proceed to step 4.\n\n")
         print(" __    __   __   _______  __    __   ___  ___   __\n"
               "|  |  |  | |  | |   ____||  |  |  | |   \/   | |  |    _\n"
               "|  |__|  | |  | |  |__   |  |  |  | |  \  /  | |  |  _| |_\n"
@@ -686,9 +758,9 @@ def main():
         print("\n0. Quit")
         choice = user_choice()
         if choice == "1":
-             run_hifumi(autorestart=True)
+            run_hifumi(autorestart=True)
         elif choice == "2":
-             run_hifumi(autorestart=False)
+            run_hifumi(autorestart=False)
         elif choice == "3":
             update_menu()
         elif choice == "4":
@@ -709,10 +781,12 @@ def main():
         else:
             incorrect_choice()
 
-if __name__ == '__main__':
+
+def run():
     """
     Main function of the program
-    :return: An initialization request to the program or an error if Python/pip is wrong.
+    :return: An initialization request to the 
+    program or an error if Python/pip is wrong.
     """
     abspath = os.path.abspath(__file__)
     dirname = os.path.dirname(abspath)
@@ -725,9 +799,14 @@ if __name__ == '__main__':
         exit(1)
     elif not pip:
         error("Hey! Python is installed but you missed the pip module. Please"
-              "install Python without unchecking any option during the setup >_<")
+              "install Python without "
+              "unchecking any option during the setup >_<")
         pause()
         exit(1)
     else:
         info("Initializating...")
         main()
+
+
+if __name__ == '__main__':
+    run()
