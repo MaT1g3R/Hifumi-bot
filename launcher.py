@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import sys
 import subprocess
+from pathlib import Path
 try:
     import urllib.request
     from importlib.util import find_spec
@@ -448,13 +449,21 @@ def run_hifumi(autorestart):
     if not verify_requirements():
         error("You don't have the requirements that are needed to "
               "start the bot. Please install them first and try again.")
-        exit(1)
+        pause()
+        main()
 
-    cmd = (interpreter, "run.py")
+    runScript = Path("./run.py")
+    if runScript.is_file():
+        pass
 	#Don't worry about shard mode, that's toggleable via settings.py
+    else:
+        error("Hifumi's main file to run is not available. Please reinstall Hifumi!")
+        pause()
+        main()
 
     while True:
         try:
+            cmd = (interpreter, "run.py")
             code = subprocess.call(cmd)
         except KeyboardInterrupt: #Triggered!
             code = 0
@@ -469,8 +478,7 @@ def run_hifumi(autorestart):
                 if not autorestart:
                     break
 
-    error("Hifumi has terminated recently. Exit code: %d" % code)
-
+    error("Hifumi has been terminated recently. Exit code: %d" % code)
     pause()
 
 def incorrect_choice():
