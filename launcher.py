@@ -28,6 +28,8 @@ REQS_TXT = "requirements.txt"
 FFMPEG_BUILDS_URL = "https://ffmpeg.zeranoe.com/builds/"
 IS_WINDOWS = os.name == "nt"
 IS_MAC = sys.platform == "darwin"
+IS_LINUX = sys.platform.startswith("linux") or os.name == "posix"
+SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX
 IS_64BIT = platform.machine().endswith("64")
 
 # Python 3.6 or higher due to functions not available in old pythons,
@@ -95,8 +97,8 @@ def info(text, end=None):
 def is_internet_on():
     """
     Checks if the computer or device that the process
-    it's executing in has stable
-    Internet connection. This is done by testing the websocket.
+    it's executing in has stable Internet connection.
+    This is done by testing the websocket.
     :return: True if Internet is present, otherwise return False.
     """
     try:
@@ -697,7 +699,7 @@ def main():
     """
     if not is_internet_on():
         print("You're not connected to Internet! Please check your "
-              "connection and try again")
+              "connection and try again.")
         exit(1)
     print("Verifying Git installation...")
     has_git = is_git_installed()
@@ -788,17 +790,23 @@ def run():
     abspath = os.path.abspath(__file__)
     dirname = os.path.dirname(abspath)
     os.chdir(dirname)
-    if not PYTHON_OK:
+    if not SYSTEM_OK:
+        error("Sorry! This operative system is not compatible with "
+             "Hifumi's environment and might not run at all. Hifumi "
+             "it's only supported for Windows, Mac, Linux and "
+             "Raspberry Pi. Please install one of those OS and try "
+             "again.")
+        exit(1)
+    elif not PYTHON_OK:
         error("Sorry! This Python version is not compatible. Hifumi needs "
-              "Python 3.6 or superior. Install the required version and "
-              "try again.\n")
-        pause()
+              "Python 3.6 or superior. You have Python {} version.\n"
+              .format(platform.python_version()), "Install the required"
+              "version and try again.\n")
         exit(1)
     elif not pip:
         error("Hey! Python is installed but you missed the pip module. Please"
               "install Python without "
               "unchecking any option during the setup >_<")
-        pause()
         exit(1)
     else:
         info("Initializating...")
