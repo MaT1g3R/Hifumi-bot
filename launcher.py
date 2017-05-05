@@ -605,17 +605,17 @@ def edit_settings():
     Opens settings.py file in the notepad if present.
     :return: The action or an exception if an error ocurred.
     """
-    settings_exist = os.path.isfile(os.path.join('config', 'settings.py'))
-    sample_exist = os.path.isfile(os.path.join('config', 'sample_settings.py'))
     path = os.path.join('config', 'settings.py')
     sample_path = os.path.join('config', 'settings.py')
+    settings_exist = os.path.isfile(path)
+    sample_exist = os.path.isfile(sample_path)
     if not settings_exist and sample_exist:
         info("It looks like it\'s your first time running Hifumi launcher.\n"
              "Settings is going to be renamed to "
              "settings.py so you can open it further later.\n")
         pause()
         os.rename(sample_path, path)
-        settings_exist = os.path.isfile(os.path.join('config', 'settings.py'))
+        edit_settings()
     if settings_exist:
         __edit_settings(path)
     else:
