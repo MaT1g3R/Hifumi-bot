@@ -2,3 +2,7 @@ python3.6*
 libffi*
 build-essential*
 libsodium*
+nodejs*
+screenfetch
+nano
+ffmpeg*
