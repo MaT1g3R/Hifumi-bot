@@ -1,7 +1,7 @@
 """
 The main run file.
 """
-from cogs import bot_info, testing, channel_reader, nsfw, roles
+from cogs import bot_info, testing, channel_reader, nsfw, roles, moderation
 from config.settings import TOKEN, SHARD_COUNT, SHARD_ID, SHARDED
 from core.discord_functions import get_prefix
 from shell.hifumi import Hifumi
@@ -13,6 +13,7 @@ if __name__ == '__main__':
     else:
         bot = Hifumi(get_prefix)
     cogs = [bot_info.BotInfo(bot), testing.Testing(bot),
-            channel_reader.ChannelReader(bot), nsfw.Nsfw(bot), roles.Roles(bot)]
+            channel_reader.ChannelReader(bot), nsfw.Nsfw(bot), roles.Roles(bot),
+            moderation.Moderation(bot)]
 
     bot.start_bot(cogs, TOKEN)

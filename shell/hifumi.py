@@ -13,7 +13,7 @@ from discord.game import Game
 
 from config.settings import DEFAULT_PREFIX, SHARDED, DATA_CONTROLLER
 from core.bot_info_core import generate_shard_info
-from core.checks import NsfwError, BadWordError, ManageRoleError
+from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, ManageMessageError
 from core.discord_functions import command_error_handler
 from core.file_io import read_all_files, read_json, write_json
 
@@ -78,7 +78,9 @@ class Hifumi(Bot):
         if isinstance(exception, CommandOnCooldown) \
                 or isinstance(exception, NsfwError) \
                 or isinstance(exception, BadWordError) \
-                or isinstance(exception, ManageRoleError):
+                or isinstance(exception, ManageRoleError) \
+                or isinstance(exception, AdminError) \
+                or isinstance(exception, ManageMessageError):
             await command_error_handler(self, exception, context)
         elif str(exception) == 'Command "eval" is not found':
             return

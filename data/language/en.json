@@ -40,6 +40,11 @@
   "unrole_me_success": ":hotsprings: OK, you no longer have the role **{}**",
   "role_unrole_fail": ":hotsprings: Role not found. Did you type it as it is (case sensitive)? If so, it's maybe removed.",
   "role_unrole_no_exist": "It seems like this role no longer exist in your server. It has been removed from the server role list.",
-  "not_assignable": ":hotsprings: Sorry, this role is not self-assignable."
+  "not_assignable": ":hotsprings: Sorry, this role is not self-assignable.",
+  "not_admin": ":no_entry_sign: Sorry, you need administrator premissions to use this command.",
+  "no_manage_messages": ":no_entry_sign: You don't have the permission to manage messages!",
+  "ban_kick_self": ":no_entry_sign: You can't {} yourself",
+  "banned_kicked": ":white_check_mark: I've {} ",
+  "ban_kick_fail": ":no_entry_sign: Failed to {} ",
+  "ban_kick_no_perms": ":no_entry_sign: I don't have the permissions to perform this action."
 }
-

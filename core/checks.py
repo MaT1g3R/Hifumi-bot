@@ -19,6 +19,14 @@ class ManageRoleError(CommandError):
     pass
 
 
+class AdminError(CommandError):
+    pass
+
+
+class ManageMessageError(CommandError):
+    pass
+
+
 def is_nsfw(ctx):
     """
     Detiremine if nsfw is enabled for this channel
@@ -47,11 +55,36 @@ def no_badword(ctx):
 
 def has_manage_role(ctx):
     """
-    Check if an user is an admin
-    :return: True if the user is an admin
+    Check if an user has the manage_roles permissions
+    :param ctx: the context
+    :return: True if the user has the manage_roles permissions
     :rtype: bool
     """
     id_ = ctx.message.author.id
     if ctx.message.server.get_member(id_).server_permissions.manage_roles:
         return True
     raise ManageRoleError
+
+
+def is_admin(ctx):
+    """
+    Check if the user has admin permissions
+    :param ctx: the discord context
+    :return: True if the user has admin permissions
+    """
+    id_ = ctx.message.author.id
+    if ctx.message.server.get_member(id_).server_permissions.administrator:
+        return True
+    raise AdminError
+
+
+def has_manage_message(ctx):
+    """
+    Check if the user has manage message permissions
+    :param ctx: the discord context
+    :return: True if the user has manage message permissions
+    """
+    id_ = ctx.message.author.id
+    if ctx.message.server.get_member(id_).server_permissions.manage_messages:
+        return True
+    raise ManageMessageError
