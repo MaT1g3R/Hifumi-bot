@@ -622,11 +622,11 @@ def edit_settings():
         pause()
         os.rename('./config/sample_settings.py', './config/settings.py')
         if IS_WINDOWS:
-            subprocess.call(['start', 'notepad', './config/settings.py'])
+            subprocess.call(['start', 'notepad', path])
         elif IS_MAC:
-            subprocess.call(['open', '-a', 'TextEdit', './config/settings.py'])
+            subprocess.call(['open', '-a', 'TextEdit', path])
         else:
-            subprocess.call(['sudo', 'nano', './config/settings.py'])
+            editor.edit(filename=path)
     else:
         error(
             "An error ocurred while opening the "
