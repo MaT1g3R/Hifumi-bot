@@ -102,7 +102,6 @@ def is_internet_on():
     :return: True if Internet is present, otherwise return False.
     """
     try:
-        # Using Google because ¯\_(ツ)_/¯
         host = socket.gethostbyname('www.google.com')
         socket.create_connection((host, 80), 2)
         return True
@@ -605,7 +604,21 @@ def edit_settings():
     Opens settings.py file in the notepad if present.
     :return: The action or an exception if an error ocurred.
     """
-    if os.path.isfile(os.path.join('config', 'settings.py')):
+    settings_exist = os.path.isfile(os.path.join('config', 'settings.py'))
+    sample_exist = os.path.isfile(os.path.join('config', 'sample_settings.py'))
+    if settings_exist:
+        if IS_WINDOWS:
+            subprocess.call(['start', 'notepad', './config/settings.py'])
+        elif IS_MAC:
+            subprocess.call(['open', '-a', 'TextEdit', './config/settings.py'])
+        else:
+            subprocess.call(['sudo', 'nano', './config/settings.py'])
+    elif not settings_exist and sample_exist:
+        info("It looks like it\'s your first time running Hifumi launcher.\n"
+             "Settings is going to be renamed to settings.py so you can open it "
+             "further later.\n")
+        pause()
+        os.rename('./config/sample_settings.py', './config/settings.py')
         if IS_WINDOWS:
             subprocess.call(['start', 'notepad', './config/settings.py'])
         elif IS_MAC:
@@ -615,12 +628,8 @@ def edit_settings():
     else:
         error(
             "An error ocurred while opening the "
-            "settings into editor. Please check "
-            "that the 'config' folder has the file "
-            "'settings.py'. If it has the file "
-            "'sample_settings.py' instead, rename it "
-            "to 'settings.py', then try again. "
-            "Otherwise reinstall Hifumi from zero.\n")
+            "settings into editor. If the file does not exist, "
+            "please reinstall Hifumi from zero.\n")
         pause()
 
 
@@ -774,7 +783,7 @@ def main():
             print("Are you sure you want to quit?")
             if user_pick_yes_no():
                 clear_screen()
-                break
+                exit(0)
             else:
                 main()
         else:
@@ -792,19 +801,19 @@ def run():
     os.chdir(dirname)
     if not SYSTEM_OK:
         error("Sorry! This operative system is not compatible with "
-             "Hifumi's environment and might not run at all. Hifumi "
+             "Hifumi's environment and might not run at all.\nHifumi "
              "it's only supported for Windows, Mac, Linux and "
-             "Raspberry Pi. Please install one of those OS and try "
+             "Raspberry Pi.\nPlease install one of those OS and try "
              "again.")
         exit(1)
     elif not PYTHON_OK:
-        error("Sorry! This Python version is not compatible. Hifumi needs "
-              "Python 3.6 or superior. You have Python {} version.\n"
-              .format(platform.python_version()), "Install the required"
-              "version and try again.\n")
+        error("Sorry! This Python version is not compatible.\nHifumi needs "
+              "Python 3.6 or superior. You have Python" +
+              platform.python_version() + " version.\nInstall the "
+              "required version and try again.\n")
         exit(1)
     elif not pip:
-        error("Hey! Python is installed but you missed the pip module. Please"
+        error("Hey! Python is installed but you missed the pip module.\nPlease"
               "install Python without "
               "unchecking any option during the setup >_<")
         exit(1)
