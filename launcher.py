@@ -609,14 +609,14 @@ def edit_settings():
     sample_exist = os.path.isfile(os.path.join('config', 'sample_settings.py'))
     path = os.path.join('config', 'settings.py')
     sample_path = os.path.join('config', 'settings.py')
-    if settings_exist:
-        __edit_settings(path)
-    elif not settings_exist and sample_exist:
+    if not settings_exist and sample_exist:
         info("It looks like it\'s your first time running Hifumi launcher.\n"
              "Settings is going to be renamed to "
              "settings.py so you can open it further later.\n")
         pause()
         os.rename(sample_path, path)
+        settings_exist = os.path.isfile(os.path.join('config', 'settings.py'))
+    if settings_exist:
         __edit_settings(path)
     else:
         error(
@@ -628,6 +628,7 @@ def edit_settings():
 
 def __edit_settings(path):
     """
+    :param path: the file path to edit
     A helper function to edit_settings()
     """
     if IS_WINDOWS:
