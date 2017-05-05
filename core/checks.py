@@ -25,12 +25,10 @@ def is_nsfw(ctx):
     :param ctx: the context
     :return: if nsfw is enabled in this channel
     """
-    res = ctx.message.channel.type == ChannelType.private or \
-          ctx.message.channel.name.lower().startswith('nsfw')
-    if res:
-        return res
-    else:
-        raise NsfwError
+    if ctx.message.channel.type == ChannelType.private \
+            or ctx.message.channel.name.lower().startswith('nsfw'):
+        return True
+    raise NsfwError
 
 
 def no_badword(ctx):
