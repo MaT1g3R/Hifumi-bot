@@ -792,16 +792,16 @@ def run():
     os.chdir(dirname)
     if not SYSTEM_OK:
         error("Sorry! This operative system is not compatible with "
-             "Hifumi's environment and might not run at all. Hifumi "
-             "it's only supported for Windows, Mac, Linux and "
-             "Raspberry Pi. Please install one of those OS and try "
-             "again.")
+              "Hifumi's environment and might not run at all. Hifumi "
+              "it's only supported for Windows, Mac, Linux and "
+              "Raspberry Pi. Please install one of those OS and try "
+              "again.")
         exit(1)
     elif not PYTHON_OK:
         error("Sorry! This Python version is not compatible. Hifumi needs "
               "Python 3.6 or superior. You have Python {} version.\n"
-              .format(platform.python_version()), "Install the required"
-              "version and try again.\n")
+              .format(platform.python_version()) + " Install the required"
+                                                   "version and try again.\n")
         exit(1)
     elif not pip:
         error("Hey! Python is installed but you missed the pip module. Please"
