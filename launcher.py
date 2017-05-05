@@ -24,7 +24,7 @@ except ImportError:
 
 REQS_DIR = "lib"
 sys.path.insert(0, REQS_DIR)
-REQS_TXT = "requirements.txt"
+REQS_TXT = "./config/requirements.txt"
 FFMPEG_BUILDS_URL = "https://ffmpeg.zeranoe.com/builds/"
 IS_WINDOWS = os.name == "nt"
 IS_MAC = sys.platform == "darwin"
