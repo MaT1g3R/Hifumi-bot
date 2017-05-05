@@ -13,4 +13,3 @@ six
 urllib3
 wheel
 youtube-dl
-python-editor
