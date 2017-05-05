@@ -11,8 +11,7 @@ from discord import ChannelType
 from discord.ext.commands import Bot, CommandOnCooldown
 from discord.game import Game
 
-from config.settings import DEFAULT_PREFIX
-from config.settings import SHARDED
+from config.settings import DEFAULT_PREFIX, SHARDED, DATA_CONTROLLER
 from core.bot_info_core import generate_shard_info
 from core.checks import NsfwError, BadWordError
 from core.discord_functions import command_error_handler
@@ -24,12 +23,11 @@ class Hifumi(Bot):
     The hifumi bot class
     """
 
-    def __init__(self, prefix, data_handler, shard_count=1, shard_id=0,
+    def __init__(self, prefix, shard_count=1, shard_id=0,
                  default_language='en'):
         """
         Initialize the bot object
         :param prefix: the function to get prefix for a server
-        :param data_handler: the database handler
         :param shard_count: the shard count, default is 1
         :param shard_id: shard id, default is 0
         :param default_language: the default language of the bot, default is en
@@ -37,7 +35,6 @@ class Hifumi(Bot):
         super().__init__(command_prefix=prefix, shard_count=shard_count,
                          shard_id=shard_id)
         self.default_prefix = DEFAULT_PREFIX
-        self.data_handler = data_handler
         self.shard_id = shard_id
         self.shard_count = shard_count
         self.start_time = time.time()
@@ -130,7 +127,7 @@ class Hifumi(Bot):
         channel = ctx.message.channel
         if channel.type == ChannelType.text:
             server_id = ctx.message.server.id
-            lan = self.data_handler.get_language(str(server_id))
+            lan = DATA_CONTROLLER.get_language(str(server_id))
             return lan if lan is not None else self.default_language
         else:
             return self.default_language

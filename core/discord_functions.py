@@ -4,6 +4,8 @@ A collection of functions that's related to discord
 import discord
 from discord.embeds import Embed
 from discord.ext.commands import CommandOnCooldown
+
+from config.settings import DATA_CONTROLLER
 from core.checks import NsfwError, BadWordError
 from core.helpers import strip_letters
 
@@ -41,7 +43,7 @@ def get_prefix(bot, message: discord.Message):
     """
     if message.server is None:
         return bot.default_prefix
-    res = bot.data_handler.get_prefix(message.server.id)
+    res = DATA_CONTROLLER.get_prefix(message.server.id)
     return res if res is not None else bot.default_prefix
 
 

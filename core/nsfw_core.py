@@ -8,7 +8,7 @@ from random import choice
 from pybooru import Danbooru, PybooruAPIError
 from requests import get, ConnectionError, HTTPError
 
-from config.settings import BAD_WORD
+from config.settings import DATA_CONTROLLER
 
 SEARCH = '//post.json?tags={}'
 
@@ -53,19 +53,18 @@ def random_str(bot, ctx):
     return bot.get_language_dict(ctx)['random_nsfw']
 
 
-def tag_finder(tag, site, db_controller):
+def tag_finder(tag, site):
     """
     Try to find or fuzzy match tag in db then the site after the attempt
     :param tag: the tag to look for
     :param site: the site name
-    :param db_controller: the db controller
     :return: (tag, is_fuzzy)
     :rtype: tuple
     """
-    if db_controller.tag_in_db(site, tag):
+    if DATA_CONTROLLER.tag_in_db(site, tag):
         return tag, False
     else:
-        return db_controller.fuzzy_match_tag(site, tag), True
+        return DATA_CONTROLLER.fuzzy_match_tag(site, tag), True
 
 
 def tag_list_gen(all_results, site_name):
@@ -97,14 +96,13 @@ def danbooru(bot, ctx, search, api: Danbooru, limit=0, is_fuzzy=False):
     """
     if limit > 2:
         return sorry(bot, ctx), None
-    db_controller = bot.data_handler
     res, tags, success = __danbooru(bot, ctx, search, api)
     if success:
         if is_fuzzy:
             res = fuzzy(bot, ctx).format('danbooru', ', '.join(search)) + res
         return res, tags
     else:
-        tag_res = [tag_finder(t, 'danbooru', db_controller) for t in search]
+        tag_res = [tag_finder(t, 'danbooru') for t in search]
         new_tags = [t[0] for t in tag_res if t[0] is not None]
         for t in tag_res:
             if t[1]:
@@ -150,7 +148,6 @@ def k_or_y(bot, ctx, search, site_name, limit=0, is_fuzzy=False):
     :param is_fuzzy: indicates if this search is a fuzzy result
     :return: lewds
     """
-    db_controller = bot.data_handler
     if limit > 2:
         return sorry(bot, ctx)
     base = {
@@ -165,7 +162,7 @@ def k_or_y(bot, ctx, search, site_name, limit=0, is_fuzzy=False):
     if len(res) <= 0:
         tags = []
         for query in search:
-            res, fuz = tag_finder(query, site_name.lower(), db_controller)
+            res, fuz = tag_finder(query, site_name.lower())
             if res is not None:
                 tags.append(res)
             if fuz:
@@ -194,7 +191,6 @@ def gelbooru(bot, ctx, search, limit=0, is_fuzzy=False):
     :param is_fuzzy: indicates if this search is a fuzzy result
     :return: lewds
     """
-    db_controller = bot.data_handler
     if limit > 2:
         return sorry(bot, ctx)
     url = "https://gelbooru.com//index.php?page=dapi&s=post&q=index&tags={}" \
@@ -208,14 +204,14 @@ def gelbooru(bot, ctx, search, limit=0, is_fuzzy=False):
     if len(res) > 0:
         res = choice(res)
         for tag in search:
-            db_controller.write_tag('gelbooru', tag)
+            DATA_CONTROLLER.write_tag('gelbooru', tag)
         if is_fuzzy:
             res = fuzzy(bot, ctx).format('Gelbooru', ', '.join(search)) + res
         return res
     else:
         tags = []
         for tag in search:
-            t, fuz = tag_finder(tag, 'gelbooru', db_controller)
+            t, fuz = tag_finder(tag, 'gelbooru')
             if t is not None:
                 tags.append(t)
             if fuz:
@@ -236,7 +232,6 @@ def e621(bot, ctx, search, limit=0, is_fuzzy=False):
     :param is_fuzzy: if the search is fuzzy
     :return: the lewds
     """
-    db_controller = bot.data_handler
     if limit > 2:
         return sorry(bot, ctx)
     url = 'https://e621.net/post/index.json?limit=30&tags=' + '%20'.join(search)
@@ -252,7 +247,7 @@ def e621(bot, ctx, search, limit=0, is_fuzzy=False):
     else:
         tags = []
         for query in search:
-            res, fuz = tag_finder(query, 'e621', db_controller)
+            res, fuz = tag_finder(query, 'e621')
             if fuz:
                 is_fuzzy = fuz
             if res is not None:

@@ -16,3 +16,5 @@ data/shard_info/shard_0\.json
 config/settings\.py
 
 *.log
+
+__pycache__/

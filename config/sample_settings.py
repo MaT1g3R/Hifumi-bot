@@ -1,6 +1,10 @@
 """
 A sample settings file, please fill this out and rename it to "settings.py"
 """
+from os.path import join
+
+from core.data_controller import DataController
+
 # The bot token
 TOKEN = 'INSERT_YOUR_TOKEN'
 
@@ -52,3 +56,9 @@ BAD_WORD = ['loli', 'l0l1', 'lol1', 'l0li', '7071', 'lolii', 'looli', 'lolli',
 SHARDED = False
 SHARD_ID = 0
 SHARD_COUNT = 1
+
+# The data controller for the sqlite3 database
+# Only edit the path variable if you move the database, although is strongly
+# recommended to keep it in place
+path = join('data', 'hifumi_db')
+DATA_CONTROLLER = DataController(path)

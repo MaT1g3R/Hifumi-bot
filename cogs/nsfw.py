@@ -4,7 +4,7 @@ NSFW cog
 from discord.ext import commands
 from pybooru import Danbooru
 
-from config.settings import DANBOORU_API, DANBOORU_USERNAME
+from config.settings import DANBOORU_API, DANBOORU_USERNAME, DATA_CONTROLLER
 from core.checks import is_nsfw, no_badword
 from core.nsfw_core import danbooru, gelbooru, k_or_y, random_str, e621, \
     greenteaneko
@@ -38,7 +38,7 @@ class Nsfw:
         result, tags = danbooru(self.bot, ctx, query, self.danbooru_api)
         await self.bot.say(result)
         if tags is not None:
-            self.bot.data_handler.write_tag_list('danbooru', tags)
+            DATA_CONTROLLER.write_tag_list('danbooru', tags)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -50,7 +50,7 @@ class Nsfw:
         res, tags = k_or_y(self.bot, ctx, query, 'Konachan')
         await self.bot.say(res)
         if tags is not None:
-            self.bot.data_handler.write_tag_list('konachan', tags)
+            DATA_CONTROLLER.write_tag_list('konachan', tags)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -67,7 +67,7 @@ class Nsfw:
         res, tags = k_or_y(self.bot, ctx, query, 'Yandere')
         await self.bot.say(res)
         if tags is not None:
-            self.bot.data_handler.write_tag_list('yandere', tags)
+            DATA_CONTROLLER.write_tag_list('yandere', tags)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -98,7 +98,7 @@ class Nsfw:
         res, tags = e621(self.bot, ctx, query)
         await self.bot.say(res)
         if tags is not None:
-            self.bot.data_handler.write_tag_list('e621', tags)
+            DATA_CONTROLLER.write_tag_list('e621', tags)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
