@@ -16,7 +16,6 @@ import hashlib
 import shutil
 import time
 import socket
-import editor
 
 try:
     import pip
@@ -524,28 +523,20 @@ def run_hifumi(autorestart):
         pause()
         main()
 
-    while True:
         try:
-            if not IS_WINDOWS and not IS_MAC:
+            if autorestart:
                 cmd = ("pm2", "start", "run.py", "--name=Hifumi",
                        "--interpreter=" + interpreter)
                 code = subprocess.call(cmd)
             else:
                 cmd = (interpreter, "run.py")
+                code = subprocess.call(cmd)
         except KeyboardInterrupt:  # Triggered!
             code = 0
-            break
-        else:
-            if code == 0:
-                break
-            elif code == 26:
-                warning("Restarting...")
-                continue
-            else:
-                if not autorestart:
-                    break
-
-    error("Hifumi has been terminated recently. Exit code: %d" % code)
+    if code is 0: #If no error
+        info("Hifumi has been terminated recently. Exit code: %d" % code)
+    else: #If error
+        error("Hifumi has been terminated recently. Exit code: %d" % code)
     pause()
 
 
@@ -555,7 +546,7 @@ def incorrect_choice():
     :return: A message to the user 
     telling that the valid (s)he choosed is invalid.
     """
-    error("Incorrect choice! Please try again with a valid choice.")
+    warning("Incorrect choice! Please try again with a valid choice.")
     pause()
 
 
@@ -640,7 +631,7 @@ def __edit_settings(path):
     elif IS_MAC:
         subprocess.call(['open', '-a', 'TextEdit', path])
     else:
-        editor.edit(filename=path)
+        subprocess.call(['sudo', 'nano', path])
 
 
 def clear_screen():
