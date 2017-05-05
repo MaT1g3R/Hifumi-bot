@@ -16,6 +16,7 @@ import hashlib
 import shutil
 import time
 import socket
+import editor
 
 try:
     import pip
@@ -606,17 +607,18 @@ def edit_settings():
     """
     settings_exist = os.path.isfile(os.path.join('config', 'settings.py'))
     sample_exist = os.path.isfile(os.path.join('config', 'sample_settings.py'))
+    path = os.path.join('config', 'settings.py')
     if settings_exist:
         if IS_WINDOWS:
-            subprocess.call(['start', 'notepad', './config/settings.py'])
+            subprocess.call(['start', 'notepad', path])
         elif IS_MAC:
-            subprocess.call(['open', '-a', 'TextEdit', './config/settings.py'])
+            subprocess.call(['open', '-a', 'TextEdit', path])
         else:
-            subprocess.call(['sudo', 'nano', './config/settings.py'])
+            editor.edit(filename=path)
     elif not settings_exist and sample_exist:
         info("It looks like it\'s your first time running Hifumi launcher.\n"
-             "Settings is going to be renamed to settings.py so you can open it "
-             "further later.\n")
+             "Settings is going to be renamed to "
+             "settings.py so you can open it further later.\n")
         pause()
         os.rename('./config/sample_settings.py', './config/settings.py')
         if IS_WINDOWS:
