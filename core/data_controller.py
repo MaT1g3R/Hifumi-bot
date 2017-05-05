@@ -102,3 +102,39 @@ class DataController:
         sql = '''REPLACE INTO language VALUES(?, ?)'''
         self.cursor.execute(sql, (server_id, language))
         self.connection.commit()
+
+    def add_role(self, server_id: str, role: str):
+        """
+        Add a role to the db
+        :param server_id: the server id
+        :param role: the role name
+        """
+        sql = '''
+        REPLACE INTO roles VALUES (?, ?)
+        '''
+        self.cursor.execute(sql, [server_id, role])
+        self.connection.commit()
+
+    def remove_role(self, server_id: str, role: str):
+        """
+        Remove a role from the db
+        :param server_id: the server id 
+        :param role: the role name
+        """
+        sql = '''
+        DELETE FROM roles WHERE server=? AND role=?
+        '''
+        self.cursor.execute(sql, [server_id, role])
+        self.connection.commit()
+
+    def get_role_list(self, server_id: str):
+        """
+        Get the list of roles under the server with id == server_id
+        :param server_id: the server 
+        :return: a list of roles under the server with id == server_id
+        """
+        sql = '''
+        SELECT role FROM roles WHERE server=?
+        '''
+        self.cursor.execute(sql, [server_id])
+        return [i[0] for i in self.cursor.fetchall()]

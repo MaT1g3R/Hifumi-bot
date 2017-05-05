@@ -30,6 +30,16 @@
   "bad_word": ":no_entry_sign: Sorry! Search is not happening. The following query: `{}` contains a word that is against Discord guidelines regarding NSFW. Please try again with something else.",
   "gtn_artist": "Support the artist: <https://www.patreon.com/collateralds>",
   "selfrole_bad_command": "To add a self assignable role to the server, please use:\n{0}selfrole add `ROLE NAME`\nTo remove a self assignable role from the server, please use:\n{0}selfrole remove `ROLE NAME`",
-  "not_manage_role": ":no_entry_sign: Sorry, you need the Manage Roles permission to use this command."
+  "not_manage_role": ":no_entry_sign: Sorry, you need the Manage Roles permission to use this command.",
+  "no_role_list": ":hotsprings: There are no roles that you can self-assign in this server.",
+  "has_role_list": ":hotsprings: The following are the roles you can self-assign you for this server:",
+  "role_no_exist": ":hotsprings: I could not find that role.",
+  "role_add_success": ":white_check_mark: Successfully added **{}** as a self-assignable role.",
+  "role_remove_success": ":white_check_mark: Successfully removed **{}** as a self-assignable role.",
+  "role_me_success": ":hotsprings: OK, you now have the role **{}**",
+  "unrole_me_success": ":hotsprings: OK, you no longer have the role **{}**",
+  "role_unrole_fail": ":hotsprings: Role not found. Did you type it as it is (case sensitive)? If so, it's maybe removed.",
+  "role_unrole_no_exist": "It seems like this role no longer exist in your server. It has been removed from the server role list.",
+  "not_assignable": ":hotsprings: Sorry, this role is not self-assignable."
 }
 
