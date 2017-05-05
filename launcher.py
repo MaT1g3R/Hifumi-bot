@@ -526,8 +526,12 @@ def run_hifumi(autorestart):
 
     while True:
         try:
-            cmd = (interpreter, "run.py")
-            code = subprocess.call(cmd)
+            if not IS_WINDOWS and not IS_MAC:
+                cmd = ("pm2", "start", "run.py", "--name=Hifumi",
+                       "--interpreter=" + interpreter)
+                code = subprocess.call(cmd)
+            else:
+                cmd = (interpreter, "run.py")
         except KeyboardInterrupt:  # Triggered!
             code = 0
             break
@@ -629,7 +633,7 @@ def edit_settings():
 def __edit_settings(path):
     """
     :param path: the file path to edit
-    A helper function to edit_settings()
+    :return: A helper function to edit_settings()
     """
     if IS_WINDOWS:
         subprocess.call(['start', 'notepad', path])
