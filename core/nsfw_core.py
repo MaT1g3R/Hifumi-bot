@@ -53,19 +53,6 @@ def random_str(bot, ctx):
     return bot.get_language_dict(ctx)['random_nsfw']
 
 
-def has_bad_word(input_words):
-    """
-    Determine if the search queries has a bad word
-    :param input_words: an iterable of strings
-    :return: the first bad word found
-    """
-    for badword in BAD_WORD:
-        for s in input_words:
-            if badword in s.lower():
-                return s
-    return None
-
-
 def tag_finder(tag, site, db_controller):
     """
     Try to find or fuzzy match tag in db then the site after the attempt

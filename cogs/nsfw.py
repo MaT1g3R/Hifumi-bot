@@ -5,9 +5,9 @@ from discord.ext import commands
 from pybooru import Danbooru
 
 from config.settings import DANBOORU_API, DANBOORU_USERNAME
-from core.checks import is_nsfw
+from core.checks import is_nsfw, no_badword
 from core.nsfw_core import danbooru, gelbooru, k_or_y, random_str, e621, \
-    has_bad_word, greenteaneko
+    greenteaneko
 
 
 class Nsfw:
@@ -22,6 +22,7 @@ class Nsfw:
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
+    @commands.check(no_badword)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.server)
     async def danbooru(self, ctx, *query: str):
         """
@@ -29,11 +30,6 @@ class Nsfw:
         :param ctx: the discord context
         :param query: the sarch queries
         """
-        bad_word = has_bad_word(query)
-        if bad_word:
-            await self.bot.say(
-                self.bot.get_language_dict(ctx)['bad_word'].format(bad_word))
-            return
         if len(query) > 2:
             await self.bot.say(self.bot.get_language_dict(ctx)['two_term'])
             return
@@ -46,13 +42,9 @@ class Nsfw:
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
+    @commands.check(no_badword)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.server)
     async def konachan(self, ctx, *query: str):
-        bad_word = has_bad_word(query)
-        if bad_word:
-            await self.bot.say(
-                self.bot.get_language_dict(ctx)['bad_word'].format(bad_word))
-            return
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
         res, tags = k_or_y(self.bot, ctx, query, 'Konachan')
@@ -62,6 +54,7 @@ class Nsfw:
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
+    @commands.check(no_badword)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.server)
     async def yandere(self, ctx, *query: str):
         """
@@ -69,11 +62,6 @@ class Nsfw:
         :param ctx: the discord context
         :param query: the sarch queries
         """
-        bad_word = has_bad_word(query)
-        if bad_word:
-            await self.bot.say(
-                self.bot.get_language_dict(ctx)['bad_word'].format(bad_word))
-            return
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
         res, tags = k_or_y(self.bot, ctx, query, 'Yandere')
@@ -83,6 +71,7 @@ class Nsfw:
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
+    @commands.check(no_badword)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.server)
     async def gelbooru(self, ctx, *query: str):
         """
@@ -90,17 +79,13 @@ class Nsfw:
         :param ctx: the discord context
         :param query: the sarch queries
         """
-        bad_word = has_bad_word(query)
-        if bad_word:
-            await self.bot.say(
-                self.bot.get_language_dict(ctx)['bad_word'].format(bad_word))
-            return
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
         await self.bot.say(gelbooru(self.bot, ctx, query))
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
+    @commands.check(no_badword)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.server)
     async def e621(self, ctx, *query: str):
         """
@@ -108,11 +93,6 @@ class Nsfw:
        :param ctx: the discord context
        :param query: the sarch queries
        """
-        bad_word = has_bad_word(query)
-        if bad_word:
-            await self.bot.say(
-                self.bot.get_language_dict(ctx)['bad_word'].format(bad_word))
-            return
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
         res, tags = e621(self.bot, ctx, query)

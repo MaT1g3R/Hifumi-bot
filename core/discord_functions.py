@@ -4,7 +4,7 @@ A collection of functions that's related to discord
 import discord
 from discord.embeds import Embed
 from discord.ext.commands import CommandOnCooldown
-from core.checks import nsfw_exception
+from core.checks import NsfwError, BadWordError
 from core.helpers import strip_letters
 
 
@@ -21,8 +21,11 @@ async def command_error_handler(bot, exception, context):
         base_str = str(exception)
         time_out_str = localize['time_out'].format(strip_letters(base_str)[0])
         await bot.send_message(channel, time_out_str)
-    elif nsfw_exception(exception):
+    elif isinstance(exception, NsfwError):
         await bot.send_message(channel, localize['nsfw_str'])
+    elif isinstance(exception, BadWordError):
+        bad_word = str(exception)
+        await bot.send_message(channel, localize['bad_word'].format(bad_word))
     else:
         # This case should never happen, since it's should be checked in
         # bot.on_command_error

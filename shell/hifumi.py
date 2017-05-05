@@ -14,7 +14,7 @@ from discord.game import Game
 from config.settings import DEFAULT_PREFIX
 from config.settings import SHARDED
 from core.bot_info_core import generate_shard_info
-from core.checks import nsfw_exception
+from core.checks import NsfwError, BadWordError
 from core.discord_functions import command_error_handler
 from core.file_io import read_all_files, read_json, write_json
 
@@ -79,7 +79,8 @@ class Hifumi(Bot):
         :param context: the context of the command
         """
         if isinstance(exception, CommandOnCooldown) \
-                or nsfw_exception(exception):
+                or isinstance(exception, NsfwError) \
+                or isinstance(exception, BadWordError):
             await command_error_handler(self, exception, context)
         elif str(exception) == 'Command "eval" is not found':
             return

@@ -2,6 +2,16 @@
 Checks for commands
 """
 from discord import ChannelType
+from discord.ext.commands import CommandError
+from config.settings import BAD_WORD
+
+
+class NsfwError(CommandError):
+    pass
+
+
+class BadWordError(CommandError):
+    pass
 
 
 def is_nsfw(ctx):
@@ -10,20 +20,23 @@ def is_nsfw(ctx):
     :param ctx: the context
     :return: if nsfw is enabled in this channel
     """
-    return \
-        ctx.message.channel.type == ChannelType.private \
-        or ctx.message.channel.name.lower().startswith('nsfw')
+    res = ctx.message.channel.type == ChannelType.private or \
+        ctx.message.channel.name.lower().startswith('nsfw')
+    if res:
+        return res
+    else:
+        raise NsfwError
 
 
-def nsfw_exception(e):
+def no_badword(ctx):
     """
-    Check if the exception is realted to nsfw
-    :param e: the exception
-    :return: True if it's related to nsfw
+    Check if the message has a bad word
+    :param ctx: the context
+    :return: True if it doesnt have bad words
     """
-    s = str(e)
-    commands = ['danbooru', 'konachan', 'yandere', 'gelbooru']
-    for c in commands:
-        if 'command {} failed'.format(c) in s:
-            return True
-    return False
+    input_words = str.split(ctx.message.content, ' ')
+    for badword in BAD_WORD:
+        for s in input_words:
+            if badword in s.lower():
+                raise BadWordError(s)
+    return True
