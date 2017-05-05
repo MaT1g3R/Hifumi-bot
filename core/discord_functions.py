@@ -6,7 +6,7 @@ from discord.embeds import Embed
 from discord.ext.commands import CommandOnCooldown
 
 from config.settings import DATA_CONTROLLER
-from core.checks import NsfwError, BadWordError
+from core.checks import NsfwError, BadWordError, ManageRoleError
 from core.helpers import strip_letters
 
 
@@ -28,6 +28,8 @@ async def command_error_handler(bot, exception, context):
     elif isinstance(exception, BadWordError):
         bad_word = str(exception)
         await bot.send_message(channel, localize['bad_word'].format(bad_word))
+    elif isinstance(exception, ManageRoleError):
+        await bot.send_message(channel, localize['not_manage_role'])
     else:
         # This case should never happen, since it's should be checked in
         # bot.on_command_error

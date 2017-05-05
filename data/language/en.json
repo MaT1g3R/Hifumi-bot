@@ -28,6 +28,8 @@
   "language": "The language for this server is: `{}`",
   "language_list": "The list of available languages are: ```{}```",
   "bad_word": ":no_entry_sign: Sorry! Search is not happening. The following query: `{}` contains a word that is against Discord guidelines regarding NSFW. Please try again with something else.",
-  "gtn_artist": "Support the artist: <https://www.patreon.com/collateralds>"
+  "gtn_artist": "Support the artist: <https://www.patreon.com/collateralds>",
+  "selfrole_bad_command": "To add a self assignable role to the server, please use:\n{0}selfrole add `ROLE NAME`\nTo remove a self assignable role from the server, please use:\n{0}selfrole remove `ROLE NAME`",
+  "not_manage_role": ":no_entry_sign: Sorry, you need the Manage Roles permission to use this command."
 }
 
