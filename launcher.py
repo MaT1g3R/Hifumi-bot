@@ -114,7 +114,7 @@ def pause():
     Pauses the program.
     :return: A message to request the user to press a key to continue.
     """
-    input("Press ENTER key to continue.")
+    input("\nPress ENTER key to continue.")
 
 
 def install_reqs():
