@@ -740,6 +740,54 @@ def calculate_md5(filename):
     return hash_md5.hexdigest()
 
 
+def faster_bash():
+    """
+    Creates scripts for fast boot of Hifumi without going
+    through the launcher
+    :return: The files created if successful
+    """
+    interpreter = sys.executable
+    if not interpreter:
+        return
+
+    call = "\"{}\" run.py".format(interpreter)
+    modified = False
+
+    if IS_WINDOWS:
+        ccd = "pushd %~dp0\n"
+        bot_loop = ":hifumi:"
+        exit_trigger = "\necho Hifumi has been terminated."
+        pause = "\npause"
+        goto_loop = "goto hifumi
+    else:
+        ccd = 'cd "$(dirname "$0")"\n'
+        pause = "\nread -rsp $'Press ENTER to continue...\\n'"
+        if not IS_MAC:
+            ext = ".sh"
+        else:
+            ext = ".command"
+
+    start_hifumi = call + exit_trigger + pause
+    start_hifumi_autorestart = bot_loop + call + goto_loop
+
+    files = {
+        "start_hifumi"             + ext : start_hifumi,
+        "start_hifumi_autorestart" + ext : start_hifumi_autorestart
+    }
+    
+    for filename, content in files.items():
+        if not os.path.isfile(filename):
+            print("Creating {}... (fast start scripts)".format(filename))
+            modified = True
+            with open(filename, "w") as f:
+                f.write(content)
+
+    if not IS_WINDOWS and modified: # Let's make them executable on Unix
+        for script in files:
+            st = os.stat(script)
+            os.chmod(script, st.st_mode | stat.S_IEXEC)
+
+
 def main():
     """
     Prints the main menu.
@@ -750,6 +798,10 @@ def main():
               "connection and try again.")
         exit(1)
     print("Verifying Git installation...")
+    try:
+        faster_bash()
+    except Exception as e:
+        print("Failed making fast start scripts: {}\n".format(e))
     has_git = is_git_installed()
     has_ffmpeg = is_ffmpeg_installed()
     is_git_installation = os.path.isdir(".git")  # Check if .git folder exists
