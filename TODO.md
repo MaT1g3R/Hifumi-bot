@@ -75,25 +75,29 @@ urban               ✕
 weather             ✕
 yesno               ✕
 ```
-4. Roles
+4. Roles :white_check_mark:
 ```
-rolelist            ✕
-roleme              ✕
-unroleme            ✕
-selfrole add        ✕
-selfrole remove	    ✕
+rolelist            ✔
+roleme              ✔
+unroleme            ✔
+selfrole add        ✔
+selfrole remove	    ✔
 ```
 5. Moderation
+
+* levelup removed because setlevel exists
+
+* customize removed and replaced with setlanguage and setprefix
 ```
-ban                 ✕
-customize           ✕
-levelup             ✕
-kick                ✕
-clean               ✕
+ban                 ✔
+kick                ✔
+clean               ✔
 mute                ✕
 unmute              ✕
 setlevel            ✕
 warn                ✕
+setlanguage *new    ✕
+setprefix *new      ✕
 ```
 6. Music
 ```
@@ -120,17 +124,16 @@ tag delete          ✕
 tag edit            ✕
 tag owner           ✕
 ```
-8. NSFW
+8. NSFW :white_check_mark:
 
-    Need to apply word filter
+* rule34 is removed due to dead api
 ```
-e621                ✕
-rule34              ✕
+e621                ✔
 konachan            ✔
 yandere             ✔
 danbooru *new       ○
 gelbooru *new       ○
-greenteaneko        ✕
+greenteaneko        ✔
 ```
 9. Bot info
 ```
@@ -145,3 +148,11 @@ invite              ✔
 
 ## 4. New features
 - coming soon!
+## 5. Translation support
+   - coming soon!
+## 6. Documentation
+   - coming soon!
+## 7. Database transfer and final touches
+   - coming soon!
+## 8. Release
+   - coming soon!
