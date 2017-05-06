@@ -33,3 +33,16 @@ async def ban_kick(bot, ctx, member: Member, delete_message_days):
     except HTTPException:
         await bot.say(localize['ban_kick_fail'].format(s) +
                       '`{}`'.format(member.name))
+
+
+async def clean_msg(ctx, bot, count):
+    """
+    A function to handle clean message command
+    :param ctx: the discord context
+    :param bot: the bot
+    :param count: number of messages to be cleaned
+    """
+    localize = bot.get_language_dict(ctx)
+    if count < 0 or count > 99:
+        await bot.say(localize['clean_message_bad_num'])
+        return
