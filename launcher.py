@@ -1,3 +1,29 @@
+# -*- coding: utf-8 -*-
+
+"""
+MIT License
+
+Copyright (c) 2017 Hifumi - the Discord Bot Project
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 import ctypes
 import os
 import subprocess
@@ -188,7 +214,7 @@ def update_hifumi():
     """
     try:
         code = subprocess.call(("git", "pull", "--ff-only"))
-    except FileNotFoundError:
+    except subprocess.CalledProcessError:
         error("\nError: Git not found. It's either not installed or not in "
               "the PATH environment variable. Please fix this!")
         return
@@ -196,7 +222,7 @@ def update_hifumi():
         info("\nHifumi is now updated successfully!")
     else:
         error("\nUh oh! An error ocurred and update is going to be aborted.\n"
-              "This error is caused due to environment edits you maybe made. "
+              "This error might be caused from the environment edits you made. "
               "Please fix this by going to the maintenance menu.")
 
 
@@ -313,12 +339,7 @@ def verify_requirements():
     sys.path_importer_cache = {}
     spec1 = find_spec("discord")
     spec2 = find_spec("nacl")
-    if not spec1 or not spec2:
-        # This thing is too messy for my eyes >_<
-        # Fixed the logic for you >_<
-        return False
-    else:
-        return True
+    return spec1 and spec2
 
 
 def is_ffmpeg_installed():
@@ -330,10 +351,9 @@ def is_ffmpeg_installed():
         subprocess.call(["ffmpeg", "-version"], stdout=subprocess.DEVNULL,
                         stdin=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL)
-    except FileNotFoundError:
-        return False
-    else:
         return True
+    except subprocess.CalledProcessError:
+        return False
 
 
 def is_git_installed():
@@ -345,10 +365,9 @@ def is_git_installed():
         subprocess.call(["git", "--version"], stdout=subprocess.DEVNULL,
                         stdin=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL)
-    except FileNotFoundError:
-        return False
-    else:
         return True
+    except subprocess.CalledProcessError:
+        return False
 
 
 def requirements_menu():
@@ -501,7 +520,7 @@ def run_hifumi(autorestart):
     """
     interpreter = sys.executable
     if not interpreter:
-        raise RuntimeError("Couldn't find Python's interpreter")
+        raise RuntimeError("Couldn't find Python interpreter")
 
     if not verify_requirements():
         error("You don't have the requirements that are needed to "
@@ -510,30 +529,28 @@ def run_hifumi(autorestart):
         main()
 
     run_script = Path("./run.py")
-    if run_script.is_file():
-        pass
     # Don't worry about shard mode, that's toggleable via settings.py
-    else:
+    if not run_script.is_file():
         error(
             "Hifumi's main file to run is not available. "
             "Please reinstall Hifumi!")
         pause()
         main()
-
-        try:
-            if autorestart:
-                cmd = ("pm2", "start", "run.py", "--name=Hifumi",
-                       "--interpreter=" + interpreter)
-                code = subprocess.call(cmd)
-            else:
-                cmd = (interpreter, "run.py")
-                code = subprocess.call(cmd)
-        except KeyboardInterrupt:  # Triggered!
-            code = 0
-        if code is 0:  # If no error
-            info("Hifumi has been terminated recently. Exit code: %d" % code)
-        else:  # If error
-            error("Hifumi has been terminated recently. Exit code: %d" % code)
+    try:
+        if autorestart:
+            cmd = ("pm2", "start", "run.py", "--name=Hifumi",
+                   "--interpreter=" + interpreter)
+            code = subprocess.call(cmd)
+        else:
+            cmd = (interpreter, "run.py")
+            print(interpreter)
+            code = subprocess.call(cmd)
+    except KeyboardInterrupt:  # Triggered!
+        code = 0
+    if code is 0:  # If no error
+        info("Hifumi has been terminated recently. Exit code: %d" % code)
+    else:  # If error
+        error("Hifumi has been terminated recently. Exit code: %d" % code)
     pause()
 
 
@@ -552,43 +569,19 @@ def about():
     Prints the about information and the license
     :return: The about information
     """
+    with open(Path('LICENSE')) as f:
+        license_ = f.read()
+        f.close()
     print("Hifumi ~The Discord bot~\n\nGeneral:"
           "Developers: Underforest#1284, InternalLight#9391, "
           "ラブアローシュート#6728\nVersion: {}".format(BOT_VERSION),
           "\nHelpers: Wolke#6746\n\n"
           # RIP non-UTF8/Unicode encoding users 
           # due to 3rd developer Discord name
-          "Website: http://hifumibot.xyz\n\n"
-          "Copyright (c) 2017 Hifumi - the Discord Bot Project\n\n"
-          "Permission is hereby granted, free of charge, "
-          "to any person obtaining a copy\n"
-          "of this software and associated documentation "
-          "files (the \"Software\"), to deal\n"
-          "in the Software without restriction, "
-          "including without limitation the rights\n"
-          "to use, copy, modify, merge, publish, distribute, "
-          "sublicense, and/or sell\n"
-          "copies of the Software, and to permit persons "
-          "to whom the Software is\n"
-          "furnished to do so, subject to the "
-          "following conditions:\n\n"
-          "The above copyright notice and this "
-          "permission notice shall be included in all\n"
-          "copies or substantial portions of the Software.\n\n"
-          "THE SOFTWARE IS PROVIDED \"AS IS\", "
-          "WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
-          "IMPLIED, INCLUDING BUT NOT LIMITED TO THE "
-          "WARRANTIES OF MERCHANTABILITY,\n"
-          "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. "
-          "IN NO EVENT SHALL THE\n"
-          "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR "
-          "ANY CLAIM, DAMAGES OR OTHER\n"
-          "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, "
-          "TORT OR OTHERWISE, ARISING FROM,\n"
-          "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR "
-          "THE USE OR OTHER DEALINGS IN THE\n"
-          "SOFTWARE.\n"
-          "\n\n")
+          # Umi did nothing wrong >_<, and if you are not using UTF8/Unicode 
+          # It's your problem ¯\_(ツ)_/¯
+          "Website: http://hifumibot.xyz\n\n" + license_)
+          
     pause()
 
 
@@ -627,7 +620,7 @@ def real_time_logging():
         subprocess.call(["pm2", "logs", "Hifumi"])
     except Exception as e:
         error("Something went wrong. Logging not starting!\n")
-        error("{}".format(e))
+        error(str(e))
         pause()
 
 
@@ -637,15 +630,14 @@ def edit_settings():
     :return: The action or an exception if an error ocurred.
     """
     path = os.path.join('config', 'settings.py')
-    sample_path = os.path.join('config', 'settings.py')
+    sample_path = os.path.join('config', 'sample_settings.py')
     settings_exist = os.path.isfile(path)
     sample_exist = os.path.isfile(sample_path)
     if settings_exist:
         __edit_settings(path)
     elif not settings_exist and sample_exist:
-        info("It looks like it\'s your first time running Hifumi launcher.\n"
-             "Settings is going to be renamed to "
-             "settings.py so you can open it further later.\n")
+        info("It looks like it's your first time running Hifumi launcher.\n"
+             "sample_settings.py is going to be renamed to settings.py.\n")
         pause()
         os.rename(sample_path, path)
         edit_settings()
@@ -667,7 +659,15 @@ def __edit_settings(path):
     elif IS_MAC:
         subprocess.call(['open', '-a', 'TextEdit', path])
     else:
-        subprocess.call(['sudo', 'nano', path])
+        try:
+            import editor
+            editor.edit(path)
+        except Exception as e:
+            print('There was an error with the editor library:\n')
+            print(str(e))
+            print('Using nano as the editor.')
+            time.sleep(3)
+            subprocess.call(['sudo', 'nano', path])
 
 
 def clear_screen():
@@ -800,17 +800,9 @@ def admin_running():
     :return: True if yes, False if not.
     """
     try:
-        is_admin = os.getuid() == 0
-        if is_admin == 0:
-            return True
-        else:
-            return False
+        return os.getuid() == 0
     except AttributeError:
-        is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
-        if is_admin != 0:
-            return True
-        else:
-            return False
+        return ctypes.windll.shell32.IsUserAnAdmin() != 0
 
 
 def detect_errors():
@@ -823,10 +815,7 @@ def detect_errors():
     has_ffmpeg = is_ffmpeg_installed()
     is_git_installation = os.path.isdir(".git")  # Check if .git folder exists
     pkg = verify_requirements()
-    if not is_git_installation or not has_git or not has_ffmpeg or not pkg:
-        return True
-    else:
-        return False
+    return not is_git_installation or not has_git or not has_ffmpeg or not pkg
 
 
 def string_errors():
@@ -970,35 +959,33 @@ def run():
     dirname = os.path.dirname(abspath)
     os.chdir(dirname)
     if not SYSTEM_OK:
-        error("Sorry! This operative system is not compatible with "
+        error("Sorry! This operation system is not compatible with "
               "Hifumi's environment and might not run at all. Hifumi "
-              "it's only supported for Windows, Mac, Linux and "
+              "is only supported for Windows, Mac, Linux and "
               "Raspberry Pi. Please install one of those OS and try "
               "again.")
         exit(1)
     elif not PYTHON_OK:
         error("Sorry! This Python version is not compatible. Hifumi needs "
-              "Python 3.6 or superior. You have Python {} version.\n"
+              "Python 3.6 or higher. You have Python version {}.\n"
               .format(platform.python_version()) + " Install the required"
                                                    "version and try again.\n")
         exit(1)
     elif not pip:
-        error("Hey! Python is installed but you missed the pip module.\nPlease"
-              "install Python without "
+        error("Hey! Python is installed but you are missing the pip module."
+              "\nPlease reinstall Python without "
               "unchecking any option during the setup >_<")
         exit(1)
     else:
         info("Initializating...")
         if detect_errors():
             clear_screen()
-            print("You got some warnings/errors. It's highly recommendated "
-                  "to fix before continue.\n")
+            print("You got some warnings/errors. It's highly recommended "
+                  "to fix them before you continue.\n")
             string_errors()
             pause()
             clear_screen()
-            main()
-        else:
-            main()
+        main()
 
 
 if __name__ == '__main__':
