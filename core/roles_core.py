@@ -4,17 +4,14 @@ Functions to deal with the Roles class
 from config.settings import DATA_CONTROLLER
 
 
-def __role(ctx, bot):
+def role_exist(role, server):
     """
-    Helper function the return some useful things for other role functions
-    :param ctx: the discord context 
-    :param bot: the bot
-    :return: (server_id, server_roles, localize)
+    Check if a role exist in the server
+    :param role: the role name
+    :param server: the server
+    :return: True if the role exist
     """
-    server = ctx.message.server
-    localize = bot.get_language_dict(ctx)
-    server_roles = [role.name for role in server.roles]
-    return str(server.id), server_roles, localize
+    return role in [r.name for r in server.roles]
 
 
 def get_role_list(ctx, bot):
@@ -24,12 +21,13 @@ def get_role_list(ctx, bot):
     :param bot: the hifumi bot
     :return: the string representation of the server role list
     """
-    server_id, server_roles, localize = __role(ctx, bot)
+    server_id = ctx.message.server.id
+    localize = bot.get_language_dict(ctx)
     lst = DATA_CONTROLLER.get_role_list(server_id)
     # Check for any non-existing roles and remove them from the db
     for i in range(len(lst)):
         role = lst[i]
-        if role not in server_roles:
+        if not role_exist(role, ctx.message.server):
             DATA_CONTROLLER.remove_role(server_id, role)
             lst.remove(role)
     if lst:
@@ -47,11 +45,12 @@ def add_role(ctx, bot, role):
     :param role: the role to be added
     :return: the response string
     """
-    server_id, server_roles, localize = __role(ctx, bot)
-    if role not in server_roles:
+    server = ctx.message.server
+    localize = bot.get_language_dict(ctx)
+    if not role_exist(role, server):
         return localize['role_no_exist']
     else:
-        DATA_CONTROLLER.add_role(server_id, role)
+        DATA_CONTROLLER.add_role(server.id, role)
         return localize['role_add_success'].format(role)
 
 
@@ -63,14 +62,15 @@ def remove_role(ctx, bot, role):
     :param role: the role to be removed
     :return: the response string
     """
-    server_id, server_roles, localize = __role(ctx, bot)
-    res = localize['role_no_exist'] if role not in server_roles \
+    localize = bot.get_language_dict(ctx)
+    server = ctx.message.server
+    res = localize['role_no_exist'] if not role_exist(role, server) \
         else localize['role_remove_success'].format(role)
-    DATA_CONTROLLER.remove_role(server_id, role)
+    DATA_CONTROLLER.remove_role(server.id, role)
     return res
 
 
-def __role_add_rm(ctx, bot,  role, is_add):
+def __role_add_rm(ctx, bot, role, is_add):
     """
     A helper function for roleme and unrole me
     :param ctx: the discord context
@@ -79,18 +79,17 @@ def __role_add_rm(ctx, bot,  role, is_add):
     :return: (the response string, the role to be handled)
     """
     lst = get_role_list(ctx, bot)
-    server_id, server_roles, localize = __role(ctx, bot)
-    if role in lst and role in server_roles:
+    server = ctx.message.server
+    localize = bot.get_language_dict(ctx)
+    if role in lst and role_exist(role, server):
         res = [r for r in ctx.message.server.roles if r.name == role]
         s = localize['role_me_success'] if is_add \
             else localize['unrole_me_success']
         return s.format(role), res
-    elif role in lst and role not in server_roles:
+    elif role in lst and not role_exist(role, server):
         return localize['role_unrole_no_exist'], None
     elif role not in lst:
         return localize['not_assignable'], None
-    else:
-        return localize['role_unrole_fail'], None
 
 
 def role_me(ctx, bot, role):

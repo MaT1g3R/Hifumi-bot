@@ -11,6 +11,7 @@ class Testing:
     """
     Testing commands
     """
+    __slots__ = ['bot']
 
     def __init__(self, bot):
         """

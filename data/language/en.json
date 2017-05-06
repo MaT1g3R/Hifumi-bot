@@ -49,5 +49,6 @@
   "ban_kick_clean_no_perms": ":no_entry_sign: I don't have the permissions to perform this action.",
   "delete_message_days": ":warning: Your last argument for day cleaning must be between 0 to 7 (inclusive)",
   "clean_message_bad_num": ":no_entry_sign: The number of messages cleaned must be an integer between 1 to 99 (inclusive)",
-  "clean_message_success": ":recycle: Alright! Cleaned **{}** message(s)."
+  "clean_message_success": ":recycle: Alright! Cleaned **{}** message(s).",
+  "member_not_found": ":warning: Member **{}** not found."
 }

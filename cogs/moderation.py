@@ -9,6 +9,7 @@ class Moderation:
     """
     The cog for Moderation commands
     """
+    __slots__ = ['bot']
 
     def __init__(self, bot):
         """
@@ -19,7 +20,7 @@ class Moderation:
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
-    async def ban(self, ctx, member: Member, delete_message_days: int=0):
+    async def ban(self, ctx, member: Member, delete_message_days: int = 0):
         """
         Throw down the ban hammer on someone
         :param ctx: the discord context

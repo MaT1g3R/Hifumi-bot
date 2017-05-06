@@ -1,7 +1,6 @@
 """
 The hifumi bot object
 """
-import logging
 import time
 from asyncio import coroutine
 from os.path import join
@@ -17,6 +16,7 @@ from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError
 from core.discord_functions import command_error_handler
 from core.file_io import read_all_files, read_json, write_json
+from core.helpers import setup_logging
 
 
 class Hifumi(Bot):
@@ -24,7 +24,7 @@ class Hifumi(Bot):
     The hifumi bot class
     """
     __slots__ = ['default_prefix', 'shard_id', 'shard_count', 'start_time',
-                 'language', 'default_language']
+                 'language', 'default_language', 'logger']
 
     def __init__(self, prefix, shard_count=1, shard_id=0,
                  default_language='en'):
@@ -45,16 +45,7 @@ class Hifumi(Bot):
                          for f in read_all_files(join('data', 'language'))
                          if f.endswith('.json')}
         self.default_language = default_language
-        logger = logging.getLogger('discord')
-        logger.setLevel(logging.DEBUG)
-        handler = logging.FileHandler(
-            filename=join('data', 'logs', '{}.log'.format(self.start_time)),
-            encoding='utf-8',
-            mode='w')
-        handler.setFormatter(
-            logging.Formatter(
-                '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-        logger.addHandler(handler)
+        self.logger = setup_logging(self.start_time)
 
     async def on_ready(self):
         """
@@ -83,7 +74,8 @@ class Hifumi(Bot):
                 or isinstance(exception, BadWordError) \
                 or isinstance(exception, ManageRoleError) \
                 or isinstance(exception, AdminError) \
-                or isinstance(exception, ManageMessageError):
+                or isinstance(exception, ManageMessageError) \
+                or 'Member' in str(exception) and 'not found' in str(exception):
             await command_error_handler(self, exception, context)
         elif str(exception) == 'Command "eval" is not found':
             return

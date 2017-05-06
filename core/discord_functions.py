@@ -9,6 +9,7 @@ from config.settings import DATA_CONTROLLER
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError
 from core.helpers import strip_letters
+import re
 
 
 async def command_error_handler(bot, exception, context):
@@ -35,6 +36,11 @@ async def command_error_handler(bot, exception, context):
         await bot.send_message(channel, localize['not_admin'])
     elif isinstance(exception, ManageMessageError):
         await bot.send_message(channel, localize['no_manage_messages'])
+    elif 'Member' in str(exception) and 'not found' in str(exception):
+        regex = re.compile('\".*\"')
+        name = regex.findall(str(exception))[0].strip('"')
+        await bot.send_message(
+            channel, localize['member_not_found'].format(name))
     else:
         # This case should never happen, since it's should be checked in
         # bot.on_command_error

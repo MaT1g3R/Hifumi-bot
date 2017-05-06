@@ -10,6 +10,8 @@ from core.bot_info_core import build_info_embed
 
 
 class BotInfo:
+    __slots__ = ['bot']
+
     def __init__(self, bot):
         """
         Initialized the BotInfo class

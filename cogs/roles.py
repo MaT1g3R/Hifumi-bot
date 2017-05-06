@@ -10,6 +10,7 @@ class Roles:
     """
     Cog regarding roles
     """
+    __slots__ = ['bot']
 
     def __init__(self, bot):
         """

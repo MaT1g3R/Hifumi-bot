@@ -5,6 +5,8 @@ import sqlite3
 
 
 class DataController:
+    __slots__ = ['connection', 'cursor']
+
     def __init__(self, path):
         """
         Initialize a instance of DataController

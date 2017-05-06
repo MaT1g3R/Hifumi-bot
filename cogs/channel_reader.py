@@ -5,6 +5,8 @@ from core.discord_functions import get_prefix, check_message
 
 
 class ChannelReader:
+    __slots__ = ['bot']
+
     def __init__(self, bot):
         """
         Initialize the ChannelReader class
