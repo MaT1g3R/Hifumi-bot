@@ -1,7 +1,7 @@
+import ctypes
 import os
 import subprocess
 import sys
-import ctypes
 from pathlib import Path
 
 try:
@@ -15,6 +15,7 @@ import hashlib
 import shutil
 import time
 import socket
+import stat
 
 try:
     import pip
@@ -30,7 +31,6 @@ IS_MAC = sys.platform == "darwin"
 IS_LINUX = sys.platform.startswith("linux") or os.name == "posix"
 SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX
 IS_64BIT = platform.machine().endswith("64")
-
 
 PYTHON_OK = sys.version_info >= (3, 6)
 
@@ -607,7 +607,7 @@ def about_system():
     else:
         try:
             subprocess.call(["screenfetch"])
-            print("\n") # Ubuntu logo is RIP otherwise
+            print("\n")  # Ubuntu logo is RIP otherwise
             pause()
         except subprocess.CalledProcessError:
             warning("'screenfetch' package not found!"
@@ -760,6 +760,10 @@ def faster_bash():
         goto_loop = "\ngoto hifumi"
         ext = ".bat"
     else:
+        echo_disabler = ''
+        exit_trigger = ''
+        bot_loop = ''
+        goto_loop = ''
         ccd = 'cd "$(dirname "$0")"\n'
         pause_str = "\nread -rsp $'Press ENTER to continue...\\n'"
         if not IS_MAC:
@@ -776,7 +780,7 @@ def faster_bash():
     }
     if not IS_WINDOWS:
         files["start_launcher" + ext] = ccd + call
-        
+
     for filename, content in files.items():
         if not os.path.isfile(filename):
             info("Creating {}... (fast start scripts)".format(filename))
@@ -822,7 +826,7 @@ def detect_errors():
     if not is_git_installation or not has_git or not has_ffmpeg or not pkg:
         return True
     else:
-         return False
+        return False
 
 
 def string_errors():
@@ -865,22 +869,22 @@ def string_errors():
         else:
             additional_str = "the required packages via terminal"
         error(
-              "It looks like you're missing some "
-              "packages, please install them or "
-              "you won't be able to run Hifumi. "
-              "For that, proceed to step 4.\n"
-              "Make sure to install the pip modules "
-              "and " + additional_str + " to ensure "
-              "a great run instead of bad things.\n\n")
+            "It looks like you're missing some "
+            "packages, please install them or "
+            "you won't be able to run Hifumi. "
+            "For that, proceed to step 4.\n"
+            "Make sure to install the pip modules "
+            "and " + additional_str + " to ensure "
+                                      "a great run instead of bad things.\n\n")
     if not admin_running():
-       if IS_WINDOWS or IS_MAC:
-           note = "executing Python shell in administrator mode"
-       else:
-           note = "doing sudo " + interpreter + " launcher.py or run as root"
-       warning("Process is not running as administrator. Administrator "
-               "action perfomance can fail sometimes if administrator "
-               "permissions are disabled. Please restart Hifumi by " + note +
-               ".\n\n")
+        if IS_WINDOWS or IS_MAC:
+            note = "executing Python shell in administrator mode"
+        else:
+            note = "doing sudo " + interpreter + " launcher.py or run as root"
+        warning("Process is not running as administrator. Administrator "
+                "action perfomance can fail sometimes if administrator "
+                "permissions are disabled. Please restart Hifumi by " + note +
+                ".\n\n")
 
 
 def main():
@@ -899,7 +903,8 @@ def main():
                   .format(BOT_VERSION))
     else:
         sys.stdout.write("\x1b]2;Hifumi v{} ~ Launcher\x07".format(BOT_VERSION))
-        sys.stdout.write("\033]30;Hifumi v{} ~ Launcher\007".format(BOT_VERSION))
+        sys.stdout.write(
+            "\033]30;Hifumi v{} ~ Launcher\007".format(BOT_VERSION))
 
     while True:
         clear_screen()
@@ -987,7 +992,7 @@ def run():
         if detect_errors():
             clear_screen()
             print("You got some warnings/errors. It's highly recommendated "
-              "to fix before continue.\n")
+                  "to fix before continue.\n")
             string_errors()
             pause()
             clear_screen()
