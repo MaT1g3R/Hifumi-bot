@@ -595,6 +595,40 @@ def about():
     pause()
 
 
+def about_system():
+    """
+    Prints the system information with a cool distro logo in ASCII
+    :return: The system information
+    """
+    if IS_WINDOWS:
+        os.system("systeminfo")
+    elif IS_MAC:
+        os.system("system_profiler")
+    else:
+        try:
+            subprocess.call(["screenfetch"])
+            pause()
+        except Exception:
+            warning("'screenfetch' package not found!
+                    "Printing simple information.\n")
+            subprocess.call(["lsb_release", "-a"]) #This should be valid
+            #for all Linux distributions
+            pause()
+
+
+def real_time_logging():
+    """
+    Opens the real time logs via PM2 with Hifumi information
+    :return: The process logging
+    """
+    try:
+        subprocess.call(["pm2", "logs", "Hifumi"])
+    except Exception as e:
+        error("Something went wrong. Logging not starting!\n\n")
+        error("{}".format(e))
+        pause()
+
+
 def edit_settings():
     """
     Opens settings.py file in the notepad if present.
@@ -759,11 +793,13 @@ def main():
         print("1. Start Hifumi with autorestart")
         print("2. Start Hifumi with no autorestart\n")
         print("Core options:")
-        print("3. Update environment")
-        print("4. Install requirements")
-        print("5. Edit settings")
-        print("6. Maintenance")
-        print("7. About")
+        print("3. Real-time logs (switch to read-only)")
+        print("4. Update environment")
+        print("5. Install requirements")
+        print("6. Edit settings")
+        print("7. Maintenance")
+        print("8. About the program")
+        print("9. About the system")
         print("\n0. Quit")
         choice = user_choice()
         if choice == "1":
@@ -771,15 +807,19 @@ def main():
         elif choice == "2":
             run_hifumi(autorestart=False)
         elif choice == "3":
-            update_menu()
+            real_time_logging()
         elif choice == "4":
-            requirements_menu()
+            update_menu()
         elif choice == "5":
-            edit_settings()
+            requirements_menu()
         elif choice == "6":
-            maintenance_menu()
+            edit_settings()
         elif choice == "7":
+            maintenance_menu()
+        elif choice == "8":
             about()
+        elif choice == "9":
+            about_system()
         elif choice == "0":
             print("Are you sure you want to quit?")
             if user_pick_yes_no():
