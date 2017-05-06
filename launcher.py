@@ -1,8 +1,7 @@
-from __future__ import print_function
-
 import os
 import subprocess
 import sys
+import ctypes
 from pathlib import Path
 
 try:
@@ -32,8 +31,7 @@ IS_LINUX = sys.platform.startswith("linux") or os.name == "posix"
 SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX
 IS_64BIT = platform.machine().endswith("64")
 
-# Python 3.6 or higher due to functions not available in old pythons,
-# specially below 3.0
+
 PYTHON_OK = sys.version_info >= (3, 6)
 
 # This one must be a string for the window title for Windows version
@@ -114,7 +112,7 @@ def pause():
     Pauses the program.
     :return: A message to request the user to press a key to continue.
     """
-    input("\nPress ENTER key to continue.")
+    input("Press ENTER key to continue.")
 
 
 def install_reqs():
@@ -609,6 +607,7 @@ def about_system():
     else:
         try:
             subprocess.call(["screenfetch"])
+            print("\n") # Ubuntu logo is RIP otherwise
             pause()
         except subprocess.CalledProcessError:
             warning("'screenfetch' package not found!"
@@ -627,7 +626,7 @@ def real_time_logging():
     try:
         subprocess.call(["pm2", "logs", "Hifumi"])
     except Exception as e:
-        error("Something went wrong. Logging not starting!\n\n")
+        error("Something went wrong. Logging not starting!\n")
         error("{}".format(e))
         pause()
 
@@ -753,11 +752,13 @@ def faster_bash():
     modified = False
 
     if IS_WINDOWS:
+        echo_disabler = "@echo off\n"
         ccd = "pushd %~dp0\n"
-        bot_loop = ":hifumi:"
+        bot_loop = ":hifumi:\n"
         exit_trigger = "\necho Hifumi has been terminated."
-        pause_str = "\npause"
-        goto_loop = "goto hifumi"
+        pause_str = "\necho Press any key to continue...\npause>nul"
+        goto_loop = "\ngoto hifumi"
+        ext = ".bat"
     else:
         ccd = 'cd "$(dirname "$0")"\n'
         pause_str = "\nread -rsp $'Press ENTER to continue...\\n'"
@@ -766,17 +767,19 @@ def faster_bash():
         else:
             ext = ".command"
 
-    start_hifumi = call + exit_trigger + pause_str
-    start_hifumi_autorestart = bot_loop + call + goto_loop
+    start_hifumi = echo_disabler + call + exit_trigger + pause_str
+    start_hifumi_autorestart = echo_disabler + bot_loop + call + goto_loop
 
     files = {
         "run_normal" + ext: start_hifumi,
         "run_autorestart" + ext: start_hifumi_autorestart
     }
-
+    if not IS_WINDOWS:
+        files["start_launcher" + ext] = ccd + call
+        
     for filename, content in files.items():
         if not os.path.isfile(filename):
-            print("Creating {}... (fast start scripts)".format(filename))
+            info("Creating {}... (fast start scripts)".format(filename))
             modified = True
             with open(filename, "w") as f:
                 f.write(content)
@@ -785,6 +788,99 @@ def faster_bash():
         for script in files:
             st = os.stat(script)
             os.chmod(script, st.st_mode | stat.S_IEXEC)
+
+
+def admin_running():
+    """
+    Checks if process is running as administrator
+    :return: True if yes, False if not.
+    """
+    try:
+        is_admin = os.getuid() == 0
+        if is_admin == 0:
+            return True
+        else:
+            return False
+    except AttributeError:
+        is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+        if is_admin != 0:
+            return True
+        else:
+            return False
+
+
+def detect_errors():
+    """
+    Detect errors for the program or either warnings that can damage
+    or terminate immediately the launcher or Hifumi's process.
+    :return: True if errors found, plus errors stringified. Else, return False.
+    """
+    has_git = is_git_installed()
+    has_ffmpeg = is_ffmpeg_installed()
+    is_git_installation = os.path.isdir(".git")  # Check if .git folder exists
+    pkg = verify_requirements()
+    if not is_git_installation or not has_git or not has_ffmpeg or not pkg:
+        return True
+    else:
+         return False
+
+
+def string_errors():
+    """
+    Returns string errors if found, should be invoked only by detect_errors
+    function.
+    :return: String errors
+    """
+    has_git = is_git_installed()
+    has_ffmpeg = is_ffmpeg_installed()
+    is_git_installation = os.path.isdir(".git")  # Check if .git folder exists
+    interpreter = sys.executable
+    if not interpreter:
+        raise RuntimeError("Couldn't find Python's interpreter")
+    if not is_git_installation:
+        warning("This installation was not done via Git\n"
+                "You probably won't be able to update some things that "
+                "require this util, "
+                "for example the bot environment. Please "
+                "read the license file for more information. "
+                "If you got this from another "
+                "source, please reinstall Hifumi"
+                "as it follows in the guide. "
+                "http://www.hifumibot.xyz/docs\n\n")
+    if not has_git:
+        warning("Git not found. This means that it's either not "
+                "installed or not in the PATH environment variable like "
+                "it should be.\n\n")
+    if not has_ffmpeg:
+        error(
+            "FFMPEG not found. This means that it's either not "
+            "installed or not in the PATH environment variable like "
+            "it should be. This program is needed to run music commands, "
+            "so please install it before continue!\n\n")
+    if not verify_requirements():
+        if IS_WINDOWS:
+            additional_str = "the required programs"
+        elif IS_MAC:
+            additional_str = "the required packages and programs"
+        else:
+            additional_str = "the required packages via terminal"
+        error(
+              "It looks like you're missing some "
+              "packages, please install them or "
+              "you won't be able to run Hifumi. "
+              "For that, proceed to step 4.\n"
+              "Make sure to install the pip modules "
+              "and " + additional_str + " to ensure "
+              "a great run instead of bad things.\n\n")
+    if not admin_running():
+       if IS_WINDOWS or IS_MAC:
+           note = "executing Python shell in administrator mode"
+       else:
+           note = "doing sudo " + interpreter + " launcher.py or run as root"
+       warning("Process is not running as administrator. Administrator "
+               "action perfomance can fail sometimes if administrator "
+               "permissions are disabled. Please restart Hifumi by " + note +
+               ".\n\n")
 
 
 def main():
@@ -796,52 +892,21 @@ def main():
         print("You're not connected to Internet! Please check your "
               "connection and try again.")
         exit(1)
-    print("Verifying Git installation...")
-    has_git = is_git_installed()
-    has_ffmpeg = is_ffmpeg_installed()
-    is_git_installation = os.path.isdir(".git")  # Check if .git folder exists
     if IS_WINDOWS:
-        os.system("TITLE Hifumi {} ~ Launcher".format(BOT_VERSION))  # Yep!
+        os.system("TITLE Hifumi v{} ~ Launcher".format(BOT_VERSION))
+    elif IS_MAC:
+        os.system("echo -n -e \"\033]0;Hifumi v{} ~ Launcher\007\""
+                  .format(BOT_VERSION))
     else:
         sys.stdout.write("\x1b]2;Hifumi v{} ~ Launcher\x07".format(BOT_VERSION))
-        sys.stdout.write("\033]30;Hifumi v{} ~ Launcher\007".format(BOT_VERSION)
-                         )
-    try:
-        faster_bash()
-    except Exception as e:
-        print("Failed making fast start scripts: {}\n".format(e))
+        sys.stdout.write("\033]30;Hifumi v{} ~ Launcher\007".format(BOT_VERSION))
 
     while True:
         clear_screen()
-        # ASCII art by RafisStuff (someone#3025)
-        if not is_git_installation:
-            warning("WARNING: This installation was not done via Git\n"
-                    "You probably won't be able to update some things that "
-                    "require this util, "
-                    "for example the bot environment. Please "
-                    "read the license file for more information. "
-                    "If you got this from another "
-                    "source, please reinstall Hifumi"
-                    "as it follows in the guide. "
-                    "http://www.hifumibot.xyz/docs\n\n")
-
-        if not has_git:
-            warning("WARNING: Git not found. This means that it's either not "
-                    "installed or not in the PATH environment variable like "
-                    "it should be.\n\n")
-
-        if not has_ffmpeg:
-            warning(
-                "WARNING: FFMPEG not found. This means that it's either not "
-                "installed or not in the PATH environment variable like "
-                "it should be. This program is needed to run music commands, "
-                "so please install it before continue!\n\n")
-        if not verify_requirements():
-            error(
-                "It looks like you're missing some "
-                "packages, please install them or "
-                "you won't be able to run Hifumi. "
-                "For that, proceed to step 4.\n\n")
+        try:
+            faster_bash()
+        except Exception as e:
+            error("Failed making fast start scripts: {}\n".format(e))
         print(" __    __   __   _______  __    __   ___  ___   __\n"
               "|  |  |  | |  | |   ____||  |  |  | |   \/   | |  |    _\n"
               "|  |__|  | |  | |  |__   |  |  |  | |  \  /  | |  |  _| |_\n"
@@ -919,7 +984,16 @@ def run():
         exit(1)
     else:
         info("Initializating...")
-        main()
+        if detect_errors():
+            clear_screen()
+            print("You got some warnings/errors. It's highly recommendated "
+              "to fix before continue.\n")
+            string_errors()
+            pause()
+            clear_screen()
+            main()
+        else:
+            main()
 
 
 if __name__ == '__main__':
