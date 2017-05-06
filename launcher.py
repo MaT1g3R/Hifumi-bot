@@ -802,6 +802,10 @@ def main():
     is_git_installation = os.path.isdir(".git")  # Check if .git folder exists
     if IS_WINDOWS:
         os.system("TITLE Hifumi {} ~ Launcher".format(BOT_VERSION))  # Yep!
+    else:
+        sys.stdout.write("\x1b]2;Hifumi v{} ~ Launcher\x07".format(BOT_VERSION))
+        sys.stdout.write("\033]30;Hifumi v{} ~ Launcher\007".format(BOT_VERSION)
+                         )
     try:
         faster_bash()
     except Exception as e:
