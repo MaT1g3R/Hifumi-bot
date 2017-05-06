@@ -1,4 +1,4 @@
 # Hifumi-plus
 Rewrite for hifumi bot
 
-More coming soon!
+Current roadmap can be viewed [here](https://github.com/hifumibot/Hifumi-plus/blob/master/TODO.md)
