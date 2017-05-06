@@ -600,16 +600,19 @@ def about_system():
     Prints the system information with a cool distro logo in ASCII
     :return: The system information
     """
+    clear_screen()
     if IS_WINDOWS:
         os.system("systeminfo")
+        pause()
     elif IS_MAC:
         os.system("system_profiler")
+        pause()
     else:
         try:
             subprocess.call(["screenfetch"])
             pause()
         except Exception:
-            warning("'screenfetch' package not found!
+            warning("'screenfetch' package not found!"
                     "Printing simple information.\n")
             subprocess.call(["lsb_release", "-a"]) #This should be valid
             #for all Linux distributions
@@ -621,6 +624,7 @@ def real_time_logging():
     Opens the real time logs via PM2 with Hifumi information
     :return: The process logging
     """
+    clear_screen()
     try:
         subprocess.call(["pm2", "logs", "Hifumi"])
     except Exception as e:
