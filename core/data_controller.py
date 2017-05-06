@@ -10,7 +10,6 @@ class DataController:
         Initialize a instance of DataController
         :param path: the path to the database
         """
-        self.path = path
         self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()
 

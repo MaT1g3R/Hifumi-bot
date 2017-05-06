@@ -13,7 +13,8 @@ from discord.game import Game
 
 from config.settings import DEFAULT_PREFIX, SHARDED, DATA_CONTROLLER
 from core.bot_info_core import generate_shard_info
-from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, ManageMessageError
+from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
+    ManageMessageError
 from core.discord_functions import command_error_handler
 from core.file_io import read_all_files, read_json, write_json
 
@@ -22,6 +23,8 @@ class Hifumi(Bot):
     """
     The hifumi bot class
     """
+    __slots__ = ['default_prefix', 'shard_id', 'shard_count', 'start_time',
+                 'language', 'default_language']
 
     def __init__(self, prefix, shard_count=1, shard_id=0,
                  default_language='en'):
