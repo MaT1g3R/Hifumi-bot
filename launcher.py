@@ -105,7 +105,7 @@ def is_internet_on():
         host = socket.gethostbyname('www.google.com')
         socket.create_connection((host, 80), 2)
         return True
-    except:
+    except socket.error:
         return False
 
 
@@ -502,7 +502,6 @@ def run_hifumi(autorestart):
     :return: The requirements menu.
     """
     interpreter = sys.executable
-
     if not interpreter:
         raise RuntimeError("Couldn't find Python's interpreter")
 
@@ -533,10 +532,10 @@ def run_hifumi(autorestart):
                 code = subprocess.call(cmd)
         except KeyboardInterrupt:  # Triggered!
             code = 0
-    if code is 0: #If no error
-        info("Hifumi has been terminated recently. Exit code: %d" % code)
-    else: #If error
-        error("Hifumi has been terminated recently. Exit code: %d" % code)
+        if code is 0:  # If no error
+            info("Hifumi has been terminated recently. Exit code: %d" % code)
+        else:  # If error
+            error("Hifumi has been terminated recently. Exit code: %d" % code)
     pause()
 
 
@@ -611,11 +610,11 @@ def about_system():
         try:
             subprocess.call(["screenfetch"])
             pause()
-        except Exception:
+        except subprocess.CalledProcessError:
             warning("'screenfetch' package not found!"
                     "Printing simple information.\n")
-            subprocess.call(["lsb_release", "-a"]) #This should be valid
-            #for all Linux distributions
+            subprocess.call(["lsb_release", "-a"])  # This should be valid
+            # for all Linux distributions
             pause()
 
 
@@ -757,24 +756,24 @@ def faster_bash():
         ccd = "pushd %~dp0\n"
         bot_loop = ":hifumi:"
         exit_trigger = "\necho Hifumi has been terminated."
-        pause = "\npause"
+        pause_str = "\npause"
         goto_loop = "goto hifumi"
     else:
         ccd = 'cd "$(dirname "$0")"\n'
-        pause = "\nread -rsp $'Press ENTER to continue...\\n'"
+        pause_str = "\nread -rsp $'Press ENTER to continue...\\n'"
         if not IS_MAC:
             ext = ".sh"
         else:
             ext = ".command"
 
-    start_hifumi = call + exit_trigger + pause
+    start_hifumi = call + exit_trigger + pause_str
     start_hifumi_autorestart = bot_loop + call + goto_loop
 
     files = {
-        "run_normal" + ext : start_hifumi,
-        "run_autorestart" + ext : start_hifumi_autorestart
+        "run_normal" + ext: start_hifumi,
+        "run_autorestart" + ext: start_hifumi_autorestart
     }
-    
+
     for filename, content in files.items():
         if not os.path.isfile(filename):
             print("Creating {}... (fast start scripts)".format(filename))
@@ -782,7 +781,7 @@ def faster_bash():
             with open(filename, "w") as f:
                 f.write(content)
 
-    if not IS_WINDOWS and modified: # Let's make them executable on Unix
+    if not IS_WINDOWS and modified:  # Let's make them executable on Unix
         for script in files:
             st = os.stat(script)
             os.chmod(script, st.st_mode | stat.S_IEXEC)
@@ -804,7 +803,7 @@ def main():
     if IS_WINDOWS:
         os.system("TITLE Hifumi {} ~ Launcher".format(BOT_VERSION))  # Yep!
     try:
-       faster_bash()
+        faster_bash()
     except Exception as e:
         print("Failed making fast start scripts: {}\n".format(e))
 
