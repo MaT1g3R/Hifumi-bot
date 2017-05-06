@@ -1,6 +1,8 @@
 """
 Functions for Moderation class
 """
+from asyncio import sleep
+
 from discord import Member
 from discord.client import Forbidden, HTTPException
 
@@ -29,9 +31,9 @@ async def ban_kick(bot, ctx, member: Member, delete_message_days):
         await bot.say(localize['banned_kicked'].format(s_past_tense) +
                       '`' + member.name + '`')
     except Forbidden:
-        await bot.say(localize['ban_kick_no_perms'])
+        await bot.say(localize['ban_kick_clean_no_perms'])
     except HTTPException:
-        await bot.say(localize['ban_kick_fail'].format(s) +
+        await bot.say(localize['ban_kick_clean_fail'].format(s) +
                       '`{}`'.format(member.name))
 
 
@@ -42,7 +44,20 @@ async def clean_msg(ctx, bot, count):
     :param bot: the bot
     :param count: number of messages to be cleaned
     """
+    count += 1
     localize = bot.get_language_dict(ctx)
-    if count < 0 or count > 99:
+    if count < 2 or count > 100:
         await bot.say(localize['clean_message_bad_num'])
-        return
+    else:
+        try:
+            channel = ctx.message.channel
+            await bot.purge_from(channel, limit=count)
+            purge_msg = await bot.say(
+                localize['clean_message_success'].format(count - 1))
+            await sleep(3)
+            await bot.delete_message(purge_msg)
+        except Forbidden:
+            await bot.say(localize['ban_kick_clean_no_perms'])
+        except HTTPException:
+            await bot.say(
+                localize['ban_kick_clean_fail'].format('clean messages'))

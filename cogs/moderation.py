@@ -40,6 +40,7 @@ class Moderation:
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(has_manage_message)
+    @commands.cooldown(rate=1, per=3, type=commands.BucketType.server)
     async def clean(self, ctx, number=None):
         bad_int_msg = self.bot.get_language_dict(ctx)['clean_message_bad_num']
         try:
