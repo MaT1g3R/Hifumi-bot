@@ -758,7 +758,7 @@ def faster_bash():
         bot_loop = ":hifumi:"
         exit_trigger = "\necho Hifumi has been terminated."
         pause = "\npause"
-        goto_loop = "goto hifumi
+        goto_loop = "goto hifumi"
     else:
         ccd = 'cd "$(dirname "$0")"\n'
         pause = "\nread -rsp $'Press ENTER to continue...\\n'"
@@ -771,8 +771,8 @@ def faster_bash():
     start_hifumi_autorestart = bot_loop + call + goto_loop
 
     files = {
-        "start_hifumi"             + ext : start_hifumi,
-        "start_hifumi_autorestart" + ext : start_hifumi_autorestart
+        "run_normal" + ext : start_hifumi,
+        "run_autorestart" + ext : start_hifumi_autorestart
     }
     
     for filename, content in files.items():
@@ -798,15 +798,15 @@ def main():
               "connection and try again.")
         exit(1)
     print("Verifying Git installation...")
-    try:
-        faster_bash()
-    except Exception as e:
-        print("Failed making fast start scripts: {}\n".format(e))
     has_git = is_git_installed()
     has_ffmpeg = is_ffmpeg_installed()
     is_git_installation = os.path.isdir(".git")  # Check if .git folder exists
     if IS_WINDOWS:
         os.system("TITLE Hifumi {} ~ Launcher".format(BOT_VERSION))  # Yep!
+    try:
+       faster_bash()
+    except Exception as e:
+        print("Failed making fast start scripts: {}\n".format(e))
 
     while True:
         clear_screen()
