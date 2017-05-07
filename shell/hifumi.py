@@ -20,7 +20,7 @@ from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
 from core.discord_functions import command_error_handler
 from core.file_io import write_json
 from core.language_support import read_language
-from core.logger import setup_logging
+from core.logger import setup_logging, get_console_handler
 
 
 class Hifumi(Bot):
@@ -69,6 +69,7 @@ class Hifumi(Bot):
         await self.change_presence(game=Game(name=g))
         if SHARDED:
             self.update_shard_info()
+        self.logger.addHandler(get_console_handler())
 
     @coroutine
     async def on_command_error(self, exception, context):
