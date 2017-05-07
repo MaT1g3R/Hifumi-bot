@@ -4,7 +4,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-from colorama import init
+try:
+    from colorama import init
+except ImportError:
+    colorama = None
+
+try:
+    import colorlog
+except ImportError:
+    colorlog = None
 
 try:
     import urllib.request
@@ -69,6 +77,44 @@ def pause():
     :return: A message to request the user to press a key to continue.
     """
     input("Press ENTER key to continue.")
+
+
+def computer_meets_color():
+    """
+    Installs the required requirements for the console
+    logging in color.
+    :return: Pip call, then exit code. 
+    0 if everything is fine, 1 if error ocurred.
+    """
+    interpreter = sys.executable
+
+    if not interpreter:
+        error("Python interpreter not found.")
+        return
+
+    args = [
+        interpreter, "-m",
+        "pip", "install",
+        "--upgrade", REQS_DIR,
+        "colorama"
+    ]
+
+    args2 = [
+        interpreter, "-m",
+        "pip", "install",
+        "--upgrade", REQS_DIR,
+        "colorlog"
+    ]
+    
+    code = subprocess.call(args)
+    code2 = subprocess.call(args2)
+
+    if code == 0 and code2 == 0:
+        pass
+    else:
+        error("\nUh oh! An error ocurred and installation is going to "
+              "be aborted.\nPlease fix the error above basing in the docs.\n")
+        exit(1)
 
 
 def install_reqs():
@@ -903,6 +949,9 @@ def run():
     abspath = os.path.abspath(__file__)
     dirname = os.path.dirname(abspath)
     os.chdir(dirname)
+    if not colorama or not colorlog:
+        computer_meets_color()
+        main()
     if not SYSTEM_OK:
         error("Sorry! This operation system is not compatible with "
               "Hifumi's environment and might not run at all. Hifumi "
