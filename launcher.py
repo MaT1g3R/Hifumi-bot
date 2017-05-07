@@ -4,15 +4,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-try:
-    import colorama
-except ImportError:
-    colorama = None
+logger_success = True
 
 try:
-    import colorlog
+    import colorama
+    from core.logger import warning, info, error
+    from colorlog import ColoredFormatter
+    colorama.init()
 except ImportError:
-    colorlog = None
+    logger_success = False
 
 try:
     import urllib.request
@@ -27,7 +27,6 @@ import time
 import socket
 import stat
 from autoclean import autoclean
-from core.logger import warning, info, error
 
 try:
     import pip
@@ -105,7 +104,7 @@ def computer_meets_color():
         "--upgrade", REQS_DIR,
         "colorlog"
     ]
-
+    
     code = subprocess.call(args)
     code2 = subprocess.call(args2)
 
@@ -949,7 +948,7 @@ def run():
     abspath = os.path.abspath(__file__)
     dirname = os.path.dirname(abspath)
     os.chdir(dirname)
-    if not colorama or not colorlog:
+    if not logger_success:
         computer_meets_color()
         main()
     if not SYSTEM_OK:
@@ -984,5 +983,4 @@ def run():
 
 
 if __name__ == '__main__':
-    colorama.init()
     run()
