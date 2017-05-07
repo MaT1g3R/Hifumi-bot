@@ -101,14 +101,17 @@ def install_reqs():
     code = subprocess.call(args)
 
     if code == 0:
-        info("\nPython requirements installed successfully! Now installing PM2...")
+        info("\nPython requirements installed successfully! "
+             "Now installing PM2...")
         pm2_str = subprocess.call(['npm', 'install', 'pm2', '-g'])
-        
+
         if pm2_str == 0:
             info("\nPM2 installed successfully!")
         else:
-            error("\nUh oh! An error ocurred and installation is going to "
-                  "be aborted.\nPlease fix the error above basing in the docs.\n")
+            error(
+                "\nUh oh! An error ocurred and installation is going to be "
+                "aborted.\nPlease fix the error above basing in the docs.\n"
+            )
     else:
         error("\nUh oh! An error ocurred and installation is going to "
               "be aborted.\nPlease fix the error above basing in the docs.\n")
@@ -518,7 +521,7 @@ def about():
           # Umi did nothing wrong >_<, and if you are not using UTF8/Unicode 
           # It's your problem ¯\_(ツ)_/¯
           "Website: http://hifumibot.xyz\n\n" + license_)
-          
+
     pause()
 
 
