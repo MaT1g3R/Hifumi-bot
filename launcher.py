@@ -543,7 +543,6 @@ def run_hifumi(autorestart):
         info("Hifumi is already started! Restarting instead...")
         cmd = ("pm2", "restart", "run.py")
         subprocess.call(cmd)
-    pause()
     else:  # If error
         error("Hifumi has been terminated recently. Exit code: %d" % code)
     pause()
