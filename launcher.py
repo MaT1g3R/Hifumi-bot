@@ -537,12 +537,17 @@ def run_hifumi(autorestart):
             code = subprocess.call(cmd)
     except KeyboardInterrupt:  # Triggered!
         code = 0
-    if code is 0:  # If no error
+    if not autorestart and code is 0:  # If no error
         info("Hifumi has been terminated recently. Exit code: %d" % code)
+    elif not autorestart and code is not 0:  # If error
+        error("Hifumi has been terminated recently. Exit code: %d" % code)
     elif autorestart and code is not 0:
+        clear_screen()
         info("Hifumi is already started! Restarting instead...")
         cmd = ("pm2", "restart", "run.py")
         subprocess.call(cmd)
+    elif autorestart and code is 0:
+        info("Hifumi has been started successfully!")
     else:  # If error
         error("Hifumi has been terminated recently. Exit code: %d" % code)
     pause()
