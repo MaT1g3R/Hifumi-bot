@@ -23,9 +23,5 @@ def autoclean():
     """
     Cleans all Python cache.
     """
-    paths = __autoclean()
-    for path in paths:
-        try:
-            shutil.rmtree(path)
-        except FileNotFoundError:
-            pass
+    for path in __autoclean():
+        shutil.rmtree(path, ignore_errors=True)
