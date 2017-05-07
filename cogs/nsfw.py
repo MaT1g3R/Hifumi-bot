@@ -1,6 +1,3 @@
-"""
-NSFW cog
-"""
 from discord.ext import commands
 from pybooru import Danbooru
 
@@ -11,6 +8,9 @@ from core.nsfw_core import danbooru, gelbooru, k_or_y, random_str, e621, \
 
 
 class Nsfw:
+    """
+    NSFW cog
+    """
     __slots__ = ['bot', 'danbooru_api']
 
     def __init__(self, bot):

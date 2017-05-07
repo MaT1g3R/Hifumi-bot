@@ -1,6 +1,3 @@
-"""
-Cog for bot info
-"""
 import time
 
 from discord.ext import commands
@@ -12,6 +9,9 @@ from core.language_support import generate_language_entry, \
 
 
 class BotInfo:
+    """
+    Cog for bot info
+    """
     __slots__ = ['bot']
 
     def __init__(self, bot):
@@ -25,6 +25,7 @@ class BotInfo:
     async def info(self, ctx):
         """
         Displays the bot info
+        :param ctx: the discord context object
         """
         await self.bot.say(embed=build_info_embed(ctx, self.bot))
 
@@ -32,6 +33,7 @@ class BotInfo:
     async def support(self, ctx):
         """
         Says the support server for the bot
+        :param ctx: the discord context object
         """
         base = self.bot.get_language_dict(ctx)['support']
         await self.bot.say(base.format(SUPPORT, TWITTER, WEBSITE))
@@ -40,6 +42,7 @@ class BotInfo:
     async def donate(self, ctx):
         """
         Display the donate message
+        :param ctx: the discord context object
         """
         await self.bot.say(self.bot.get_language_dict(ctx)['donate'])
 
@@ -47,6 +50,7 @@ class BotInfo:
     async def git(self, ctx):
         """
         Display the git repo
+        :param ctx: the discord context object
         """
         await self.bot.say(self.bot.get_language_dict(ctx)['git'])
 
@@ -54,6 +58,7 @@ class BotInfo:
     async def help(self, ctx):
         """
         help command
+        :param ctx: the discord context object
         """
         await self.bot.say('Coming Soon' + str(ctx))
 
@@ -71,7 +76,8 @@ class BotInfo:
     @commands.command(pass_context=True)
     async def invite(self, ctx):
         """
-        Display invite link
+        Display the invite link
+        :param ctx: the discord context object
         """
         await self.bot.say(
             self.bot.get_language_dict(ctx)['invite'].format(INVITE))
@@ -80,7 +86,7 @@ class BotInfo:
     async def language(self, ctx):
         """
         Get the language of the server
-        :param ctx: the context
+        :param ctx: the discord context object
         """
         localize = self.bot.get_language_dict(ctx)
         await self.bot.say(
@@ -92,8 +98,8 @@ class BotInfo:
     @commands.command(pass_context=True)
     async def languagelist(self, ctx):
         """
-        Get a list of languages
-        :param ctx: the discord context
+        Display a list of languages
+        :param ctx: the discord context object
         """
         await self.bot.say(generate_language_list(
             self.bot.language, self.bot.get_language_key(ctx))
