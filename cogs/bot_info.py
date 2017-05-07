@@ -81,8 +81,11 @@ class BotInfo:
         :param ctx: the context
         """
         lan = self.bot.get_language_key(ctx)
+        value = self.bot.language[lan]['language_data']
+        res_str = '{} / {} ({})'.format(
+            value['native_name'], value['english_name'], value['code'])
         await self.bot.say(
-            self.bot.get_language_dict(ctx)['language'].format(lan))
+            self.bot.get_language_dict(ctx)['language'].format(res_str))
 
     @commands.command(pass_context=True)
     async def languagelist(self, ctx):
@@ -90,7 +93,13 @@ class BotInfo:
         Get a list of languages
         :param ctx: the discord context
         """
-        lst = sorted(list(self.bot.language.keys()))
-        s = '\n'.join(lst)
+        lst = []
+        for val in self.bot.language.values():
+            lst.append(val['language_data'])
+        lst.sort(key=lambda x: x['code'])
+        s = ''
+        for l in lst:
+            s += '* {} / {} ({})\n'.format(
+                l['native_name'], l['english_name'], l['code'])
         res = self.bot.get_language_dict(ctx)['language_list'].format(s)
         await self.bot.say(res)

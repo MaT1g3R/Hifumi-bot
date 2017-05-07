@@ -63,5 +63,7 @@
   "mute_unmute_fail": ":no_entry_sign: Attempt to {} **{}** failed.",
   "go_away": ":information_source: If you don't like me, go away.",
   "empty_member": ":no_entry_sign: Please provide a member for me to perform this action on.",
-  "set_prefix": ":white_check_mark: The command prefix for this server has been set to `{}`"
+  "set_prefix": ":white_check_mark: The command prefix for this server has been set to `{}`",
+  "lan_no_exist": ":information_source: Sorry! The language **{}** isn't supported yet. Join our translation project here to make it available in the furure!\n<https://discord.gg/HKayCWp>",
+  "lan_set_success": ":white_check_mark: The language for this server has been set to: `{}`\n Thanks to translators `{}` for making it possible.\nIf you are interested in translating Hifumi, you can join the translation project here: <https://discord.gg/HKayCWp>"
 }

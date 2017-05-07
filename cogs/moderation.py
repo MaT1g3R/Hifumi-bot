@@ -80,8 +80,21 @@ class Moderation:
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
-    async def setlanguage(self, ctx, language):
-        pass
+    async def setlanguage(self, ctx, language: str):
+        if language not in self.bot.language:
+            localize = self.bot.get_language_dict(ctx)
+            await self.bot.say(localize['lan_no_exist'].format(language))
+        else:
+            DATA_CONTROLLER.set_language(ctx.message.server.id, language)
+            localize = self.bot.get_language_dict(ctx)
+            language_data = localize['language_data']
+            translators = language_data['translators']
+            s = '{} / {} ({})'.format(
+                language_data['native_name'],
+                language_data['english_name'], language_data['code'])
+            await self.bot.say(
+                localize['lan_set_success'].format(s, ', '.join(translators))
+            )
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
