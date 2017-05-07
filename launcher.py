@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
-
 import ctypes
 import os
 import subprocess
 import sys
 from pathlib import Path
+
+from colorama import init
 
 try:
     import urllib.request
@@ -512,15 +512,20 @@ def about():
     with open(Path('LICENSE')) as f:
         license_ = f.read()
         f.close()
-    print("Hifumi ~The Discord bot~\n\nGeneral:"
-          "Developers: Underforest#1284, InternalLight#9391, "
-          "ラブアローシュート#6728\nVersion: {}".format(BOT_VERSION),
-          "\nHelpers: Wolke#6746\n\n"
-          # RIP non-UTF8/Unicode encoding users 
-          # due to 3rd developer Discord name
-          # Umi did nothing wrong >_<, and if you are not using UTF8/Unicode 
-          # It's your problem ¯\_(ツ)_/¯
-          "Website: http://hifumibot.xyz\n\n" + license_)
+    try:
+        print("Hifumi ~The Discord bot~\n\n"
+              "Developers: Underforest#1284, InternalLight#9391, "
+              "ラブアローシュート#6728\nVersion: {}".format(BOT_VERSION),
+              "\nHelpers: Wolke#6746\n\n"
+              "Website: http://hifumibot.xyz\n"
+              "Twitter: @HifumiBot\n\n" + license_)
+    except UnicodeEncodeError:  # When Umi bugs your own bash >_<
+        print("Hifumi ~The Discord bot~\n\n"
+              "Developers: Underforest, InternalLight, "
+              "Umi\nVersion: {}".format(BOT_VERSION),
+              "\nHelpers: Wolke\n\n"
+              "Website: http://hifumibot.xyz\n"
+              "Twitter: @HifumiBot\n\n" + license_)
 
     pause()
 
@@ -908,7 +913,7 @@ def run():
     elif not PYTHON_OK:
         error("Sorry! This Python version is not compatible. Hifumi needs "
               "Python 3.6 or higher. You have Python version {}.\n"
-              .format(platform.python_version()) + " Install the required"
+              .format(platform.python_version()) + " Install the required "
                                                    "version and try again.\n")
         exit(1)
     elif not pip:
@@ -930,4 +935,5 @@ def run():
 
 
 if __name__ == '__main__':
+    init()
     run()
