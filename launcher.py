@@ -207,6 +207,8 @@ def update_hifumi():
         return
     if code == 0:
         info("\nHifumi is now updated successfully!")
+        if os.path.isfile("./config/sample_settings.py"):
+            os.remove("./config/sample_settings.py")
     else:
         error("\nUh oh! An error ocurred and update is going to be aborted.\n"
               "This error might be caused from the environment edits you made. "
