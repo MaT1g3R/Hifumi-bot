@@ -395,6 +395,7 @@ def update_menu():
     :return: The update menu.
     """
     clear_screen()
+    autoclean()
     while True:
         reqs = verify_requirements()
         if reqs is False:
@@ -456,6 +457,7 @@ def maintenance_menu():
         else:
             main()
     else:
+        autoclean()
         warning("Before you continue, please verify this launcher and "
                 "the bot are NOT installed in a system important folder "
                 "or an instance ran by the system, this to prevent "
@@ -1012,7 +1014,6 @@ def run():
               "unchecking any option during the setup >_<")
         exit(1)
     else:
-        autoclean()
         info("Initializating...")
         if detect_errors():
             clear_screen()
