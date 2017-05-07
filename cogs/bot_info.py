@@ -7,6 +7,8 @@ from discord.ext import commands
 
 from config.settings import INVITE, SUPPORT, WEBSITE, TWITTER
 from core.bot_info_core import build_info_embed
+from core.language_support import generate_language_entry, \
+    generate_language_list
 
 
 class BotInfo:
@@ -80,12 +82,12 @@ class BotInfo:
         Get the language of the server
         :param ctx: the context
         """
-        lan = self.bot.get_language_key(ctx)
-        value = self.bot.language[lan]['language_data']
-        res_str = '{} / {} ({})'.format(
-            value['native_name'], value['english_name'], value['code'])
+        localize = self.bot.get_language_dict(ctx)
         await self.bot.say(
-            self.bot.get_language_dict(ctx)['language'].format(res_str))
+            localize['language'].format(
+                generate_language_entry(localize['language_data'])
+            )
+        )
 
     @commands.command(pass_context=True)
     async def languagelist(self, ctx):
@@ -93,13 +95,6 @@ class BotInfo:
         Get a list of languages
         :param ctx: the discord context
         """
-        lst = []
-        for val in self.bot.language.values():
-            lst.append(val['language_data'])
-        lst.sort(key=lambda x: x['code'])
-        s = ''
-        for l in lst:
-            s += '* {} / {} ({})\n'.format(
-                l['native_name'], l['english_name'], l['code'])
-        res = self.bot.get_language_dict(ctx)['language_list'].format(s)
-        await self.bot.say(res)
+        await self.bot.say(generate_language_list(
+            self.bot.language, self.bot.get_language_key(ctx))
+        )

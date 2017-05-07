@@ -16,8 +16,9 @@ from core.bot_info_core import generate_shard_info
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError
 from core.discord_functions import command_error_handler
-from core.file_io import read_all_files, read_json, write_json
-from core.helpers import setup_logging, suplement_dict
+from core.file_io import write_json
+from core.helpers import setup_logging
+from core.language_support import read_language
 
 
 class Hifumi(Bot):
@@ -43,13 +44,7 @@ class Hifumi(Bot):
         self.shard_id = shard_id
         self.shard_count = shard_count
         self.start_time = time.time()
-        self.language = {f[14:-5]: read_json(open(f))
-                         for f in read_all_files(join('data', 'language'))
-                         if f.endswith('.json')}
-        for key, val in self.language.items():
-            if key != 'en':
-                new_val = suplement_dict(self.language['en'], val)
-                self.language[key] = new_val
+        self.language = read_language()
         self.default_language = default_language
         self.logger = setup_logging(self.start_time)
         self.mention_normal = ''

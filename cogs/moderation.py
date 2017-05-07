@@ -4,7 +4,8 @@ from discord.ext import commands
 from config.settings import DATA_CONTROLLER
 from core.checks import is_admin, has_manage_message, has_manage_role
 from core.moderation_core import ban_kick, clean_msg, mute_unmute
-
+from core.discord_functions import get_prefix
+from core.language_support import set_language
 
 class Moderation:
     """
@@ -83,18 +84,13 @@ class Moderation:
     async def setlanguage(self, ctx, language: str):
         if language not in self.bot.language:
             localize = self.bot.get_language_dict(ctx)
-            await self.bot.say(localize['lan_no_exist'].format(language))
-        else:
-            DATA_CONTROLLER.set_language(ctx.message.server.id, language)
-            localize = self.bot.get_language_dict(ctx)
-            language_data = localize['language_data']
-            translators = language_data['translators']
-            s = '{} / {} ({})'.format(
-                language_data['native_name'],
-                language_data['english_name'], language_data['code'])
             await self.bot.say(
-                localize['lan_set_success'].format(s, ', '.join(translators))
+                localize['lan_no_exist'].format(
+                    language, get_prefix(self.bot, ctx.message)
+                )
             )
+        else:
+            await self.bot.say(set_language(ctx, self.bot, language))
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
