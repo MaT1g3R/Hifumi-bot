@@ -539,7 +539,7 @@ def run_hifumi(autorestart):
         code = 0
     if code is 0:  # If no error
         info("Hifumi has been terminated recently. Exit code: %d" % code)
-    else if autorestart and code is not 0:
+    elif autorestart and code is not 0:
         info("Hifumi is already started! Restarting instead...")
         cmd = ("pm2", "restart", "run.py")
         subprocess.call(cmd)
