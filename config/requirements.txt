@@ -14,3 +14,4 @@ urllib3
 wheel
 youtube-dl
 py-editor
+requests

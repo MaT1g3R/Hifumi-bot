@@ -20,19 +20,27 @@ class Moderation:
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
-    async def ban(self, ctx, member: Member, delete_message_days: int = 0):
+    async def ban(self, ctx, member: Member, delete_message_days=None):
         """
         Throw down the ban hammer on someone
         :param ctx: the discord context
         :param member: the discord member
         :param delete_message_days: option to delete messages from the user
         """
-        if delete_message_days < 0 or delete_message_days > 7:
-            await self.bot.say(
-                self.bot.get_language_dict(ctx)['delete_message_days']
-            )
-            return
-        await ban_kick(self.bot, ctx, member, delete_message_days)
+        bad_num_msg = self.bot.get_language_dict(ctx)['delete_message_days']
+        good_number = False
+        if delete_message_days is None:
+            delete_message_days = 0
+        try:
+            delete_message_days = int(delete_message_days)
+            if 0 <= delete_message_days <= 7:
+                good_number = True
+        except ValueError:
+            good_number = False
+        if good_number:
+            await ban_kick(self.bot, ctx, member, delete_message_days)
+        else:
+            await self.bot.say(bad_num_msg)
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
@@ -43,13 +51,15 @@ class Moderation:
     @commands.check(has_manage_message)
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.server)
     async def clean(self, ctx, number=None):
-        bad_int_msg = self.bot.get_language_dict(ctx)['clean_message_bad_num']
-        try:
-            number = int(number)
-        except (TypeError, ValueError):
-            await self.bot.say(bad_int_msg)
+        bad_num_msg = self.bot.get_language_dict(ctx)['clean_message_bad_num']
+        if number is None:
+            await self.bot.say(bad_num_msg)
         else:
-            await clean_msg(ctx, self.bot, number)
+            try:
+                number = int(number)
+                await clean_msg(ctx, self.bot, number)
+            except ValueError:
+                await self.bot.say(bad_num_msg)
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)

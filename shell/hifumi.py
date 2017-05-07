@@ -114,11 +114,15 @@ class Hifumi(Bot):
         :param ctx_msg: the discord context object, or a message object
         :return: the language key
         """
-        message = ctx_msg.message if isinstance(ctx_msg, Context) else ctx_msg
+        if isinstance(ctx_msg, Context):
+            message = ctx_msg.message
+        elif isinstance(ctx_msg, Message):
+            message = ctx_msg
+        else:
+            raise TypeError
         channel = message.channel
         if channel.type == ChannelType.text:
-            server_id = message.server.id
-            lan = DATA_CONTROLLER.get_language(str(server_id))
+            lan = DATA_CONTROLLER.get_language(message.server.id)
             return lan if lan is not None else self.default_language
         else:
             return self.default_language
