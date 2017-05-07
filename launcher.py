@@ -504,8 +504,8 @@ def maintenance_menu():
 
 def run_hifumi(autorestart):
     """
-    Prints the options from the requirement menu.
-    :return: The requirements menu.
+    Start Hifumi, autorestart is toggleable.
+    :return: Exit code, 0 if fine, else more than 0.
     """
     interpreter = sys.executable
     if not interpreter:
@@ -532,14 +532,46 @@ def run_hifumi(autorestart):
             code = subprocess.call(cmd)
         else:
             cmd = (interpreter, "run.py")
-            print(interpreter)
+            info("Hifumi is now started as single session! "
+                 "To shutdown the bot, press CTRL+Z anytime.")
             code = subprocess.call(cmd)
     except KeyboardInterrupt:  # Triggered!
         code = 0
     if code is 0:  # If no error
         info("Hifumi has been terminated recently. Exit code: %d" % code)
+    else if autorestart and code is not 0:
+        info("Hifumi is already started! Restarting instead...")
+        cmd = ("pm2", "restart", "run.py")
+        subprocess.call(cmd)
+    pause()
     else:  # If error
         error("Hifumi has been terminated recently. Exit code: %d" % code)
+    pause()
+
+
+def stop_hifumi():
+    """
+    Stops Hifumi from running if started with PM2
+    :return: Exit code, 0 if fine, else more than 0.
+    """
+    interpreter = sys.executable
+    if not interpreter:
+        raise RuntimeError("Couldn't find Python interpreter")
+
+    run_script = Path("./run.py")
+    # Don't worry about shard mode, that's toggleable via settings.py
+    if not run_script.is_file():
+        error(
+            "Hifumi's main file to run is not available. "
+            "Please reinstall Hifumi!")
+        pause()
+        main()
+    code = subprocess.call(['pm2', 'stop', 'run.py'])
+    if code is 0:
+        info("Hifumi has been terminated successfully.")
+        pause()
+    else:  # If error
+        error("Hifumi is not registered into PM2. No need to use this now.")
     pause()
 
 
@@ -901,8 +933,9 @@ def main():
               "|   __   | |  | |   __|  |  |  |  | |  |\/|  | |  | |_   _|\n"
               "|  |  |  | |  | |  |     |  `--'  | |  |  |  | |  |   |_|\n"
               "|__|  |__| |__| |__|      \______/  |__|  |__| |__|\n\n")
-        print("Start options:")
-        print("1. Start Hifumi with autorestart")
+        print("Bot options:")
+        print("0. Start Hifumi with autorestart")
+        print("1. Stop Hifumi if started with autorestart")
         print("2. Start Hifumi with no autorestart\n")
         print("Core options:")
         print("3. Real-time logs (switch to read-only)")
@@ -912,10 +945,12 @@ def main():
         print("7. Maintenance")
         print("8. About the program")
         print("9. About the system")
-        print("\n0. Quit")
+        print("\nX. Quit")
         choice = user_choice()
-        if choice == "1":
+        if choice == "0":
             run_hifumi(autorestart=True)
+        elif choice == "1":
+            stop_hifumi()
         elif choice == "2":
             run_hifumi(autorestart=False)
         elif choice == "3":
@@ -932,7 +967,7 @@ def main():
             about()
         elif choice == "9":
             about_system()
-        elif choice == "0":
+        elif choice == "X" or choice == "x":
             print("Are you sure you want to quit?")
             if user_pick_yes_no():
                 clear_screen()
