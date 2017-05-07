@@ -4,8 +4,8 @@ import shutil
 
 def __autoclean(path=(os.getcwd())):
     """
-    Cleans automatically Python cache.
-    :return: Clean if successful.
+    Helper function to get all "__pycache__" folders
+    :return: A list of paths with name __pycache__
     """
     if os.path.isdir(path) and '__pycache__' in path:
         return [path]
@@ -21,8 +21,7 @@ def __autoclean(path=(os.getcwd())):
 
 def autoclean():
     """
-    Cleans automatically Python cache.
-    :return: Clean if successful.
+    Cleans all Python cache.
     """
     paths = __autoclean()
     for path in paths:
