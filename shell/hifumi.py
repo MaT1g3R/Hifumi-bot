@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
 """
-The hifumi bot object
+The Hifumi bot object
 """
 import time
 from asyncio import coroutine
@@ -21,12 +19,12 @@ from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
 from core.discord_functions import command_error_handler
 from core.file_io import write_json
 from core.language_support import read_language
-from core.logger import setup_logging, get_console_handler
+from core.logger import setup_logging, get_console_handler, info
 
 
 class Hifumi(Bot):
     """
-    The hifumi bot class
+    The Hifumi bot class
     """
     __slots__ = ['default_prefix', 'shard_id', 'shard_count', 'start_time',
                  'language', 'default_language', 'logger', 'mention_normal',
@@ -61,10 +59,8 @@ class Hifumi(Bot):
         g = '{}help'.format(self.default_prefix)
         if SHARDED:
             g = '{}/{} | '.format(self.shard_id + 1, self.shard_count) + g
-        print('Logged in as')
-        print(self.user.name)
-        print(self.user.id)
-        print('------')
+        info('Logged in as ' + self.user.name + '#' + self.user.discriminator)
+        info('Bot ID: ' + self.user.id)
         self.mention_normal = '<@{}>'.format(self.user.id)
         self.mention_nick = '<@!{}>'.format(self.user.id)
         await self.change_presence(game=Game(name=g))
