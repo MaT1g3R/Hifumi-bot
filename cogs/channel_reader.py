@@ -20,10 +20,11 @@ class ChannelReader:
         :param message: the message
         """
         if check_message(
-                self.bot, message, self.bot.mention_normal() + ' prefix') \
+                self.bot, message, self.bot.mention_normal + ' prefix') \
                 or check_message(
-                    self.bot, message, self.bot.mention_nick() + ' prefix'):
+                    self.bot, message, self.bot.mention_nick + ' prefix'):
             prefix = get_prefix(self.bot, message)
+            localize = self.bot.get_language_dict(message)
             await self.bot.send_message(
                 message.channel,
-                'The prefix for this server is: `{}`'.format(prefix))
+                localize['prefix'].format(prefix))

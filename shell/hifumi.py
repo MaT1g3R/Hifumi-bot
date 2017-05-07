@@ -6,8 +6,8 @@ from asyncio import coroutine
 from os.path import join
 from threading import Timer
 
-from discord import ChannelType
-from discord.ext.commands import Bot, CommandOnCooldown
+from discord import ChannelType, Message
+from discord.ext.commands import Bot, CommandOnCooldown, Context
 from discord.game import Game
 
 from config.settings import DEFAULT_PREFIX, SHARDED, DATA_CONTROLLER
@@ -24,7 +24,8 @@ class Hifumi(Bot):
     The hifumi bot class
     """
     __slots__ = ['default_prefix', 'shard_id', 'shard_count', 'start_time',
-                 'language', 'default_language', 'logger']
+                 'language', 'default_language', 'logger', 'mention_normal',
+                 'mention_nick']
 
     def __init__(self, prefix, shard_count=1, shard_id=0,
                  default_language='en'):
@@ -46,7 +47,10 @@ class Hifumi(Bot):
                          if f.endswith('.json')}
         self.default_language = default_language
         self.logger = setup_logging(self.start_time)
+        self.mention_normal = ''
+        self.mention_nick = ''
 
+    @coroutine
     async def on_ready(self):
         """
         Event for the bot is ready
@@ -58,6 +62,8 @@ class Hifumi(Bot):
         print(self.user.name)
         print(self.user.id)
         print('------')
+        self.mention_normal = '<@{}>'.format(self.user.id)
+        self.mention_nick = '<@!{}>'.format(self.user.id)
         await self.change_presence(game=Game(name=g))
         if SHARDED:
             self.update_shard_info()
@@ -80,21 +86,7 @@ class Hifumi(Bot):
         elif str(exception) == 'Command "eval" is not found':
             return
         else:
-            raise exception
-
-    def mention_normal(self):
-        """
-        Returns the bot id in <@> format
-        :return: bot id in <@> format
-        """
-        return '<@%s>' % self.user.id
-
-    def mention_nick(self):
-        """
-        Returns the bot id in <!@> format
-        :return: the bot id in <!@> format
-        """
-        return '<@!%s>' % self.user.id
+            await super().on_command_error(exception, context)
 
     def start_bot(self, cogs: list, token):
         """
@@ -107,24 +99,25 @@ class Hifumi(Bot):
             self.add_cog(cog)
         self.run(token)
 
-    def get_language_dict(self, ctx):
+    def get_language_dict(self, ctx_msg):
         """
         Get the language of the given context
-        :param ctx: the discord context object
+        :param ctx_msg: the discord context object, or a message object
         :return: the language dict
         :rtype: dict
         """
-        return self.language[self.get_language_key(ctx)]
+        return self.language[self.get_language_key(ctx_msg)]
 
-    def get_language_key(self, ctx):
+    def get_language_key(self, ctx_msg):
         """
         Get the language key of the context
-        :param ctx: the discord context
+        :param ctx_msg: the discord context object, or a message object
         :return: the language key
         """
-        channel = ctx.message.channel
+        message = ctx_msg.message if isinstance(ctx_msg, Context) else ctx_msg
+        channel = message.channel
         if channel.type == ChannelType.text:
-            server_id = ctx.message.server.id
+            server_id = message.server.id
             lan = DATA_CONTROLLER.get_language(str(server_id))
             return lan if lan is not None else self.default_language
         else:

@@ -3,7 +3,7 @@ from discord.ext import commands
 from core.checks import has_manage_role
 from core.discord_functions import get_prefix
 from core.roles_core import get_role_list, add_role, remove_role, role_me, \
-    unroleme
+    unrole_me
 
 
 class Roles:
@@ -27,7 +27,7 @@ class Roles:
         :param is_add: wether if the method is add or remove
         """
         res, roles = role_me(ctx, self.bot, ' '.join(args)) if is_add else \
-            unroleme(ctx, self.bot, ' '.join(args))
+            unrole_me(ctx, self.bot, ' '.join(args))
         try:
             if roles:
                 for role in roles:

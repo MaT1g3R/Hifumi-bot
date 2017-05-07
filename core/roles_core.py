@@ -37,6 +37,16 @@ def get_role_list(ctx, bot):
         return localize['no_role_list']
 
 
+def get_server_role(role, server):
+    """
+    Get a list of server roles with the name <role>
+    :param role: the role name
+    :param server: the server
+    :return: a list of discord role object
+    """
+    return [r for r in server.roles if r.name == role]
+
+
 def add_role(ctx, bot, role):
     """
     Add a role to the db to be self assignable
@@ -82,10 +92,9 @@ def __role_add_rm(ctx, bot, role, is_add):
     server = ctx.message.server
     localize = bot.get_language_dict(ctx)
     if role in lst and role_exist(role, server):
-        res = [r for r in ctx.message.server.roles if r.name == role]
         s = localize['role_me_success'] if is_add \
             else localize['unrole_me_success']
-        return s.format(role), res
+        return s.format(role), get_server_role(role, server)
     elif role in lst and not role_exist(role, server):
         return localize['role_unrole_no_exist'], None
     elif role not in lst:
@@ -103,7 +112,7 @@ def role_me(ctx, bot, role):
     return __role_add_rm(ctx, bot, role, True)
 
 
-def unroleme(ctx, bot, role):
+def unrole_me(ctx, bot, role):
     """
     Remove a role from a user
     :param ctx: the discord context
