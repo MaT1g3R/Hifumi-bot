@@ -1,4 +1,10 @@
 {
+  "language_data": {
+    "native_name": "English",
+    "english_name": "English",
+    "code": "en",
+    "translators": ["Underforest#1284", "ラブアローシュート#6728"]
+  },
   "nsfw_str": "NSFW commands must be used in DM or a channel with a name that is equal to or starts with `nsfw` (case insensitive)",
   "time_out": "You are on cooldown. Try again in {}s",
   "days": "day(s)",
