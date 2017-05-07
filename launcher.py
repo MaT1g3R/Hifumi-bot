@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 try:
-    from colorama import init
+    import colorama
 except ImportError:
     colorama = None
 
@@ -105,7 +105,7 @@ def computer_meets_color():
         "--upgrade", REQS_DIR,
         "colorlog"
     ]
-    
+
     code = subprocess.call(args)
     code2 = subprocess.call(args2)
 
@@ -984,5 +984,5 @@ def run():
 
 
 if __name__ == '__main__':
-    init()
+    colorama.init()
     run()

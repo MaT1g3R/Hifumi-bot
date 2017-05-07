@@ -62,3 +62,6 @@ SHARD_COUNT = 1
 # recommended to keep it in place
 path = join('data', 'hifumi_db')
 DATA_CONTROLLER = DataController(path)
+
+# Toggle this to true if you want to enable console logging
+ENABLE_CONSOLE_LOGGING = False

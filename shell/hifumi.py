@@ -13,7 +13,8 @@ from discord.ext.commands import Bot, CommandOnCooldown, Context
 from discord.ext.commands.errors import MissingRequiredArgument, CommandNotFound
 from discord.game import Game
 
-from config.settings import DEFAULT_PREFIX, SHARDED, DATA_CONTROLLER
+from config.settings import DEFAULT_PREFIX, SHARDED, DATA_CONTROLLER, \
+    ENABLE_CONSOLE_LOGGING
 from core.bot_info_core import generate_shard_info
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError
@@ -69,7 +70,8 @@ class Hifumi(Bot):
         await self.change_presence(game=Game(name=g))
         if SHARDED:
             self.update_shard_info()
-        self.logger.addHandler(get_console_handler())
+        if ENABLE_CONSOLE_LOGGING:
+            self.logger.addHandler(get_console_handler())
 
     @coroutine
     async def on_command_error(self, exception, context):
