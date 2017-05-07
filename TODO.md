@@ -83,20 +83,18 @@ unroleme            ✔
 selfrole add        ✔
 selfrole remove	    ✔
 ```
-5. Moderation
-
+5. Moderation :white_check_mark:
 * levelup removed because setlevel exists
-
 * customize removed and replaced with setlanguage and setprefix
-
 * setlevel removed in favour of role based permissions
+* A mod log function is planned
 ```
 ban                 ✔
 kick                ✔
 clean               ✔
 mute                ✔
 unmute              ✔
-warn                ✕
+warn                ✔
 setlanguage *new    ✔
 setprefix *new      ✔
 ```
@@ -150,7 +148,7 @@ invite              ✔
 ```
 bash                ✕
 setavatar           ✕
-eval                ✕
+eval                ✔
 shard               ✕
 shardinfo           ✕
 editsettings        ✕
