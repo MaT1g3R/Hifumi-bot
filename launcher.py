@@ -70,6 +70,17 @@ FFMPEG_FILES = {  # Names encoded for md5 function
 }
 
 
+def autoclean():
+    """
+    Cleans automatically Python cache.
+    :return: Clean if successful.
+    """
+    try:
+        shutil.rmtree('./__pycache__')
+    except FileNotFoundError:
+        pass
+
+
 def warning(text, end=None):
     """
     Prints a yellow warning. 
@@ -977,6 +988,7 @@ def run():
               "unchecking any option during the setup >_<")
         exit(1)
     else:
+        autoclean()
         info("Initializating...")
         if detect_errors():
             clear_screen()
