@@ -4,7 +4,7 @@ A collection of functions that's related to discord
 import discord
 from discord.embeds import Embed
 from discord.ext.commands import CommandOnCooldown
-
+from discord.ext.commands.errors import MissingRequiredArgument
 from config.settings import DATA_CONTROLLER
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError
@@ -41,6 +41,9 @@ async def command_error_handler(bot, exception, context):
         name = regex.findall(str(exception))[0].strip('"')
         await bot.send_message(
             channel, localize['member_not_found'].format(name))
+    elif isinstance(exception, MissingRequiredArgument):
+        if str(exception).startswith('member'):
+            await bot.send_message(channel, localize['empty_member'])
     else:
         # This case should never happen, since it's should be checked in
         # bot.on_command_error

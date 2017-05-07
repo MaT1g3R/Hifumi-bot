@@ -55,5 +55,6 @@
   "muted_role_not_found": ":no_entry_sign: Sorry, I cannot find a role called \"**Muted**\" in this server. Please create a role called \"**Muted**\" without permissions to send message and try again.",
   "mute_unmute_success": ":white_check_mark: Successfully {} **{}**",
   "mute_unmute_fail": ":no_entry_sign: Attempt to {} **{}** failed.",
-  "go_away": ":information_source: If you don't like me, go away."
+  "go_away": ":information_source: If you don't like me, go away.",
+  "empty_member": ":no_entry_sign: Please provide a member for me to perform this action on."
 }
