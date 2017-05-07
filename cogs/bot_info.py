@@ -91,7 +91,6 @@ class BotInfo:
         :param ctx: the discord context
         """
         lst = sorted(list(self.bot.language.keys()))
-        await self.bot.say(
-            self.bot.get_language_dict(ctx)['language_list']
-                .format('\n'.join(lst))
-        )
+        s = '\n'.join(lst)
+        res = self.bot.get_language_dict(ctx)['language_list'].format(s)
+        await self.bot.say(res)
