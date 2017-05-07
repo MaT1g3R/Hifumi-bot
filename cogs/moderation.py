@@ -1,8 +1,8 @@
 from discord import Member
 from discord.ext import commands
 
-from core.checks import is_admin, has_manage_message
-from core.moderation_core import ban_kick, clean_msg
+from core.checks import is_admin, has_manage_message, has_manage_role
+from core.moderation_core import ban_kick, clean_msg, mute_unmute
 
 
 class Moderation:
@@ -28,18 +28,15 @@ class Moderation:
         :param delete_message_days: option to delete messages from the user
         """
         bad_num_msg = self.bot.get_language_dict(ctx)['delete_message_days']
-        good_number = False
         if delete_message_days is None:
             delete_message_days = 0
         try:
             delete_message_days = int(delete_message_days)
             if 0 <= delete_message_days <= 7:
-                good_number = True
+                await ban_kick(self.bot, ctx, member, delete_message_days)
+            else:
+                await self.bot.say(bad_num_msg)
         except ValueError:
-            good_number = False
-        if good_number:
-            await ban_kick(self.bot, ctx, member, delete_message_days)
-        else:
             await self.bot.say(bad_num_msg)
 
     @commands.command(pass_context=True, no_pm=True)
@@ -56,20 +53,19 @@ class Moderation:
             await self.bot.say(bad_num_msg)
         else:
             try:
-                number = int(number)
-                await clean_msg(ctx, self.bot, number)
+                await clean_msg(ctx, self.bot, int(number))
             except ValueError:
                 await self.bot.say(bad_num_msg)
 
     @commands.command(pass_context=True, no_pm=True)
-    @commands.check(is_admin)
+    @commands.check(has_manage_role)
     async def mute(self, ctx, member: Member):
-        pass
+        await mute_unmute(ctx, self.bot, member, True)
 
     @commands.command(pass_context=True, no_pm=True)
-    @commands.check(is_admin)
+    @commands.check(has_manage_role)
     async def unmute(self, ctx, member: Member):
-        pass
+        await mute_unmute(ctx, self.bot, member, False)
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
