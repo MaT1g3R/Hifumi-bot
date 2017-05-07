@@ -7,7 +7,7 @@ from autoclean import autoclean
 from cogs import bot_info, testing, channel_reader, nsfw, roles, moderation
 from config.settings import TOKEN, SHARD_COUNT, SHARD_ID, SHARDED
 from core.discord_functions import get_prefix
-import core.logger
+import core.logger as logger
 from shell.hifumi import Hifumi
 
 if __name__ == '__main__':
@@ -24,6 +24,8 @@ if __name__ == '__main__':
 
         bot.start_bot(cogs, TOKEN)
     except (UnicodeEncodeError, UnicodeDecodeError): # If locales are not returned
-        error("\nLocales failed to load because your system does not support UTF-8/"
-             "Unicode encoding. Please read the docs to know how to fix this problem.")
+        logger.error("Hifumi startup error:\n"
+                     "\nLocales failed to load because your system does not support "
+                     "UTF-8/Unicode encoding. Please read the docs (Troubleshooting "
+                     "section) to know how to fix this problem. Exit code: 1")
         exit(1)
