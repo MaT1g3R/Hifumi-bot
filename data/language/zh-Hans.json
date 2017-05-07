@@ -1,4 +1,10 @@
 {
+  "language_data": {
+    "native_name": "简化字",
+    "english_name": "Simplified Chinese",
+    "code": "zh-Hans",
+    "translators": ["ラブアローシュート#6728"]
+  },
   "nsfw_str": "NSFW commands must be used in DM or a channel with a name that is equal to or starts with `nsfw` (case insensitive)",
   "time_out": "You are on cooldown. Try again in {}s",
   "days": "天",
