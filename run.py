@@ -5,9 +5,11 @@ from cogs import bot_info, testing, channel_reader, nsfw, roles, moderation
 from config.settings import TOKEN, SHARD_COUNT, SHARD_ID, SHARDED
 from core.discord_functions import get_prefix
 from shell.hifumi import Hifumi
+from autoclean import autoclean
 
 
 if __name__ == '__main__':
+    autoclean()
     if SHARDED:
         bot = Hifumi(get_prefix, shard_count=SHARD_COUNT, shard_id=SHARD_ID)
     else:
