@@ -1,8 +1,17 @@
 import ctypes
+import hashlib
 import os
+import platform
+import shutil
+import socket
+import stat
 import subprocess
 import sys
+import time
+import webbrowser
 from pathlib import Path
+
+from autoclean import autoclean
 
 logger_success = True
 
@@ -10,6 +19,7 @@ try:
     import colorama
     from core.logger import warning, info, error
     from colorlog import ColoredFormatter
+
     colorama.init()
 except ImportError:
     logger_success = False
@@ -19,14 +29,6 @@ try:
     from importlib.util import find_spec
 except ImportError:
     pass
-import platform
-import webbrowser
-import hashlib
-import shutil
-import time
-import socket
-import stat
-from autoclean import autoclean
 
 try:
     import pip
@@ -104,7 +106,7 @@ def computer_meets_color():
         "--upgrade", REQS_DIR,
         "colorlog"
     ]
-    
+
     code = subprocess.call(args)
     code2 = subprocess.call(args2)
 
