@@ -9,7 +9,7 @@ from threading import Timer
 from discord import ChannelType, Message
 from discord.ext.commands import Bot, CommandOnCooldown, Context
 from discord.game import Game
-from discord.ext.commands.errors import MissingRequiredArgument
+from discord.ext.commands.errors import MissingRequiredArgument, CommandNotFound
 from config.settings import DEFAULT_PREFIX, SHARDED, DATA_CONTROLLER
 from core.bot_info_core import generate_shard_info
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
@@ -85,7 +85,8 @@ class Hifumi(Bot):
                 'not found' in str(exception) \
                 or isinstance(exception, MissingRequiredArgument):
             await command_error_handler(self, exception, context)
-        elif str(exception) == 'Command "eval" is not found':
+        elif isinstance(exception, CommandNotFound):
+            # Ignore this case
             return
         else:
             await super().on_command_error(exception, context)
