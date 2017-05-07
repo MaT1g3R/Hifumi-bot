@@ -1,5 +1,6 @@
 import shutil
 
+
 def autoclean():
     """
     Cleans automatically Python cache.

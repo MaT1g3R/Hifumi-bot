@@ -17,8 +17,8 @@ from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError
 from core.discord_functions import command_error_handler
 from core.file_io import write_json
-from core.helpers import setup_logging
 from core.language_support import read_language
+from core.logger import setup_logging
 
 
 class Hifumi(Bot):

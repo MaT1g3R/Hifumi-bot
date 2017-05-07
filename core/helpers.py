@@ -1,7 +1,6 @@
 """
 Useful helper functions
 """
-import logging
 import re
 from os.path import join
 
@@ -111,22 +110,3 @@ def comma(val):
     :return: the comma seprated number
     """
     return "{:,}".format(int(val))
-
-
-def setup_logging(start_time):
-    """
-    Set up logging
-    :param start_time: the start time of the log
-    :return: the logger object
-    """
-    logger = logging.getLogger('discord')
-    logger.setLevel(logging.DEBUG)
-    handler = logging.FileHandler(
-        filename=join('data', 'logs', '{}.log'.format(start_time)),
-        encoding='utf-8',
-        mode='w')
-    handler.setFormatter(
-        logging.Formatter(
-            '\n%(asctime)s:%(levelname)s:%(name)s: %(message)s\n'))
-    logger.addHandler(handler)
-    return logger
