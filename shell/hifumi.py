@@ -29,7 +29,7 @@ class Hifumi(Bot):
                  'mention_nick']
 
     def __init__(self, prefix, shard_count=1, shard_id=0,
-                 default_language='chinese_simplified'):
+                 default_language='en'):
         """
         Initialize the bot object
         :param prefix: the function to get prefix for a server

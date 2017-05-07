@@ -1,6 +1,7 @@
 from discord import Member
 from discord.ext import commands
 
+from config.settings import DATA_CONTROLLER
 from core.checks import is_admin, has_manage_message, has_manage_role
 from core.moderation_core import ban_kick, clean_msg, mute_unmute
 
@@ -84,5 +85,8 @@ class Moderation:
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
-    async def setprefix(self, ctx, prefix):
-        pass
+    async def setprefix(self, ctx, prefix: str):
+        DATA_CONTROLLER.set_prefix(ctx.message.server.id, prefix)
+        await self.bot.say(
+            self.bot.get_language_dict(ctx)['set_prefix'].format(prefix)
+        )
