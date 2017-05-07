@@ -41,6 +41,15 @@ def setup_logging(start_time):
         mode='w'
     )
     handler.setFormatter(logging.Formatter(FILE_FORMAT))
+    logger.addHandler(handler)
+    return logger
+
+
+def get_console_handler():
+    """
+    Get a colourful console handler
+    :return: the console handler
+    """
     console = logging.StreamHandler(stdout)
     console.setFormatter(
         ColoredFormatter(
@@ -58,9 +67,7 @@ def setup_logging(start_time):
             style='%'
         )
     )
-    logger.addHandler(handler)
-    logger.addHandler(console)
-    return logger
+    return console
 
 
 def warning(text, end=None, date=False):
