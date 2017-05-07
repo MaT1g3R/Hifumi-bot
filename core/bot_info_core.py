@@ -124,13 +124,17 @@ def build_info_embed(ctx, bot):
         (lan['lib'],
          'Discord.py v{}.{}.{}'.format(
              version_info.major, version_info.minor, version_info.micro)),
-        (lan['sys'], get_distro()),
-        (lan['devs'], '\n'.join(DEVS)),
-        (lan['helper'], '\n'.join(HELPERS)),
+        (lan['sys'], get_distro())
+    ]
+    if DEVS:
+        body += [(lan['devs'], '\n'.join(DEVS))]
+    if HELPERS:
+        body += [(lan['helper'], '\n'.join(HELPERS))]
+    body += [
         (lan['servers'], server_str),
         (lan['users'], users_str),
         (lan['text_channels'], text_str),
-        (lan['voice_channels'], voice_str),
+        (lan['voice_channels'], voice_str)
     ]
     if SHARDED:
         body += [(lan['sharding'],
