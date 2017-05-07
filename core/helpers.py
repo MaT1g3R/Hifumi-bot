@@ -60,6 +60,20 @@ def combine_dicts(dicts):
             (combine_dicts(dicts[:l // 2]), combine_dicts(dicts[l // 2:])))
 
 
+def suplement_dict(parent: dict, child: dict):
+    """
+    Add all values in parent into child if child doesnt have the key
+    :param parent: the parent dict
+    :param child: the child dict
+    :return: the child dict with added values
+    """
+    child = dict(child)
+    for key, val in parent.items():
+        if key not in child:
+            child[key] = val
+    return child
+
+
 def get_distro():
     """
     You linux distro version info.

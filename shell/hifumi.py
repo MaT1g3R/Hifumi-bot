@@ -17,7 +17,7 @@ from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError
 from core.discord_functions import command_error_handler
 from core.file_io import read_all_files, read_json, write_json
-from core.helpers import setup_logging
+from core.helpers import setup_logging, suplement_dict
 
 
 class Hifumi(Bot):
@@ -29,7 +29,7 @@ class Hifumi(Bot):
                  'mention_nick']
 
     def __init__(self, prefix, shard_count=1, shard_id=0,
-                 default_language='en'):
+                 default_language='chinese_simplified'):
         """
         Initialize the bot object
         :param prefix: the function to get prefix for a server
@@ -46,6 +46,10 @@ class Hifumi(Bot):
         self.language = {f[14:-5]: read_json(open(f))
                          for f in read_all_files(join('data', 'language'))
                          if f.endswith('.json')}
+        for key, val in self.language.items():
+            if key != 'en':
+                new_val = suplement_dict(self.language['en'], val)
+                self.language[key] = new_val
         self.default_language = default_language
         self.logger = setup_logging(self.start_time)
         self.mention_normal = ''
