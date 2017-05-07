@@ -1,29 +1,12 @@
 import logging
-import os
 import time
 from os.path import join
 from sys import stdout
 
 from colorlog import ColoredFormatter
 
-IS_UNIX = os.name != "nt"
-
-BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
-
-RESET_SEQ = "\033[0m"
-COLOR_SEQ = "\033[1;%dm"
-BOLD_SEQ = "\033[1m"
-
-COLORS = {
-    'WARNING': YELLOW,
-    'INFO': WHITE,
-    'DEBUG': BLUE,
-    'CRITICAL': YELLOW,
-    'ERROR': RED
-}
-
 CONSOLE_FORMAT = '\n%(asctime)s:%(log_color)s%(levelname)s:%(name)s: ' \
-                 '%(message)s\n'
+                 '\033[0m%(message)s\n'
 FILE_FORMAT = '\n%(asctime)s:%(levelname)s:%(name)s: %(message)s\n'
 
 

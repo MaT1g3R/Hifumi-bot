@@ -51,7 +51,7 @@
   "no_manage_messages": ":no_entry_sign: You don't have the permission to manage messages!",
   "ban_kick_mute_self": ":no_entry_sign: You can't {} yourself",
   "banned_kicked": ":white_check_mark: I've {} ",
-  "ban_kick_clean_fail": ":no_entry_sign: Failed to {} ",
+  "ban_kick_clean_role_fail": ":no_entry_sign: Failed to {} ",
   "no_perms": ":no_entry_sign: I don't have the permissions to perform this action.",
   "delete_message_days": ":warning: Your last argument for day cleaning must be between 0 to 7 (inclusive)",
   "clean_message_bad_num": ":no_entry_sign: The number of messages cleaned must be an integer between 1 to 99 (inclusive)",
@@ -68,5 +68,7 @@
   "lan_set_success": ":white_check_mark: The language for this server has been set to: `{}`\n Thanks to translators `{}` for making it possible.\nIf you are interested in translating Hifumi, you can join the translation project here: <https://discord.gg/HKayCWp>",
   "warn_no_args": ":warning: Please specify the person and reason, so I can warn them.",
   "warn_no_reason": ":warning: Please specify the reason to warn.",
-  "warn_success": ":warning: **HEY**, **{}**! Can you please stop **{}**? It's annoying and it can lead you to a serious punishment from the admin/mod(s) of this server. Thanks!\nWarning given by **{}**"
+  "warn_success": ":warning: **HEY**, **{}**! Can you please stop **{}**? It's annoying and it can lead you to a serious punishment from the admin/mod(s) of this server. Thanks!\nWarning given by **{}**",
+  "ex_warn": ":warning: I ran into an error while executing this command. Please report this to my developers.\n**Triggered message**: {}\n**Type**: {}\n**Exception**: {}",
+  "ex_error": ":x: I ran into a critical error, please report this to my developers.\n```Python\n{}\n```"
 }

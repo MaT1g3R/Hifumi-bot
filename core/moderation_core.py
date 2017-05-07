@@ -35,7 +35,7 @@ async def ban_kick(bot, ctx, member: Member, delete_message_days):
     except Forbidden:
         await bot.say(localize['no_perms'])
     except HTTPException:
-        await bot.say(localize['ban_kick_clean_fail'].format(s) +
+        await bot.say(localize['ban_kick_clean_role_fail'].format(s) +
                       '`{}`'.format(member.name))
 
 
@@ -62,7 +62,7 @@ async def clean_msg(ctx, bot, count):
             await bot.say(localize['no_perms'])
         except HTTPException:
             await bot.say(
-                localize['ban_kick_clean_fail'].format('clean messages'))
+                localize['ban_kick_clean_role_fail'].format('clean messages'))
 
 
 async def mute_unmute(ctx, bot, member, is_mute):

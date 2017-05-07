@@ -1,3 +1,4 @@
+from discord import HTTPException, Forbidden
 from discord.ext import commands
 
 from core.checks import has_manage_role
@@ -28,6 +29,7 @@ class Roles:
         """
         res, roles = role_me(ctx, self.bot, ' '.join(args)) if is_add else \
             unrole_me(ctx, self.bot, ' '.join(args))
+        localize = self.bot.get_language_dict(ctx)
         try:
             if roles:
                 for role in roles:
@@ -36,8 +38,11 @@ class Roles:
                     else:
                         await self.bot.remove_roles(ctx.message.author, role)
             await self.bot.say(res)
-        except Exception as e:
-            await self.bot.say('```Python\n' + str(e) + '```')
+        except Forbidden:
+            await self.bot.say(localize['no_perms'])
+        except HTTPException:
+            await self.bot.say(localize['ban_kick_clean_role_fail']
+                               .format('assign role.'))
 
     @commands.command(no_pm=True, pass_context=True)
     async def roleme(self, ctx, *args):

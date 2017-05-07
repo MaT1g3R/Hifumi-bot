@@ -2,7 +2,9 @@
 The Hifumi bot object
 """
 import time
+import traceback
 from asyncio import coroutine
+from logging import WARNING, ERROR, CRITICAL
 from os.path import join
 from threading import Timer
 
@@ -13,6 +15,7 @@ from discord.game import Game
 
 from config.settings import DEFAULT_PREFIX, SHARDED, DATA_CONTROLLER, \
     ENABLE_CONSOLE_LOGGING
+from config.settings import OWNER
 from core.bot_info_core import generate_shard_info
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError
@@ -90,7 +93,42 @@ class Hifumi(Bot):
             # Ignore this case
             return
         else:
-            await super().on_command_error(exception, context)
+            triggered = context.message.content
+            ex_type = type(exception).__name__
+            four_space = ' ' * 4
+            str_ex = str(exception)
+            msg = '\n{0}Triggered message: {1}\n' \
+                  '{0}Type: {2}\n' \
+                  '{0}Exception: {3}' \
+                .format(four_space, triggered, ex_type, str_ex)
+            self.logger.log(WARNING, msg)
+            await self.send_message(
+                context.message.channel,
+                self.get_language_dict(context)['ex_warn'].format(
+                    triggered, ex_type, str_ex
+                )
+            )
+
+    @coroutine
+    async def on_error(self, event_method, *args, **kwargs):
+        """
+        General error handling for discord
+        Check :func:`discord.on_error` for more details.
+        """
+        ig = 'Ignoring exception in {}\n'.format(event_method)
+        tb = traceback.format_exc()
+        self.logger.log(ERROR, '\n' + ig + '\n' + tb)
+        try:
+            ctx = args[1]
+            await self.send_message(
+                ctx.message.channel,
+                self.get_language_dict(ctx)['ex_error'].format(ig + tb)
+            )
+        except Exception as e:
+            msg = str(e) + '\n' + str(tb)
+            self.logger.log(CRITICAL, msg)
+            for dev in [await self.get_user_info(i) for i in OWNER]:
+                await self.send_message(dev, msg)
 
     def start_bot(self, cogs: list, token):
         """
