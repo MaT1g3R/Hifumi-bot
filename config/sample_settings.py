@@ -1,14 +1,18 @@
 """
 A sample settings file, please fill this out and rename it to "settings.py"
 """
+
+# DON'T EDIT THOSE 2 LINES
+# -----------------------------------------------
 from os.path import join
 
 from core.data_controller import DataController
+# -----------------------------------------------
 
 # The bot token
 TOKEN = 'INSERT_YOUR_TOKEN'
 
-# A colour in hex
+# A colour in hex, it will be used for embeds
 COLOUR = 0xff0000
 
 # The name of the bot
@@ -44,13 +48,13 @@ DANBOORU_USERNAME = 'INSERT_YOUR_DANBOORU_USERNAME'
 # Your Danbooru API key
 DANBOORU_API = 'INSERT_YOUR_DANBOORU_API'
 
-# A list of bad words to comply with discord TOS, edit at your own risk
+# A list of bad words to comply with discord TOS, DON'T edit this
 BAD_WORD = ['loli', 'l0l1', 'lol1', 'l0li', '7071', 'lolii', 'looli', 'lolli',
             'shota', 'sh07a', 'sh0ta', 'chota', 'ch0ta', 'shot4', 'sh0t4',
             '5hota', '5h0ta', '5h0t4', '7oli', '70li', '707i', 'l071', 'hifumi',
             'takimoto', 'child', 'children', 'cp', 'preteen', 'teen', 'gore',
-            'g0r3', 'g0re', 'underforest', 'ch1ld', 'kid', 'k1d', 'kiddo',
-            'ロリ', 'ロリコン', 'pico', 'ショタコン', 'ショタ']
+            'g0r3', 'g0re', 'ch1ld', 'kid', 'k1d', 'kiddo', 'ロリ', 'ロリコン', 
+            'pico', 'ショタコン', 'ショタ']
 
 # Setting for sharding, defualts to not sharded
 SHARDED = False
