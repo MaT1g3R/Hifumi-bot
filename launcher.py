@@ -908,7 +908,7 @@ def run():
     elif not PYTHON_OK:
         error("Sorry! This Python version is not compatible. Hifumi needs "
               "Python 3.6 or higher. You have Python version {}.\n"
-              .format(platform.python_version()) + " Install the required"
+              .format(platform.python_version()) + " Install the required "
                                                    "version and try again.\n")
         exit(1)
     elif not pip:
