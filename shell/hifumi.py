@@ -8,8 +8,9 @@ from threading import Timer
 
 from discord import ChannelType, Message
 from discord.ext.commands import Bot, CommandOnCooldown, Context
-from discord.game import Game
 from discord.ext.commands.errors import MissingRequiredArgument, CommandNotFound
+from discord.game import Game
+
 from config.settings import DEFAULT_PREFIX, SHARDED, DATA_CONTROLLER
 from core.bot_info_core import generate_shard_info
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
@@ -81,8 +82,8 @@ class Hifumi(Bot):
                 or isinstance(exception, ManageRoleError) \
                 or isinstance(exception, AdminError) \
                 or isinstance(exception, ManageMessageError) \
-                or 'Member' in str(exception) and \
-                'not found' in str(exception) \
+                or ('Member' in str(exception)
+                    and 'not found' in str(exception)) \
                 or isinstance(exception, MissingRequiredArgument):
             await command_error_handler(self, exception, context)
         elif isinstance(exception, CommandNotFound):
