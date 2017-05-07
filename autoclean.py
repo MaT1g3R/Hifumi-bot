@@ -25,3 +25,12 @@ def autoclean():
     """
     for path in __autoclean():
         shutil.rmtree(path, ignore_errors=True)
+
+
+if __name__ == '__main__':
+    print("Hey! This script is not intended to be opened "
+          "in the Python shell >_< This file offers a "
+          "external function to clean Python cache and "
+          "should be executed only by internal process "
+          "of Hifumi.")
+    exit(1)
