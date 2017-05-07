@@ -573,7 +573,6 @@ def stop_hifumi():
     code = subprocess.call(['pm2', 'stop', 'run.py'])
     if code is 0:
         info("Hifumi has been terminated successfully.")
-        pause()
     else:  # If error
         error("Hifumi is not registered into PM2. No need to use this now.")
     pause()
