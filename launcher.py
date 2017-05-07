@@ -19,6 +19,7 @@ import time
 import socket
 import stat
 from autoclean import autoclean
+from logger import warning, info, error
 
 try:
     import pip
@@ -45,53 +46,6 @@ FFMPEG_FILES = {  # Names encoded for md5 function
     "ffplay.exe": "d100abe8281cbcc3e6aebe550c675e09",
     "ffprobe.exe": "0e84b782c0346a98434ed476e937764f"
 }
-
-def warning(text, end=None):
-    """
-    Prints a yellow warning. 
-    At the moment it's only supported for Linux and Mac.
-    :return: A warning.
-    """
-    if IS_WINDOWS:
-        # Normal white text because Windows shell doesn't support ANSI color :(
-        if end:
-            print(text, end=end)
-        else:
-            print(text)
-    else:
-        if end:
-            print('\x1b[33m{}\x1b[0m'.format(text), end=end)
-        else:
-            print('\x1b[33m{}\x1b[0m'.format(text))
-
-
-def error(text):
-    """
-    Prints a red error. At the moment it's only supported for Linux and Mac.
-    :return: An error.
-    """
-    if IS_WINDOWS:
-        print(text)
-    else:
-        print('\x1b[31m{}\x1b[0m'.format(text))
-
-
-def info(text, end=None):
-    """
-    Prints a green info. At the moment it's only supported for Linux and Mac.
-    :return: An info.
-    """
-    if IS_WINDOWS:
-        # Normal white text because Windows shell doesn't support ANSI color :(
-        if end:
-            print(text, end=end)
-        else:
-            print(text)
-    else:
-        if end:
-            print('\x1b[32m{}\x1b[0m'.format(text), end=end)
-        else:
-            print('\x1b[32m{}\x1b[0m'.format(text))
 
 
 def is_internet_on():
