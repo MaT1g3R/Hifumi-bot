@@ -54,13 +54,14 @@ class BotInfo:
         """
         await self.bot.say(self.bot.get_language_dict(ctx)['git'])
 
-    @commands.command(pass_context=True)
-    async def help(self, ctx):
-        """
-        help command
-        :param ctx: the discord context object
-        """
-        await self.bot.say('Coming Soon' + str(ctx))
+    # TODO Finish help command
+    # @commands.command(pass_context=True)
+    # async def help(self, ctx):
+    #     """
+    #     help command
+    #     :param ctx: the discord context object
+    #     """
+    #     await self.bot.say('Coming Soon' + str(ctx))
 
     @commands.command()
     async def ping(self):

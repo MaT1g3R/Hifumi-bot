@@ -97,7 +97,8 @@ class Hifumi(Bot):
         :param cogs: a list of cogs
         :param token: the bot token
         """
-        self.remove_command('help')
+        # TODO remove default help when custom help is finished
+        # self.remove_command('help')
         for cog in cogs:
             self.add_cog(cog)
         self.run(token)
