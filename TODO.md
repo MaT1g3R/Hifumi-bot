@@ -1,6 +1,6 @@
 # TODO
 ## 1. Bot manager/launcher
-- currently wip
+- Done
 ## 2. Bot base and command handler
 - mostly finished, contiune to add onto it if needed
 ## 3. Current hifumi commands transfering
@@ -101,7 +101,7 @@ setprefix *new      ✕
 ```
 6. Music
 ```
-music               ✕
+join                ✕
 request             ✕
 song pause          ✕
 song play           ✕
@@ -115,7 +115,7 @@ queue remove        ✕
 shuffle             ✕
 skip                ✕
 forceskip           ✕
-shutdown            ✕
+leave               ✕
 ```
 7. Tags
 ```
@@ -145,11 +145,24 @@ help                ✕
 ping                ✔
 invite              ✔
 ```
+10. Owner only
+```
+bash                ✕
+setavatar           ✕
+eval                ✕
+shard               ✕
+shardinfo           ✕
+editsettings        ✕
+reload              ✕
+restart             ✕
+shutdown            ✕
+blacklist           ✕
+```
 
 ## 4. New features
 - coming soon!
 ## 5. Translation support
-   - coming soon!
+   - Done! Locals are actually WIP
 ## 6. Documentation
    - coming soon!
 ## 7. Database transfer and final touches
