@@ -88,16 +88,17 @@ selfrole remove	    ✔
 * levelup removed because setlevel exists
 
 * customize removed and replaced with setlanguage and setprefix
+
+* setlevel removed in favour of role based permissions
 ```
 ban                 ✔
 kick                ✔
 clean               ✔
-mute                ✕
-unmute              ✕
-setlevel            ✕
+mute                ✔
+unmute              ✔
 warn                ✕
-setlanguage *new    ✕
-setprefix *new      ✕
+setlanguage *new    ✔
+setprefix *new      ✔
 ```
 6. Music
 ```

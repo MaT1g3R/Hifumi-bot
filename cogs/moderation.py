@@ -72,17 +72,12 @@ class Moderation:
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
-    async def setlevel(self, ctx, member: Member, lvl):
-        pass
-
-    @commands.command(pass_context=True, no_pm=True)
-    @commands.check(is_admin)
     async def warn(self, ctx, member: Member, message):
         pass
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
-    async def setlanguage(self, ctx, language: str=None):
+    async def setlanguage(self, ctx, language: str = None):
         if language not in self.bot.language or language is None:
             localize = self.bot.get_language_dict(ctx)
             await self.bot.say(
