@@ -3,9 +3,10 @@ from discord.ext import commands
 
 from config.settings import DATA_CONTROLLER
 from core.checks import is_admin, has_manage_message, has_manage_role
-from core.moderation_core import ban_kick, clean_msg, mute_unmute
 from core.discord_functions import get_prefix
 from core.language_support import set_language
+from core.moderation_core import ban_kick, clean_msg, mute_unmute
+
 
 class Moderation:
     """
@@ -81,8 +82,8 @@ class Moderation:
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
-    async def setlanguage(self, ctx, language: str):
-        if language not in self.bot.language:
+    async def setlanguage(self, ctx, language: str=None):
+        if language not in self.bot.language or language is None:
             localize = self.bot.get_language_dict(ctx)
             await self.bot.say(
                 localize['lan_no_exist'].format(
@@ -90,7 +91,8 @@ class Moderation:
                 )
             )
         else:
-            await self.bot.say(set_language(ctx, self.bot, language))
+            res = set_language(ctx, self.bot, language)
+            await self.bot.say(res)
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
