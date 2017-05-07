@@ -34,7 +34,6 @@ def setup_logging(start_time):
     :return: the logger object
     """
     logger = logging.getLogger('discord')
-    logger.setLevel(logging.DEBUG)
     handler = logging.FileHandler(
         filename=join('data', 'logs', '{}.log'.format(start_time)),
         encoding='utf-8',
@@ -57,11 +56,12 @@ def get_console_handler():
             datefmt=None,
             reset=True,
             log_colors={
-                'DEBUG': 'cyan',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
+                'DEBUG': 'black,bg_blue',
+                'INFO': 'black,bg_green',
+                'WARNING': 'black,bg_yellow',
+                'ERROR': 'black,bg_red',
                 'CRITICAL': 'red,bg_white',
+                'SILLY': 'black,bg_magenta'
             },
             secondary_log_colors={},
             style='%'
