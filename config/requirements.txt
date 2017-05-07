@@ -15,3 +15,5 @@ wheel
 youtube-dl
 py-editor
 requests
+colorama
+colorlog

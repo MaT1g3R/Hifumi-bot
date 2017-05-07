@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from colorama import init
+
 try:
     import urllib.request
     from importlib.util import find_spec
@@ -519,7 +521,7 @@ def about():
               "\nHelpers: Wolke#6746\n\n"
               "Website: http://hifumibot.xyz\n"
               "Twitter: @HifumiBot\n\n" + license_)
-    except UnicodeEncodeError: # When Umi bugs your own bash >_<
+    except UnicodeEncodeError:  # When Umi bugs your own bash >_<
         print("Hifumi ~The Discord bot~\n\n"
               "Developers: Underforest, InternalLight, "
               "Umi\nVersion: {}".format(BOT_VERSION),
@@ -545,7 +547,7 @@ def about_system():
     else:
         try:
             subprocess.call(["screenfetch"])
-            print("\n") # Ubuntu logo is RIP otherwise
+            print("\n")  # Ubuntu logo is RIP otherwise
             pause()
         except subprocess.CalledProcessError:
             warning("'screenfetch' package not found!"
@@ -935,4 +937,5 @@ def run():
 
 
 if __name__ == '__main__':
+    init()
     run()
