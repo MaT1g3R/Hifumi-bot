@@ -19,7 +19,7 @@ import time
 import socket
 import stat
 from autoclean import autoclean
-from logger import warning, info, error
+from consolelog import warning, info, error
 
 try:
     import pip
