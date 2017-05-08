@@ -82,18 +82,20 @@ def remove_role(ctx, bot, role):
     return res
 
 
-def __role_add_rm(ctx, bot, role, is_add):
+def role_add_rm(ctx, bot, role, is_add, check_db=True):
     """
     A helper function for roleme and unrole me
     :param ctx: the discord context
+    :param bot: the bot
     :param role: the role name
     :param is_add: True if the function is add, False if it's remove
+    :param check_db: check the db for self assign
     :return: (the response string, the role to be handled)
     """
-    lst = get_role_list(ctx, bot)
+    lst = get_role_list(ctx, bot) if check_db else []  # To save runtime
     server = ctx.message.server
     localize = bot.get_language_dict(ctx)
-    if role in lst and role_exist(role, server):
+    if (not check_db or role in lst) and role_exist(role, server):
         s = localize['role_me_success'] if is_add \
             else localize['unrole_me_success']
         return s.format(role), get_server_role(role, server)
@@ -103,46 +105,31 @@ def __role_add_rm(ctx, bot, role, is_add):
         return localize['not_assignable'], None
 
 
-def role_me(ctx, bot, role):
-    """
-    Give a user self assignable role
-    :param ctx: the discord context
-    :param bot: the bot object
-    :param role: the role to be added
-    :return: (the response string, the role to be added)
-    """
-    return __role_add_rm(ctx, bot, role, True)
-
-
-def unrole_me(ctx, bot, role):
-    """
-    Remove a role from a user
-    :param ctx: the discord context
-    :param bot: the bot
-    :param role: the role to be removed
-    :return: (the response string, the role to be removed)
-    """
-    return __role_add_rm(ctx, bot, role, False)
-
-
-async def role_unrole(bot, ctx, args, is_add):
+async def role_unrole(bot, ctx, args, is_add, check_db=True, target=None):
     """
     A helper function to handle roleme and unroleme
     :param bot: the bot
     :param ctx: the context
     :param args: the args passed into roleme and unroleme
     :param is_add: wether if the method is add or remove
+    :param check_db: check the db for self assign
+    :param target: the role assignment target
     """
-    res, roles = role_me(ctx, bot, ' '.join(args)) if is_add else \
-        unrole_me(ctx, bot, ' '.join(args))
+    is_mute = True
+    role_name = ' '.join(args)
+    res, roles = role_add_rm(ctx, bot, role_name, is_add, check_db)
     localize = bot.get_language_dict(ctx)
+    func = bot.add_roles if is_add else bot.remove_roles
+    if target is None:
+        is_mute = False
+        target = ctx.message.author
     try:
         if roles:
             for role in roles:
-                if is_add:
-                    await bot.add_roles(ctx.message.author, role)
-                else:
-                    await bot.remove_roles(ctx.message.author, role)
+                await func(target, role)
+        if is_mute:
+            action = 'muted' if is_add else 'unmuted'
+            res = localize['mute_unmute_success'].format(action, target.name)
         await bot.say(res)
     except Exception as e:
         action = 'assign' if is_add else 'remove'

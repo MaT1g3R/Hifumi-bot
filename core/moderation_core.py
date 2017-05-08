@@ -6,7 +6,7 @@ from asyncio import sleep
 from discord import Member
 
 from core.discord_functions import handle_forbidden_http
-from core.roles_core import role_exist, get_server_role
+from core.roles_core import role_exist, role_unrole
 
 
 async def ban_kick(bot, ctx, member: Member, delete_message_days):
@@ -79,20 +79,6 @@ async def mute_unmute(ctx, bot, member, is_mute):
     elif member == ctx.message.author and is_mute:
         await bot.say(localize['ban_kick_mute_self'].format(action))
     elif role_exist('Muted', server):
-        roles = get_server_role('Muted', server)
-        try:
-            for role in roles:
-                if is_mute:
-                    await bot.add_roles(member, role)
-                else:
-                    await bot.remove_roles(member, role)
-            await bot.say(
-                localize['mute_unmute_success'].format(
-                    action + 'd', member.name)
-            )
-        except Exception as e:
-            await handle_forbidden_http(
-                e, bot, ctx.message.channel, localize, action
-            )
+        await role_unrole(bot, ctx, ['Muted'], is_mute, False, member)
     else:
         await bot.say(localize['muted_role_not_found'])
