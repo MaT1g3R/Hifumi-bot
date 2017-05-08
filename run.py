@@ -8,7 +8,7 @@ from colorama import init
 
 import core.logger as logger
 from cogs import bot_info, testing, channel_reader, nsfw, roles, moderation
-from config.settings import TOKEN, SHARD_COUNT, SHARD_ID, SHARDED
+from config.settings import TOKEN, SHARD_COUNT, SHARD_ID, SHARDED, SAFE_SHUTDOWN
 from core.discord_functions import get_prefix
 from launcher import is_internet_on
 from shell.hifumi import Hifumi
@@ -25,6 +25,7 @@ SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX
 
 PYTHON_OK = version_info >= (3, 6)
 
+
 if __name__ == '__main__':
     if not is_internet_on():
         logger.error(
@@ -32,6 +33,13 @@ if __name__ == '__main__':
             "Please check your connection and try again."
         )
         exit(1)
+    elif SAFE_SHUTDOWN:
+        logger.warning(
+            "Safe shutdown launched as requested in settings."
+            "To startup the bot back, toggle SAFE_SHUTDOWN "
+            "property to True. Exit code: 126"
+        )
+        exit(126)
     elif not SYSTEM_OK:
         logger.error("Sorry! This operation system is not compatible with "
                      "Hifumi's environment and might not run at all. Hifumi "
