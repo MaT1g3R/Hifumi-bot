@@ -1,10 +1,8 @@
-from discord import HTTPException, Forbidden
 from discord.ext import commands
 
 from core.checks import has_manage_role
 from core.discord_functions import get_prefix
-from core.roles_core import get_role_list, add_role, remove_role, role_me, \
-    unrole_me
+from core.roles_core import get_role_list, add_role, remove_role, role_unrole
 
 
 class Roles:
@@ -20,43 +18,19 @@ class Roles:
         """
         self.bot = bot
 
-    async def role_unrole(self, ctx, args, is_add):
-        """
-        A helper method to handle roleme and unroleme
-        :param ctx: the context
-        :param args: the args passed into roleme and unroleme
-        :param is_add: wether if the method is add or remove
-        """
-        res, roles = role_me(ctx, self.bot, ' '.join(args)) if is_add else \
-            unrole_me(ctx, self.bot, ' '.join(args))
-        localize = self.bot.get_language_dict(ctx)
-        try:
-            if roles:
-                for role in roles:
-                    if is_add:
-                        await self.bot.add_roles(ctx.message.author, role)
-                    else:
-                        await self.bot.remove_roles(ctx.message.author, role)
-            await self.bot.say(res)
-        except Forbidden:
-            await self.bot.say(localize['no_perms'])
-        except HTTPException:
-            await self.bot.say(localize['ban_kick_clean_role_fail']
-                               .format('assign role.'))
-
     @commands.command(no_pm=True, pass_context=True)
     async def roleme(self, ctx, *args):
         """
         Assign a role to the user
         """
-        await self.role_unrole(ctx, args, True)
+        await role_unrole(self.bot, ctx, args, True)
 
     @commands.command(no_pm=True, pass_context=True)
     async def unroleme(self, ctx, *args):
         """
         Removes a role from a user
         """
-        await self.role_unrole(ctx, args, False)
+        await role_unrole(self.bot, ctx, args, False)
 
     @commands.command(no_pm=True, pass_context=True)
     async def rolelist(self, ctx):

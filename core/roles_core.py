@@ -1,6 +1,8 @@
 """
 Functions to deal with the Roles class
 """
+from discord import Forbidden, HTTPException
+
 from config.settings import DATA_CONTROLLER
 
 
@@ -121,3 +123,30 @@ def unrole_me(ctx, bot, role):
     :return: (the response string, the role to be removed)
     """
     return __role_add_rm(ctx, bot, role, False)
+
+
+async def role_unrole(bot, ctx, args, is_add):
+    """
+    A helper function to handle roleme and unroleme
+    :param bot: the bot
+    :param ctx: the context
+    :param args: the args passed into roleme and unroleme
+    :param is_add: wether if the method is add or remove
+    """
+    res, roles = role_me(ctx, bot, ' '.join(args)) if is_add else \
+        unrole_me(ctx, bot, ' '.join(args))
+    localize = bot.get_language_dict(ctx)
+    try:
+        if roles:
+            for role in roles:
+                if is_add:
+                    await bot.add_roles(ctx.message.author, role)
+                else:
+                    await bot.remove_roles(ctx.message.author, role)
+        await bot.say(res)
+    except Forbidden:
+        await bot.say(localize['no_perms'])
+    except HTTPException:
+        await bot.say(
+            localize['ban_kick_clean_role_fail'].format('assign role.')
+        )
