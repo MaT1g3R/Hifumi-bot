@@ -1,9 +1,9 @@
 """
 Functions to deal with the Roles class
 """
-from discord import Forbidden, HTTPException
 
 from config.settings import DATA_CONTROLLER
+from core.discord_functions import handle_forbidden_http
 
 
 def role_exist(role, server):
@@ -144,9 +144,7 @@ async def role_unrole(bot, ctx, args, is_add):
                 else:
                     await bot.remove_roles(ctx.message.author, role)
         await bot.say(res)
-    except Forbidden:
-        await bot.say(localize['no_perms'])
-    except HTTPException:
-        await bot.say(
-            localize['ban_kick_clean_role_fail'].format('assign role.')
+    except Exception as e:
+        await handle_forbidden_http(
+            e, bot, ctx.message.channel, localize, 'assign/remove role'
         )

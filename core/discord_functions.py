@@ -1,15 +1,17 @@
 """
 A collection of functions that's related to discord
 """
-import discord
+import re
+
+from discord import Message, HTTPException, Forbidden
 from discord.embeds import Embed
 from discord.ext.commands import CommandOnCooldown
 from discord.ext.commands.errors import MissingRequiredArgument
+
 from config.settings import DATA_CONTROLLER
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError
 from core.helpers import strip_letters
-import re
 
 
 async def command_error_handler(bot, exception, context):
@@ -50,7 +52,7 @@ async def command_error_handler(bot, exception, context):
         raise exception
 
 
-def get_prefix(bot, message: discord.Message):
+def get_prefix(bot, message: Message):
     """
     the the prefix of commands for a channel
     :param bot: the discord bot object
@@ -144,3 +146,20 @@ def clense_prefix(message, prefix: str):
         while temp.startswith(' '):
             temp = temp[1:]
         return temp
+
+
+async def handle_forbidden_http(ex, bot, channel, localize, action):
+    """
+    Exception handling for Forbidden and HTTPException
+    :param ex: the exception raised
+    :param bot: the bot
+    :param channel: the channel to send a message to
+    :param localize: the localize strings
+    :param action: the action that caused the exception
+    """
+    if isinstance(ex, Forbidden):
+        await bot.send_message(channel, localize['no_perms'])
+    elif isinstance(ex, HTTPException):
+        await bot.send_message(channel, localize['https_fail'].format(action))
+    else:
+        raise ex

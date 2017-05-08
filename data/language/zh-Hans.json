@@ -51,7 +51,7 @@
   "no_manage_messages": ":no_entry_sign: You don't have the permission to manage messages!",
   "ban_kick_mute_self": ":no_entry_sign: You can't {} yourself",
   "banned_kicked": ":white_check_mark: I've {} ",
-  "ban_kick_clean_role_fail": ":no_entry_sign: Failed to {} ",
+  "https_fail": ":no_entry_sign: Failed to {} ",
   "no_perms": ":no_entry_sign: I don't have the permissions to perform this action.",
   "delete_message_days": ":warning: Your last argument for day cleaning must be between 0 to 7 (inclusive)",
   "clean_message_bad_num": ":no_entry_sign: The number of messages cleaned must be an integer between 1 to 99 (inclusive)",
