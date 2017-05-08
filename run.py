@@ -12,7 +12,7 @@ from shell.hifumi import Hifumi
 
 if __name__ == '__main__':
     if not is_internet_on():
-        logger.error("You're not connected to Internet!
+        logger.error("You're not connected to Internet!"
             "Please check your connection and try again.")
         exit(1)
     else:
