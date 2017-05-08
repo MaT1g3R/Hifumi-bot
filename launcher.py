@@ -11,6 +11,8 @@ import time
 import webbrowser
 from pathlib import Path
 
+from __init__ import version_info, __author__, __helper__, __author_plain__, \
+    __helper_plain__, LICENSE
 from autoclean import autoclean
 
 logger_success = True
@@ -47,8 +49,10 @@ IS_64BIT = platform.machine().endswith("64")
 
 PYTHON_OK = sys.version_info >= (3, 6)
 
-# This one must be a string for the window title for Windows version
-BOT_VERSION = "1.0.0"
+BOT_VERSION = '{} {}.{}.{}'.format(
+    version_info.releaselevel, version_info.major,
+    version_info.minor, version_info.micro
+)
 
 FFMPEG_FILES = {  # Names encoded for md5 function
     "ffmpeg.exe": "e0d60f7c0d27ad9d7472ddf13e78dc89",
@@ -595,23 +599,22 @@ def about():
     Prints the about information and the license
     :return: The about information
     """
-    with open(Path('LICENSE')) as f:
-        license_ = f.read()
-        f.close()
     try:
         print("Hifumi ~The Discord bot~\n\n"
-              "Developers: Underforest#1284, InternalLight#9391, "
-              "ラブアローシュート#6728\nVersion: {}".format(BOT_VERSION),
-              "\nHelpers: Wolke#6746\n\n"
+              "Developers: {}\nVersion: {}".format(', '.join(__author__),
+                                                   BOT_VERSION),
+              "\nHelpers: {}\n\n"
               "Website: http://hifumibot.xyz\n"
-              "Twitter: @HifumiBot\n\n" + license_)
+              "Twitter: @HifumiBot\n\n".format(
+                  ', '.join(__helper__)) + LICENSE)
     except UnicodeEncodeError:  # When Umi bugs your own bash >_<
         print("Hifumi ~The Discord bot~\n\n"
-              "Developers: Underforest, InternalLight, "
-              "Umi\nVersion: {}".format(BOT_VERSION),
-              "\nHelpers: Wolke\n\n"
+              "Developers: {}\nVersion: {}".format(', '.join(__author_plain__),
+                                                   BOT_VERSION),
+              "\nHelpers: {}\n\n"
               "Website: http://hifumibot.xyz\n"
-              "Twitter: @HifumiBot\n\n" + license_)
+              "Twitter: @HifumiBot\n\n".format(
+                  ', '.join(__helper_plain__)) + LICENSE)
 
     pause()
 
