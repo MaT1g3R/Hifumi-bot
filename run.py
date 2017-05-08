@@ -22,12 +22,18 @@ if __name__ == '__main__':
                 moderation.Moderation(bot)]
 
         bot.start_bot(cogs, TOKEN)
-    except (UnicodeEncodeError, UnicodeDecodeError):
+    except Exception as e:
         # If locales are not returned
-        logger.error(
-            "Hifumi startup error:\n\nLocales failed to load because your "
-            "system does not support UTF-8/Unicode encoding. "
-            "Please read the docs (Troubleshooting section) "
-            "to know how to fix this problem. Exit code: 1"
-        )
+        if isinstance(ex, UnicodeEncodeError) or isinstance(ex, UnicodeDecodeError)
+            logger.error("Hifumi startup error:\n\nLocales failed to load "
+                         "because your system does not support UTF-8/Unicode "
+                         "encoding. Please read the docs (Troubleshooting section) "
+                         "to know how to fix this problem. Exit code: 1")
+        else:
+            logger.error("Hifumi startup error:\n\nPython returned an exception error "
+                         "and this instance was triggered with exit code 1.\n\n" + e +
+                         "\n\nPlease fix this and try again. If you don't know how to, "
+                         "check the Troubleshooting section in the Hifumi documentation "
+                         "and/or feel free to ask for help in official support server in "
+                         "Discord.")
         exit(1)
