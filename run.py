@@ -24,7 +24,7 @@ if __name__ == '__main__':
         bot.start_bot(cogs, TOKEN)
     except Exception as e:
         # If locales are not returned
-        if isinstance(ex, UnicodeEncodeError) or isinstance(ex, UnicodeDecodeError)
+        if isinstance(ex, UnicodeEncodeError) or isinstance(ex, UnicodeDecodeError):
             logger.error("Hifumi startup error:\n\nLocales failed to load "
                          "because your system does not support UTF-8/Unicode "
                          "encoding. Please read the docs (Troubleshooting section) "
