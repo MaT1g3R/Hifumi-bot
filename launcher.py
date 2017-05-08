@@ -456,17 +456,18 @@ def maintenance_menu():
                 "any other important folder from the system to prevent "
                 "that those ones get severely damaged. Proceed?")
         if user_pick_yes_no():
+            autoclean()
             clear_screen()
             pass
         else:
             main()
     else:
-        autoclean()
         warning("Before you continue, please verify this launcher and "
                 "the bot are NOT installed in a system important folder "
                 "or an instance ran by the system, this to prevent "
                 "that those ones get severely damaged. Proceed?")
         if user_pick_yes_no():
+            autoclean()
             clear_screen()
             pass
         else:

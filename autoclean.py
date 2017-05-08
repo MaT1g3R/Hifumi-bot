@@ -25,6 +25,21 @@ def autoclean():
     """
     for path in __autoclean():
         shutil.rmtree(path, ignore_errors=True)
+    dumps = os.path.join('data', 'dumps')
+    shard_info = os.path.join('data', 'shard_info')
+    dummy = 'dummy.txt'
+    for file in os.listdir(dumps):
+        if dummy not in file:
+            try:
+                os.remove(os.path.join(dumps, file))
+            except OSError:
+                continue
+    for file in os.listdir(shard_info):
+        if dummy not in file:
+            try:
+                os.remove(os.path.join(shard_info, file))
+            except OSError:
+                continue
 
 
 if __name__ == '__main__':
