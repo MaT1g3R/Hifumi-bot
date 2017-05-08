@@ -12,7 +12,7 @@ import webbrowser
 from pathlib import Path
 
 from __init__ import version_info, __author__, __helper__, __author_plain__, \
-    __helper_plain__, LICENSE
+    __helper_plain__, __title__, LICENSE
 from autoclean import autoclean
 
 logger_success = True
@@ -919,16 +919,16 @@ def main():
         print("You're not connected to Internet! Please check your "
               "connection and try again.")
         exit(1)
+    title_text = __title__ + ' Version ' + BOT_VERSION + ' ~ Launcher'
     if IS_WINDOWS:
-        os.system("TITLE Hifumi v{} ~ Launcher".format(BOT_VERSION))
+        os.system("TITLE {}".format(title_text))
     elif IS_MAC:
-        os.system("echo -n -e \"\033]0;Hifumi v{} ~ Launcher\007\""
-                  .format(BOT_VERSION))
+        os.system("echo -n -e \"\033]0;{}\007\""
+                  .format(title_text))
     else:
-        sys.stdout.write("\x1b]2;Hifumi v{} ~ Launcher\x07".format(BOT_VERSION))
+        sys.stdout.write("\x1b]2;{}\x07".format(title_text))
         sys.stdout.write(
-            "\033]30;Hifumi v{} ~ Launcher\007".format(BOT_VERSION))
-
+            "\033]30;{}\007".format(title_text))
     while True:
         clear_screen()
         try:
