@@ -4,7 +4,7 @@ The main run file.
 from colorama import init
 
 import core.logger as logger
-from launcher import is_internet_on as internet
+from launcher import is_internet_on
 from cogs import bot_info, testing, channel_reader, nsfw, roles, moderation
 from config.settings import TOKEN, SHARD_COUNT, SHARD_ID, SHARDED
 from core.discord_functions import get_prefix
@@ -12,8 +12,7 @@ from shell.hifumi import Hifumi
 
 if __name__ == '__main__':
     if not is_internet_on():
-        logger.error("You're not connected to Internet!"
-            "Please check your connection and try again.")
+        logger.error("You're not connected to Internet!""Please check your connection and try again.")
         exit(1)
     else:
         try:

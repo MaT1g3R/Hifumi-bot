@@ -79,15 +79,12 @@ class Hifumi(Bot):
         :param exception: the expection raised
         :param context: the context of the command
         """
-        if isinstance(exception, CommandOnCooldown) \
-                or isinstance(exception, NsfwError) \
-                or isinstance(exception, BadWordError) \
-                or isinstance(exception, ManageRoleError) \
-                or isinstance(exception, AdminError) \
-                or isinstance(exception, ManageMessageError) \
-                or ('Member' in str(exception)
-                    and 'not found' in str(exception)) \
-                or isinstance(exception, MissingRequiredArgument):
+        handled_exceptions = (
+            CommandOnCooldown, NsfwError, BadWordError, ManageRoleError,
+            AdminError, ManageMessageError, MissingRequiredArgument
+        )
+        if ('Member' in str(exception) and 'not found' in str(exception)) \
+                or isinstance(exception, handled_exceptions):
             await command_error_handler(self, exception, context)
         elif isinstance(exception, CommandNotFound):
             # Ignore this case
