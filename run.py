@@ -4,10 +4,10 @@ The main run file.
 from colorama import init
 
 import core.logger as logger
-from launcher import is_internet_on
 from cogs import bot_info, testing, channel_reader, nsfw, roles, moderation
 from config.settings import TOKEN, SHARD_COUNT, SHARD_ID, SHARDED
 from core.discord_functions import get_prefix
+from launcher import is_internet_on
 from shell.hifumi import Hifumi
 
 if __name__ == '__main__':
