@@ -115,14 +115,12 @@ async def role_unrole(bot, ctx, args, is_add, check_db=True, target=None):
     :param check_db: check the db for self assign
     :param target: the role assignment target
     """
-    is_mute = True
+    is_mute = target is not None
+    target = ctx.message.author if target is None else target
     role_name = ' '.join(args)
     res, roles = role_add_rm(ctx, bot, role_name, is_add, check_db)
     localize = bot.get_language_dict(ctx)
     func = bot.add_roles if is_add else bot.remove_roles
-    if target is None:
-        is_mute = False
-        target = ctx.message.author
     try:
         if roles:
             for role in roles:
