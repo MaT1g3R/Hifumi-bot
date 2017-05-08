@@ -12,13 +12,18 @@ from shell.hifumi import Hifumi
 
 if __name__ == '__main__':
     if not is_internet_on():
-        logger.error("You're not connected to Internet!""Please check your connection and try again.")
+        logger.error(
+            "You're not connected to Internet! "
+            "Please check your connection and try again."
+        )
         exit(1)
     else:
         try:
             init()
             if SHARDED:
-                bot = Hifumi(get_prefix, shard_count=SHARD_COUNT, shard_id=SHARD_ID)
+                bot = Hifumi(
+                    get_prefix, shard_count=SHARD_COUNT, shard_id=SHARD_ID
+                )
             else:
                 bot = Hifumi(get_prefix)
             cogs = [bot_info.BotInfo(bot), testing.Testing(bot),
@@ -41,9 +46,11 @@ if __name__ == '__main__':
         except Exception as e:
             logger.error(
                 "Hifumi startup error:\n\nPython returned an exception error "
-                "and this instance was triggered with exit code 1.\n\n" + str(e) +
+                "and this instance was triggered with exit code 1.\n\n"
+                + str(e) +
                 "\n\nPlease fix this and try again. If you don't know how to, "
                 "check the Troubleshooting section in the Hifumi documentation "
-                "and/or feel free to ask for help in official support server in "
-                "Discord.")
+                "and/or feel free to ask for help in official support server "
+                "in Discord."
+            )
             exit(1)
