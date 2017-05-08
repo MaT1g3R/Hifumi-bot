@@ -59,6 +59,7 @@ BAD_WORD = ['loli', 'l0l1', 'lol1', 'l0li', '7071', 'lolii', 'looli', 'lolli',
             'pico', 'ショタコン', 'ショタ']
 
 # Setting for sharding, defualts to not sharded
+# Please read "Sharding" page in the documentation for more information
 SHARDED = False
 SHARD_ID = 0
 SHARD_COUNT = 1
@@ -73,3 +74,8 @@ except DatabaseError:
     DATA_CONTROLLER = DataController(join('..', path))
 # Toggle this to true if you want to enable console logging
 ENABLE_CONSOLE_LOGGING = False
+
+# If True, Hifumi will not run until it's toggled to False
+# Useful if the bot is running into PM2 and need to fix high priority bugs or
+# test something
+SAFE_SHUTDOWN = False
