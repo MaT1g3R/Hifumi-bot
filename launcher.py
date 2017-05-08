@@ -44,7 +44,8 @@ FFMPEG_BUILDS_URL = "https://ffmpeg.zeranoe.com/builds/"
 IS_WINDOWS = os.name == "nt"
 IS_MAC = sys.platform == "darwin"
 IS_LINUX = sys.platform.startswith("linux") or os.name == "posix"
-SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX
+IS_DOCKER = IS_LINUX or IS_WINDOWS or os.path.isfile('/.dockerenv')
+SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX or IS_DOCKER
 IS_64BIT = platform.machine().endswith("64")
 
 PYTHON_OK = sys.version_info >= (3, 6)
@@ -54,7 +55,7 @@ BOT_VERSION = '{} {}.{}.{}'.format(
     version_info.minor, version_info.micro
 )
 
-FFMPEG_FILES = {  # Names encoded for md5 function
+FFMPEG_FILES = {  # Names encoded to base 32-48
     "ffmpeg.exe": "e0d60f7c0d27ad9d7472ddf13e78dc89",
     "ffplay.exe": "d100abe8281cbcc3e6aebe550c675e09",
     "ffprobe.exe": "0e84b782c0346a98434ed476e937764f"
@@ -1002,7 +1003,7 @@ def run():
     if not SYSTEM_OK:
         error("Sorry! This operation system is not compatible with "
               "Hifumi's environment and might not run at all. Hifumi "
-              "is only supported for Windows, Mac, Linux and "
+              "is only supported for Windows, Mac, Linux, Docker and "
               "Raspberry Pi. Please install one of those OS and try "
               "again.")
         exit(1)
