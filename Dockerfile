@@ -6,10 +6,10 @@ WORKDIR /usr/src/python/hifumi
 COPY . /usr/src/python/hifumi
 
 RUN cat ./config/linux_req.txt | xargs sudo apt-get -qq -y install
-
 RUN apt-get update
-
 RUN pip --upgrade lib -r ./config/requirements.txt
+
+ENV TERM xterm
 
 RUN chmod 755 ./entrypoint.sh
 
