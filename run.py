@@ -21,8 +21,6 @@ except ImportError:
 IS_WINDOWS = name == "nt"
 IS_MAC = platform == "darwin"
 IS_LINUX = platform.startswith("linux") or name == "posix"
-IS_ONE_OF_BOTH = IS_WINDOWS or IS_LINUX
-IS_DOCKER = IS_ONE_OF_BOTH and path.isfile('/.dockerenv')
 SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX or IS_DOCKER
 
 PYTHON_OK = version_info >= (3, 6)
