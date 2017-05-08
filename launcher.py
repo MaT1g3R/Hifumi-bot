@@ -44,7 +44,8 @@ FFMPEG_BUILDS_URL = "https://ffmpeg.zeranoe.com/builds/"
 IS_WINDOWS = os.name == "nt"
 IS_MAC = sys.platform == "darwin"
 IS_LINUX = sys.platform.startswith("linux") or os.name == "posix"
-IS_DOCKER = IS_LINUX or IS_WINDOWS or os.path.isfile('/.dockerenv')
+IS_ONE_OF_BOTH = IS_WINDOWS or IS_LINUX
+IS_DOCKER = IS_ONE_OF_BOTH and os.path.isfile('/.dockerenv')
 SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX or IS_DOCKER
 IS_64BIT = platform.machine().endswith("64")
 
