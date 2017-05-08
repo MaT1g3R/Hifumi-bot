@@ -79,6 +79,6 @@ async def mute_unmute(ctx, bot, member, is_mute):
     elif member == ctx.message.author and is_mute:
         await bot.say(localize['ban_kick_mute_self'].format(action))
     elif role_exist('Muted', server):
-        await role_unrole(bot, ctx, ['Muted'], is_mute, False, member)
+        await role_unrole(bot, ctx, 'Muted', is_mute, False, member)
     else:
         await bot.say(localize['muted_role_not_found'])

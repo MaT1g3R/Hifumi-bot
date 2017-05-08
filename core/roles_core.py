@@ -9,8 +9,11 @@ from core.discord_functions import handle_forbidden_http
 def role_exist(role, server):
     """
     Check if a role exist in the server
+
     :param role: the role name
+
     :param server: the server
+
     :return: True if the role exist
     """
     return role in [r.name for r in server.roles]
@@ -19,8 +22,11 @@ def role_exist(role, server):
 def get_role_list(ctx, bot):
     """
     Get the role list of the server
+
     :param ctx: the discord context object
+
     :param bot: the hifumi bot
+
     :return: the string representation of the server role list
     """
     server_id = ctx.message.server.id
@@ -41,9 +47,12 @@ def get_role_list(ctx, bot):
 
 def get_server_role(role, server):
     """
-    Get a list of server roles with the name <role>
+    Get a list of server roles with the name ame as :param role
+
     :param role: the role name
+
     :param server: the server
+
     :return: a list of discord role object
     """
     return [r for r in server.roles if r.name == role]
@@ -52,9 +61,13 @@ def get_server_role(role, server):
 def add_role(ctx, bot, role):
     """
     Add a role to the db to be self assignable
-    :param ctx: the discord context 
+
+    :param ctx: the discord context
+
     :param bot: the bot
+
     :param role: the role to be added
+
     :return: the response string
     """
     server = ctx.message.server
@@ -69,9 +82,13 @@ def add_role(ctx, bot, role):
 def remove_role(ctx, bot, role):
     """
     Remove a role from the db
+
     :param ctx: the discord context
-    :param bot: the bot 
+
+    :param bot: the bot
+
     :param role: the role to be removed
+
     :return: the response string
     """
     localize = bot.get_language_dict(ctx)
@@ -84,12 +101,18 @@ def remove_role(ctx, bot, role):
 
 def role_add_rm(ctx, bot, role, is_add, check_db=True):
     """
-    A helper function for roleme and unrole me
+    A helper function for role_unrole
+
     :param ctx: the discord context
+
     :param bot: the bot
+
     :param role: the role name
+
     :param is_add: True if the function is add, False if it's remove
+
     :param check_db: check the db for self assign
+
     :return: (the response string, the role to be handled)
     """
     lst = get_role_list(ctx, bot) if check_db else []  # To save runtime
@@ -105,19 +128,29 @@ def role_add_rm(ctx, bot, role, is_add, check_db=True):
         return localize['not_assignable'], None
 
 
-async def role_unrole(bot, ctx, args, is_add, check_db=True, target=None):
+async def role_unrole(bot, ctx, role_name, is_add, check_db=True, target=None):
     """
-    A helper function to handle roleme and unroleme
+    A helper function to handle adding/removing role from a member
+
     :param bot: the bot
+
     :param ctx: the context
-    :param args: the args passed into roleme and unroleme
+
+    :param role_name: The role name, can be either a string
+    or a collection of strings. Will join the collection with a white space
+    character to produce a single role name
+
     :param is_add: wether if the method is add or remove
-    :param check_db: check the db for self assign
-    :param target: the role assignment target
+
+    :param check_db: If it's True then this function will check the db
+    for self assign roles
+
+    :param target: the role assignment target, if it's None the role assignment
+    target will be the message author
     """
+    role_name = role_name if isinstance(role_name, str) else ' '.join(role_name)
     is_mute = target is not None
     target = ctx.message.author if target is None else target
-    role_name = ' '.join(args)
     res, roles = role_add_rm(ctx, bot, role_name, is_add, check_db)
     localize = bot.get_language_dict(ctx)
     func = bot.add_roles if is_add else bot.remove_roles
