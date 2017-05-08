@@ -34,23 +34,27 @@ class Hifumi(Bot):
                  'mention_nick']
 
     def __init__(self, prefix, shard_count=1, shard_id=0,
-                 default_language='en'):
+                 default_language='en', working_dir=''):
         """
         Initialize the bot object
         :param prefix: the function to get prefix for a server
         :param shard_count: the shard count, default is 1
         :param shard_id: shard id, default is 0
         :param default_language: the default language of the bot, default is en
+        :param working_dir: the working directory for the bot, dont change this
+        unless you know what you are doing
         """
         super().__init__(command_prefix=prefix, shard_count=shard_count,
                          shard_id=shard_id)
         self.default_prefix = DEFAULT_PREFIX
         self.shard_id = shard_id
         self.shard_count = shard_count
-        self.start_time = time.time()
-        self.language = read_language()
+        self.start_time = int(time.time())
+        self.language = read_language(join(working_dir, 'data', 'language'))
         self.default_language = default_language
-        self.logger = setup_logging(self.start_time)
+        self.logger = setup_logging(
+            self.start_time, join(working_dir, 'data', 'logs')
+        )
         self.mention_normal = ''
         self.mention_nick = ''
 

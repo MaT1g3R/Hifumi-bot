@@ -10,17 +10,18 @@ CONSOLE_FORMAT = '\n%(asctime)s:%(log_color)s%(levelname)s:%(name)s: ' \
 FILE_FORMAT = '\n%(asctime)s:%(levelname)s:%(name)s: %(message)s\n'
 
 
-def setup_logging(start_time):
+def setup_logging(start_time, path):
     """
     Set up logging
     :param start_time: the start time of the log
+    :param path: the path to the log folder
     :return: the logger object
     """
     logger = logging.getLogger('discord')
     handler = logging.FileHandler(
-        filename=join('data', 'logs', '{}.log'.format(start_time)),
+        filename=join(path, '{}.log'.format(start_time)),
         encoding='utf-8',
-        mode='w'
+        mode='w+'
     )
     handler.setFormatter(logging.Formatter(FILE_FORMAT))
     logger.addHandler(handler)

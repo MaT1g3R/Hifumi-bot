@@ -3,20 +3,22 @@
 """
 A collection of functions to deal with language support
 """
-from os.path import join
+
+from ntpath import basename
 
 from config.settings import DATA_CONTROLLER
 from core.file_io import read_all_files, read_json
 from core.helpers import suplement_dict
 
 
-def read_language():
+def read_language(path):
     """
     Read all language files and return it in a dict
+    :param path: the path that points to the language folder
     :return: all language files in a dict
     """
-    language = {f[14:-5]: read_json(open(f))
-                for f in read_all_files(join('data', 'language'))
+    language = {basename(f)[:-5]: read_json(open(f))
+                for f in read_all_files(path)
                 if f.endswith('.json')}
     for key, val in language.items():
         if key != 'en':
