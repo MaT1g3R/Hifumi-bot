@@ -4,12 +4,18 @@ The main run file.
 from colorama import init
 
 import core.logger as logger
+import launcher.is_internet_on as internet
 from cogs import bot_info, testing, channel_reader, nsfw, roles, moderation
 from config.settings import TOKEN, SHARD_COUNT, SHARD_ID, SHARDED
 from core.discord_functions import get_prefix
 from shell.hifumi import Hifumi
 
 if __name__ == '__main__':
+    if not is_internet_on():
+        logger.error("You're not connected to Internet!
+            "Please check your connection and try again.")
+        exit(1)
+    else:
     try:
         init()
         if SHARDED:
@@ -31,6 +37,8 @@ if __name__ == '__main__':
             "to know how to fix this problem. Exit code: 1"
         )
         exit(1)
+    except KeyboardInterrupt:
+        logger.info("Hifumi has been terminated.")
     except Exception as e:
         logger.error(
             "Hifumi startup error:\n\nPython returned an exception error "
