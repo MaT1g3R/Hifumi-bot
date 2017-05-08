@@ -79,5 +79,7 @@
   "unmute": "unmute",
   "assign": "assign",
   "remove": "remove",
-  "role": "role"
+  "role": "role",
+  "muted": "muted",
+  "unmuted": "unmuted"
 }
