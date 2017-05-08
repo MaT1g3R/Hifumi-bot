@@ -159,11 +159,13 @@ async def role_unrole(bot, ctx, role_name, is_add, check_db=True, target=None):
             for role in roles:
                 await func(target, role)
         if is_mute:
-            action = 'muted' if is_add else 'unmuted'
+            action = localize['muted'] if is_add else localize['unmuted']
             res = localize['mute_unmute_success'].format(action, target.name)
         await bot.say(res)
     except Exception as e:
-        action = 'assign' if is_add else 'remove'
+        action = localize['assign'] if is_add else localize['remove']
         await handle_forbidden_http(
-            e, bot, ctx.message.channel, localize, '{} role'.format(action)
+            e, bot, ctx.message.channel, localize, '{} {}'.format(
+                action, localize['role']
+            )
         )

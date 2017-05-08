@@ -69,5 +69,15 @@
   "warn_no_reason": ":warning: Please specify the reason to warn.",
   "warn_success": ":warning: **HEY**, **{}**! Can you please stop **{}**? It's annoying and it can lead you to a serious punishment from the admin/mod(s) of this server. Thanks!\nWarning given by **{}**",
   "ex_warn": ":warning: I ran into an error while executing this command. Please report this to my developers.\n**Triggered message**: {}\n**Type**: {}\n**Exception**: {}",
-  "ex_error": ":x: I ran into a critical error, please report this to my developers.\n```Python\n{}\n```"
+  "ex_error": ":x: I ran into a critical error, please report this to my developers.\n```Python\n{}\n```",
+  "ban": "ban",
+  "kick": "kick",
+  "banned": "banned",
+  "kicked": "kicked",
+  "clean_messages": "clean messages",
+  "mute": "mute",
+  "unmute": "unmute",
+  "assign": "assign",
+  "remove": "remove",
+  "role": "role"
 }

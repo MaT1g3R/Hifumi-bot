@@ -18,8 +18,10 @@ async def ban_kick(bot, ctx, member: Member, delete_message_days):
     :param delete_message_days: arg for bot.kick
     """
     localize = bot.get_language_dict(ctx)
-    action = 'ban' if delete_message_days is not None else 'kick'
-    action_past = 'banned' if delete_message_days is not None else 'kicked'
+    action = localize['ban'] if delete_message_days is not None \
+        else localize['kick']
+    action_past = localize['banned'] if delete_message_days is not None \
+        else localize['kicked']
     if member == ctx.message.author:
         await bot.say(
             localize['ban_kick_mute_self'].format(action)
@@ -59,7 +61,7 @@ async def clean_msg(ctx, bot, count):
             await bot.delete_message(purge_msg)
         except Exception as e:
             await handle_forbidden_http(
-                e, bot, channel, localize, 'clean messages'
+                e, bot, channel, localize, localize['clean_messages']
             )
 
 
@@ -73,7 +75,7 @@ async def mute_unmute(ctx, bot, member, is_mute):
     """
     server = ctx.message.server
     localize = bot.get_language_dict(ctx)
-    action = 'mute' if is_mute else 'unmute'
+    action = localize['mute'] if is_mute else localize['unmute']
     if is_mute and member.id == bot.user.id:
         await bot.say(localize['go_away'])
     elif member == ctx.message.author and is_mute:
