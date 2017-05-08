@@ -1,6 +1,9 @@
 """
 The main run file.
 """
+from os import name
+from sys import platform, version_info
+
 from colorama import init
 
 import core.logger as logger
@@ -15,13 +18,13 @@ try:
 except ImportError:
     pip = None
 
-IS_WINDOWS = os.name == "nt"
-IS_MAC = sys.platform == "darwin"
-IS_LINUX = sys.platform.startswith("linux") or os.name == "posix"
+IS_WINDOWS = name == "nt"
+IS_MAC = platform == "darwin"
+IS_LINUX = platform.startswith("linux") or os.name == "posix"
 IS_DOCKER = IS_LINUX or IS_WINDOWS or os.path.isfile('/.dockerenv')
 SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX or IS_DOCKER
 
-PYTHON_OK = sys.version_info >= (3, 6)
+PYTHON_OK = version_info >= (3, 6)
 
 if __name__ == '__main__':
     if not is_internet_on():
@@ -32,21 +35,23 @@ if __name__ == '__main__':
         exit(1)
     elif not SYSTEM_OK:
         logger.error("Sorry! This operation system is not compatible with "
-              "Hifumi's environment and might not run at all. Hifumi "
-              "is only supported for Windows, Mac, Linux, Docker and "
-              "Raspberry Pi. Please install one of those OS and try "
-              "again.")
+                     "Hifumi's environment and might not run at all. Hifumi "
+                     "is only supported for Windows, Mac, Linux, Docker and "
+                     "Raspberry Pi. Please install one of those OS and try "
+                     "again.")
         exit(1)
     elif not PYTHON_OK:
-        logger.error("Sorry! This Python version is not compatible. Hifumi needs "
-              "Python 3.6 or higher. You have Python version {}.\n"
-              .format(platform.python_version()) + " Install the required "
-                                                   "version and try again.\n")
+        logger.error(
+            "Sorry! This Python version is not compatible. Hifumi needs "
+            "Python 3.6 or higher. You have Python version {}.\n"
+            .format(platform.python_version()) + " Install the required "
+                                                 "version and try again.\n")
         exit(1)
     elif not pip:
-        logger.error("Hey! Python is installed but you are missing the pip module."
-              "\nPlease reinstall Python without "
-              "unchecking any option during the setup >_<")
+        logger.error(
+            "Hey! Python is installed but you are missing the pip module."
+            "\nPlease reinstall Python without "
+            "unchecking any option during the setup >_<")
         exit(1)
     else:
         try:
