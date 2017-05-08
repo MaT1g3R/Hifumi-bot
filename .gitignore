@@ -21,3 +21,5 @@ __pycache__/
 /run_autorestart.sh
 /run_normal.sh
 /start_launcher.sh
+
+temp\.py
