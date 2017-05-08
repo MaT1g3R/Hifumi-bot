@@ -11,6 +11,4 @@ RUN pip --upgrade lib -r ./config/requirements.txt
 
 ENV TERM xterm
 
-RUN chmod 755 ./entrypoint.sh
-
-ENTRYPOINT [ "./entrypoint.sh" ]
+RUN python launcher.py
