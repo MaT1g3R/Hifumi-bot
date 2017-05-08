@@ -145,6 +145,7 @@ async def role_unrole(bot, ctx, args, is_add):
                     await bot.remove_roles(ctx.message.author, role)
         await bot.say(res)
     except Exception as e:
+        action = 'assign' if is_add else 'remove'
         await handle_forbidden_http(
-            e, bot, ctx.message.channel, localize, 'assign/remove role'
+            e, bot, ctx.message.channel, localize, '{} role'.format(action)
         )
