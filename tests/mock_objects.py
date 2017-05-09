@@ -21,7 +21,7 @@ def mock_get_all_channels(*args, **kwargs):
     """
     Mock get_all_channels() method for MockBot
     """
-    return [MockChannel() for _ in range(100)] + \
+    return [MockPrivateChannel() for _ in range(100)] + \
            [MockTextChannel() for _ in range(100)]
 
 
@@ -36,13 +36,11 @@ def mock_get_member(id_):
     return MockMemberAllRoles() if id_ == 'y' else MockMemberNoRoles()
 
 
-# MockUser object
 class MockUser(MagicMock):
     name = 'Foo'
     avatar_url = 'https://cdn.awwni.me/xi62.png'
 
 
-# MockBot object
 MockBot = MagicMock()
 MockBot.configure_mock(
     # Instance variables
@@ -59,11 +57,9 @@ MockBot.configure_mock(
     get_all_channels=mock_get_all_channels
 )
 
-# MockChannel object
 MockChannel = MagicMock()
 
 
-# MockTextChannel object
 class MockTextChannel(MagicMock):
     type = ChannelType.text
     name = 'foo'
