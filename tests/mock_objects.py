@@ -32,6 +32,10 @@ def mock_get_all_members(*args, **kwargs):
     return [i for i in range(500)]
 
 
+def mock_get_member(id_):
+    return MockMemberAllRoles() if id_ == 'y' else MockMemberNoRoles()
+
+
 # MockUser object
 class MockUser(MagicMock):
     name = 'Foo'
@@ -62,13 +66,59 @@ MockChannel = MagicMock()
 # MockTextChannel object
 class MockTextChannel(MagicMock):
     type = ChannelType.text
+    name = 'foo'
 
 
-# MockMessage object
+class MockPrivateChannel(MagicMock):
+    name = 'foo'
+    type = ChannelType.private
+
+
+class MockNsfwChannel(MagicMock):
+    def __init__(self):
+        super().__init__()
+        self.name = 'nSfwasdasdasdsad'
+        self.type = ChannelType.text
+
+
+class MockServerPermissions(MagicMock):
+    def __init__(self, has_role):
+        super().__init__()
+        self.manage_roles = has_role
+        self.administrator = has_role
+        self.manage_messages = has_role
+
+
+class MockServer(MagicMock):
+    def __init__(self):
+        super().__init__()
+        self.id = 'foo'
+        self.get_member = mock_get_member
+
+
+class MockMemberAllRoles(MagicMock):
+    id = 'y'
+    server_permissions = MockServerPermissions(True)
+
+
+class MockMemberNoRoles(MagicMock):
+    id = 'n'
+    server_permissions = MockServerPermissions(False)
+
+
 class MockMessage(MagicMock):
-    server = None
+    def __init__(
+            self, server=MockServer(), channel=MockChannel(), content='',
+            author=None
+    ):
+        super().__init__()
+        self.server = server
+        self.channel = channel
+        self.content = content
+        self.author = author
 
 
-# MockContext object
 class MockContext(MagicMock):
-    message = MockMessage()
+    def __init__(self, message=MockMessage()):
+        super().__init__()
+        self.message = message

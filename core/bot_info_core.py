@@ -88,6 +88,7 @@ def build_info_embed(ctx, bot, path=join('data', 'shard_info')):
     build the info embed
     :param ctx: the discord context object
     :param bot: the bot object
+    :param path: the path that points to the shard_info folder
     :return: the info embed
     """
     shard_stat = generate_shard_info(bot)
