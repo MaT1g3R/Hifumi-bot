@@ -271,6 +271,14 @@ def reset_hifumi(reqs=False, data=False, cogs=False, git_reset=False):
             error("The repair has failed.")
 
 
+def open_docs():
+    """
+    Open the documentation in default browser.
+    :return: The page opened
+    """
+    webbrowser.open("http://hifumibot.xyz/docs")
+
+
 def download_ffmpeg(bitness):
     """
     Downloads FFMPEG from the official page. 
@@ -820,10 +828,11 @@ def faster_bash():
 
     for filename, content in files.items():
         if not os.path.isfile(filename):
-            info("Creating {}... (fast start scripts)".format(filename))
             modified = True
             with open(filename, "w") as f:
                 f.write(content)
+                
+    info("Creating fast start scripts (.bat)")
 
     if not IS_WINDOWS and modified:  # Let's make them executable on Unix
         for script in files:
@@ -945,40 +954,43 @@ def main():
               "|  |  |  | |  | |  |     |  `--'  | |  |  |  | |  |   |_|\n"
               "|__|  |__| |__| |__|      \______/  |__|  |__| |__|\n\n")
         print("Bot options:")
-        print("0. Start Hifumi with autorestart")
-        print("1. Stop Hifumi if started with autorestart")
-        print("2. Start Hifumi with no autorestart\n")
+        print("1. Start Hifumi with autorestart")
+        print("2. Stop Hifumi if started with autorestart")
+        print("3. Start Hifumi with no autorestart\n")
         print("Core options:")
-        print("3. Real-time logs (switch to read-only)")
-        print("4. Update environment")
-        print("5. Install requirements")
-        print("6. Edit settings")
-        print("7. Maintenance")
-        print("8. About the program")
-        print("9. About the system")
-        print("\nX. Quit")
+        print("4. Real-time logs (switch to read-only)")
+        print("5. Update environment")
+        print("6. Install requirements")
+        print("7. Edit settings")
+        print("8. Maintenance")
+        print("9. About the program")
+        print("10. About the system")
+        print("11. Open documentation")
+        print("\n12. Quit")
         choice = user_choice()
-        if choice == "0":
+        if choice == "1":
             run_hifumi(autorestart=True)
-        elif choice == "1":
-            stop_hifumi()
         elif choice == "2":
-            run_hifumi(autorestart=False)
+            stop_hifumi()
         elif choice == "3":
-            real_time_logging()
+            run_hifumi(autorestart=False)
         elif choice == "4":
-            update_menu()
+            real_time_logging()
         elif choice == "5":
-            requirements_menu()
+            update_menu()
         elif choice == "6":
-            edit_settings()
+            requirements_menu()
         elif choice == "7":
-            maintenance_menu()
+            edit_settings()
         elif choice == "8":
-            about()
+            maintenance_menu()
         elif choice == "9":
+            about()
+        elif choice == "10":
             about_system()
-        elif choice == "X" or choice == "x":
+        elif choice == "11":
+            open_docs()
+        elif choice == "12":
             print("Are you sure you want to quit?")
             if user_pick_yes_no():
                 clear_screen()
