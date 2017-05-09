@@ -828,11 +828,10 @@ def faster_bash():
 
     for filename, content in files.items():
         if not os.path.isfile(filename):
+            info("Creating fast start scripts (.bat)")
             modified = True
             with open(filename, "w") as f:
                 f.write(content)
-                
-    info("Creating fast start scripts (.bat)")
 
     if not IS_WINDOWS and modified:  # Let's make them executable on Unix
         for script in files:
