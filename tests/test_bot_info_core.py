@@ -68,6 +68,9 @@ class TestBotInfoCore(TestCase):
         self.assertDictEqual(res, expected)
 
     def test_build_info_embed(self):
+        """
+        Test case for build_info_embed
+        """
         res = build_info_embed(
             self.ctx, self.bot, join('test_data', 'test_shard_info')
         ).to_dict()
