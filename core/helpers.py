@@ -124,6 +124,6 @@ def dict_has_empty(d: dict):
     for key, val in d.items():
         if isinstance(val, dict) and dict_has_empty(val):
             return True
-        if not val or val is None:
+        if (not val or val is None) and not isinstance(val, int):
             return True
     return False
