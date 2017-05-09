@@ -23,12 +23,16 @@ class TestDataController(TestCase):
         conn = self.db.connection
         cur = self.db.cursor
         tables_sql = '''
-        SELECT name FROM sqlite_master WHERE type='table';
+        SELECT name FROM sqlite_master WHERE type=?
         '''
-        cur.execute(tables_sql)
+        cur.execute(tables_sql, ['table'])
         all_tables = [t[0] for t in cur.fetchall()]
+
         for name in all_tables:
-            cur.execute("DELETE FROM " + name)
+            delete_sql = """
+            DELETE FROM '{}'
+            """.format(name)
+            cur.execute(delete_sql)
         conn.commit()
         conn.close()
 
