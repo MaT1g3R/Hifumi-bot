@@ -34,7 +34,6 @@ class TestBotInfoCore(TestCase):
         self.assertAlmostEqual(
             result, time_diff, delta=10
         )
-        print('Expected:{}\nActual:{}'.format(time_diff, result))
 
     def test_generate_shard_info(self):
         """
