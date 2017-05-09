@@ -44,7 +44,9 @@ FFMPEG_BUILDS_URL = "https://ffmpeg.zeranoe.com/builds/"
 IS_WINDOWS = os.name == "nt"
 IS_MAC = sys.platform == "darwin"
 IS_LINUX = sys.platform.startswith("linux") or os.name == "posix"
-SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX
+IS_ONE_OF_BOTH = IS_WINDOWS or IS_LINUX
+IS_DOCKER = IS_ONE_OF_BOTH and os.path.exists('.dockerenv')
+SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX or IS_DOCKER
 IS_64BIT = platform.machine().endswith("64")
 
 PYTHON_OK = sys.version_info >= (3, 6)
@@ -1002,7 +1004,7 @@ def run():
     if not SYSTEM_OK:
         error("Sorry! This operation system is not compatible with "
               "Hifumi's environment and might not run at all. Hifumi "
-              "is only supported for Windows, Mac, Linux and "
+              "is only supported for Windows, Mac, Linux, Docker and "
               "Raspberry Pi. Please install one of those OS and try "
               "again.")
         exit(1)
