@@ -110,11 +110,12 @@ class DataController:
         :param server_id: the server id
         :param role: the role name
         """
-        sql = '''
-        REPLACE INTO roles VALUES (?, ?)
-        '''
-        self.cursor.execute(sql, [server_id, role])
-        self.connection.commit()
+        if role not in self.get_role_list(server_id):
+            sql = '''
+            REPLACE INTO roles VALUES (?, ?)
+            '''
+            self.cursor.execute(sql, [server_id, role])
+            self.connection.commit()
 
     def remove_role(self, server_id: str, role: str):
         """
