@@ -36,6 +36,15 @@ def mock_get_member(id_):
     return MockMemberAllRoles() if id_ == 'y' else MockMemberNoRoles()
 
 
+def mock_send_message(channel, msg, *args, **kwargs):
+    """
+    Mock function for bot.send_message
+    """
+    print('Channel: ' + channel + '\nMessage: ' + msg)
+    for k, v in kwargs.items():
+        print('Keyword: {} Value: {}'.format(k, v))
+
+
 class MockUser(MagicMock):
     name = 'Foo'
     avatar_url = 'https://cdn.awwni.me/xi62.png'
@@ -51,10 +60,12 @@ MockBot.configure_mock(
     user=MockUser(),
     shard_id=0,
     shard_count=3,
+    default_prefix='?',
     # class methods
     get_language_dict=mock_get_language_dict,
     get_all_members=mock_get_all_members,
-    get_all_channels=mock_get_all_channels
+    get_all_channels=mock_get_all_channels,
+    send_message=mock_send_message
 )
 
 MockChannel = MagicMock()
@@ -86,9 +97,9 @@ class MockServerPermissions(MagicMock):
 
 
 class MockServer(MagicMock):
-    def __init__(self):
+    def __init__(self, id_='foo'):
         super().__init__()
-        self.id = 'foo'
+        self.id = id_
         self.get_member = mock_get_member
 
 
@@ -118,3 +129,7 @@ class MockContext(MagicMock):
     def __init__(self, message=MockMessage()):
         super().__init__()
         self.message = message
+
+
+class MockExpection(Exception):
+    pass

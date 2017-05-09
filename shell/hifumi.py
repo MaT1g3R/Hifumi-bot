@@ -90,7 +90,10 @@ class Hifumi(Bot):
         )
         if ('Member' in str(exception) and 'not found' in str(exception)) \
                 or isinstance(exception, handled_exceptions):
-            await command_error_handler(self, exception, context)
+            await self.send_message(
+                context.message.channel,
+                command_error_handler(self, exception, context)
+            )
         elif isinstance(exception, CommandNotFound):
             # Ignore this case
             return

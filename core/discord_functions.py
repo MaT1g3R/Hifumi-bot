@@ -3,7 +3,7 @@ A collection of functions that's related to discord
 """
 import re
 
-from discord import Message, HTTPException, Forbidden
+from discord import HTTPException, Forbidden
 from discord.embeds import Embed
 from discord.ext.commands import CommandOnCooldown
 from discord.ext.commands.errors import MissingRequiredArgument
@@ -14,38 +14,34 @@ from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
 from core.helpers import strip_letters
 
 
-async def command_error_handler(bot, exception, context):
+def command_error_handler(bot, exception, context):
     """
     A function that handles command errors
     :param bot: the bot object
     :param exception: the exception raised
     :param context: the discord context object
+    :return: the message to be sent based on the exception type
     """
     localize = bot.get_language_dict(context)
-    channel = context.message.channel
     if isinstance(exception, CommandOnCooldown):
-        base_str = str(exception)
-        time_out_str = localize['time_out'].format(strip_letters(base_str)[0])
-        await bot.send_message(channel, time_out_str)
+        return localize['time_out'].format(strip_letters(str(exception))[0])
     elif isinstance(exception, NsfwError):
-        await bot.send_message(channel, localize['nsfw_str'])
+        return localize['nsfw_str']
     elif isinstance(exception, BadWordError):
-        bad_word = str(exception)
-        await bot.send_message(channel, localize['bad_word'].format(bad_word))
+        return localize['bad_word'].format(str(exception))
     elif isinstance(exception, ManageRoleError):
-        await bot.send_message(channel, localize['not_manage_role'])
+        return localize['not_manage_role']
     elif isinstance(exception, AdminError):
-        await bot.send_message(channel, localize['not_admin'])
+        return localize['not_admin']
     elif isinstance(exception, ManageMessageError):
-        await bot.send_message(channel, localize['no_manage_messages'])
+        return localize['no_manage_messages']
     elif 'Member' in str(exception) and 'not found' in str(exception):
         regex = re.compile('\".*\"')
         name = regex.findall(str(exception))[0].strip('"')
-        await bot.send_message(
-            channel, localize['member_not_found'].format(name))
+        return localize['member_not_found'].format(name)
     elif isinstance(exception, MissingRequiredArgument):
         if str(exception).startswith('member'):
-            await bot.send_message(channel, localize['empty_member'])
+            return localize['empty_member']
     else:
         # This case should never happen, since it's should be checked in
         # bot.on_command_error
