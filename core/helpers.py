@@ -2,7 +2,7 @@
 Useful helper functions
 """
 import re
-from os.path import join
+from platform import platform
 
 
 def combine_dicts(dicts):
@@ -73,23 +73,14 @@ def suplement_dict(parent: dict, child: dict):
     return child
 
 
-def get_distro():
+def get_system_name():
     """
-    You linux distro version info.
+    You system name.
     """
-    file = open(join('/', 'etc', 'issue'))
-    raw = ' '.join(file.readlines())
-    file.close()
-    res = ''
-    for s in raw:
-        if s != '\\':
-            res += s
-        else:
-            break
-    while res.endswith(' '):
-        res = res[:-1]
-
-    return res
+    res = platform()
+    regex = re.compile('[A-Z]')
+    res = res[res.rfind(regex.findall(res)[-1]):]
+    return res.replace('-', ' ').title()
 
 
 def strip_letters(s: str):

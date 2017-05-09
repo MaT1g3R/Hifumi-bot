@@ -12,7 +12,7 @@ from discord import ChannelType, version_info
 from config.settings import NAME, DEVS, HELPERS, COLOUR, SHARDED
 from core.discord_functions import build_embed, get_prefix
 from core.file_io import read_all_files, read_json
-from core.helpers import combine_dicts, get_distro, comma
+from core.helpers import combine_dicts, get_system_name, comma
 
 
 def time_elapsed(bot, ctx):
@@ -128,7 +128,7 @@ def build_info_embed(ctx, bot, path=join('data', 'shard_info')):
         (lan['lib'],
          'Discord.py v{}.{}.{}'.format(
              version_info.major, version_info.minor, version_info.micro)),
-        (lan['sys'], get_distro())
+        (lan['sys'], get_system_name())
     ]
     if DEVS:
         body += [(lan['devs'], '\n'.join(DEVS))]

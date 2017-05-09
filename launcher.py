@@ -43,7 +43,7 @@ REQS_TXT = "./config/requirements.txt"
 FFMPEG_BUILDS_URL = "https://ffmpeg.zeranoe.com/builds/"
 IS_WINDOWS = os.name == "nt"
 IS_MAC = sys.platform == "darwin"
-IS_LINUX = sys.platform.startswith("linux") or os.name == "posix"
+IS_LINUX = platform.platform().lower().startswith("linux") or os.name == "posix"
 IS_ONE_OF_BOTH = IS_WINDOWS or IS_LINUX
 IS_DOCKER = IS_ONE_OF_BOTH and os.path.exists('.dockerenv')
 SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX or IS_DOCKER
