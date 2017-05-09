@@ -13,7 +13,7 @@ class TestDataController(TestCase):
         """
         Setup before each test case
         """
-        self.db = DataController(join('mock_db'))
+        self.db = DataController(join('test_data', 'mock_db'))
 
     def tearDown(self):
         """

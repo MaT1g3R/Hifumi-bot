@@ -17,14 +17,16 @@ from core.helpers import combine_dicts, get_distro, comma
 
 def time_elapsed(bot, ctx):
     """
-    Get the time elapsed from start_time in a h:mm:ss format
+    Get the time elapsed from start_time in a hh:mm:ss format
     :param bot: the bot object
     :param ctx: the discord context
-    :return: time elapsed from start_time in a h:mm:ss format
+    :return: time elapsed from start_time in a hh:mm:ss format
     :rtype: str
     """
     start_time = bot.start_time
     time_elapsed_ = int(time.time() - start_time)
+    days = math.floor(time_elapsed_ / (60 * 60 * 24))
+    time_elapsed_ -= days * 60 * 60 * 24
     hours = math.floor(time_elapsed_ / (60 * 60))
     time_elapsed_ -= hours * 3600
     minutes = math.floor(time_elapsed_ / 60)
@@ -33,7 +35,7 @@ def time_elapsed(bot, ctx):
     seconds_str = str(time_elapsed_) if time_elapsed_ >= 10 \
         else '0' + str(time_elapsed_)
     day_str = bot.get_language_dict(ctx)['days']
-    days = ' ({} {})'.format(math.floor(hours / 24), day_str)
+    days = ' ({} {})'.format(days, day_str)
     return '{}:{}:{}'.format(str(hours), minutes_str, seconds_str) + days
 
 
@@ -63,13 +65,14 @@ def generate_shard_info(bot):
     }
 
 
-def get_all_shard_info():
+def get_all_shard_info(path=join('data', 'shard_info')):
     """
     Get the sum of all shard_info
+    :param path: the path that points to the shard_info folder
     :return: The sum of all shard_info minus logged_in
     """
     files = [
-        f for f in read_all_files(join('data', 'shard_info'))
+        f for f in read_all_files(path)
         if f.endswith('.json')]
     dicts = []
     for file in files:
@@ -80,7 +83,7 @@ def get_all_shard_info():
     return combine_dicts(dicts)
 
 
-def build_info_embed(ctx, bot):
+def build_info_embed(ctx, bot, path=join('data', 'shard_info')):
     """
     build the info embed
     :param ctx: the discord context object
@@ -88,7 +91,7 @@ def build_info_embed(ctx, bot):
     :return: the info embed
     """
     shard_stat = generate_shard_info(bot)
-    total_stat = get_all_shard_info()
+    total_stat = get_all_shard_info(path)
     user = bot.user
     author = {'name': user.name, 'icon_url': '{0.avatar_url}'.format(user)}
     lan = bot.get_language_dict(ctx)

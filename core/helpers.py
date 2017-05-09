@@ -77,7 +77,9 @@ def get_distro():
     """
     You linux distro version info.
     """
-    raw = ' '.join((open(join('/', 'etc', 'issue'))).readlines())
+    file = open(join('/', 'etc', 'issue'))
+    raw = ' '.join(file.readlines())
+    file.close()
     res = ''
     for s in raw:
         if s != '\\':
@@ -110,3 +112,27 @@ def comma(val):
     :return: the comma seprated number
     """
     return "{:,}".format(int(val))
+
+
+def dict_has_empty(d: dict):
+    """
+    Check if a dict has empty or None values
+    :param d: the input dict
+    :return: True if it has an empty or None value
+    >>> dict_has_empty({'d': ''})
+    True
+    >>> dict_has_empty({1: 'asd', 2: {2: ''}})
+    True
+    >>> dict_has_empty({1: 'asd', 2: {2: []}})
+    True
+    >>> dict_has_empty({1: 'asd', 2: {2: None}})
+    True
+    >>> dict_has_empty({1: 'asd', 2: {2: 'bar'}})
+    False
+    """
+    for key, val in d.items():
+        if isinstance(val, dict) and dict_has_empty(val):
+            return True
+        if not val or val is None:
+            return True
+    return False

@@ -52,7 +52,7 @@ async def command_error_handler(bot, exception, context):
         raise exception
 
 
-def get_prefix(bot, message: Message):
+def get_prefix(bot, message):
     """
     the the prefix of commands for a channel
     :param bot: the discord bot object
