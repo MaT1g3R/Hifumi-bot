@@ -63,6 +63,8 @@ BAD_WORD = ['loli', 'l0l1', 'lol1', 'l0li', '7071', 'lolii', 'looli', 'lolli',
 SHARDED = False
 SHARD_ID = 0
 SHARD_COUNT = 1
+# Toggle this to true if you want to enable console logging
+ENABLE_CONSOLE_LOGGING = False
 
 # The data controller for the sqlite3 database
 # Only edit the path variable if you move the database, although is strongly
@@ -72,8 +74,6 @@ try:
     DATA_CONTROLLER = DataController(path)
 except DatabaseError:
     DATA_CONTROLLER = DataController(join('..', path))
-# Toggle this to true if you want to enable console logging
-ENABLE_CONSOLE_LOGGING = False
 
 # If True, Hifumi will not run until it's toggled to False
 # Useful if the bot is running into PM2 and need to fix high priority bugs or

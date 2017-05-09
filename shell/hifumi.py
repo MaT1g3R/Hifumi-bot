@@ -31,7 +31,7 @@ class Hifumi(Bot):
     """
     __slots__ = ['default_prefix', 'shard_id', 'shard_count', 'start_time',
                  'language', 'default_language', 'logger', 'mention_normal',
-                 'mention_nick']
+                 'mention_nick', 'working_dir']
 
     def __init__(self, prefix, shard_count=1, shard_id=0,
                  default_language='en', working_dir=''):
@@ -57,6 +57,7 @@ class Hifumi(Bot):
         )
         self.mention_normal = ''
         self.mention_nick = ''
+        self.working_dir = working_dir
 
     @coroutine
     async def on_ready(self):
@@ -176,7 +177,7 @@ class Hifumi(Bot):
         Updates the bot shard info every second
         """
         Timer(1, self.update_shard_info).start()
-        file_name = join('data', 'shard_info',
+        file_name = join(self.working_dir, 'data', 'shard_info',
                          'shard_{}.json'.format(self.shard_id))
         content = generate_shard_info(self)
         write_json(open(file_name, 'w+'), content)

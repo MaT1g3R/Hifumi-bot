@@ -1,7 +1,7 @@
 """
 The main run file.
 """
-from os import name, path
+from os import name
 from sys import platform, version_info
 
 from colorama import init
@@ -24,7 +24,6 @@ IS_LINUX = platform.startswith("linux") or name == "posix"
 SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX
 
 PYTHON_OK = version_info >= (3, 6)
-
 
 if __name__ == '__main__':
     if not is_internet_on():
