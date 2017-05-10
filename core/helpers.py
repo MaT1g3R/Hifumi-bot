@@ -79,9 +79,12 @@ def get_system_name():
     You system name.
     """
     res = platform()
-    regex = re.compile('[A-Z]')
-    res = res[res.rfind(regex.findall(res)[-1]):]
-    return res.replace('-', ' ').title()
+    regex = re.compile('[Ww]ith-.*')
+    res = regex.findall(res)[0]\
+        .lower().replace('-', ' ').replace('with', '').title()
+    while res.startswith(' '):
+        res = res[1:]
+    return res
 
 
 def strip_letters(s: str):
