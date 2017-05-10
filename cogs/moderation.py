@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from config.settings import DATA_CONTROLLER
 from core.checks import is_admin, has_manage_message, has_manage_role
-from core.discord_functions import get_prefix
+from core.discord_functions import get_prefix, get_name_with_discriminator
 from core.language_support import set_language
 from core.moderation_core import ban_kick, clean_msg, mute_unmute
 
@@ -107,7 +107,7 @@ class Moderation:
             target = args[0]
             reason = ' '.join(args[1:])
             author = ctx.message.author
-            author = author.display_name + '#' + author.discriminator
+            author = get_name_with_discriminator(author)
             await self.bot.say(
                 localize['warn_success'].format(target, reason, author)
             )

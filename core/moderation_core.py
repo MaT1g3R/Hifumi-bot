@@ -4,9 +4,13 @@ Functions for Moderation class
 from asyncio import sleep
 
 from discord import Member
+from discord.utils import get
 
-from core.discord_functions import handle_forbidden_http
-from core.roles_core import role_exist, role_unrole
+from config.settings import DATA_CONTROLLER
+from core.discord_functions import handle_forbidden_http, get_avatar_url, \
+    build_embed, get_name_with_discriminator
+from core.helpers import get_date
+from core.roles_core import get_server_role, role_unrole
 
 
 async def ban_kick(bot, ctx, member: Member, delete_message_days):
@@ -80,7 +84,99 @@ async def mute_unmute(ctx, bot, member, is_mute):
         await bot.say(localize['go_away'])
     elif member == ctx.message.author and is_mute:
         await bot.say(localize['ban_kick_mute_self'].format(action))
-    elif role_exist('Muted', server):
+    elif get_server_role('Muted', server) is not None:
         await role_unrole(bot, ctx, 'Muted', is_mute, False, member)
     else:
         await bot.say(localize['muted_role_not_found'])
+
+
+def get_mod_log_channels(ctx):
+    """
+    Get the mod log of a server based on the context
+    :return: A list of discord.Channel objects for the mod logs
+    """
+    ids = DATA_CONTROLLER.get_mod_log(ctx.message.server.id)
+    res = []
+    for id_ in ids:
+        channel = get(ctx.message.server.channels, id=id_)
+        if channel is not None:
+            res.append(channel)
+    return res
+
+
+def add_mod_log(ctx, localize):
+    """
+    Add a mod log channel into the db
+    :param ctx: the discord context
+    :param localize: the localizationn strings
+    :return: a message to inform mod log has been added
+    """
+    DATA_CONTROLLER.set_mod_log(
+        ctx.message.server.id, ctx.message.server.channel.id
+    )
+    # TODO Return a proper message
+    return localize
+
+
+def remove_mod_log(ctx, localize):
+    """
+    Remove a mod log entry from the db
+    :param ctx: the discord context object
+    :param localize: the localization strings
+    :return: a message to inform the mod log has been removed
+    """
+    DATA_CONTROLLER.remove_mod_log(
+        server_id=ctx.message.server.id,
+        channel_id=ctx.message.server.channel.id
+    )
+    # TODO Return a proper message
+    return localize
+
+
+def get_mod_log_name_list(ctx):
+    """
+    Get a list of mod log channel names
+    :param ctx: the message context
+    :return: a list of mod log channel names
+    """
+    id_lst = DATA_CONTROLLER.get_mod_log(ctx.message.server.id)
+    res = []
+    for id_ in id_lst:
+        channel = get(ctx.message.server.channels, id=id_)
+        if channel is not None:
+            res.append(channel.name)
+        else:
+            DATA_CONTROLLER.remove_mod_log(
+                server_id=ctx.message.server.id,
+                channel_id=id_
+            )
+    return res
+
+
+def generate_mod_log_entry(action, mod, target, reason, localize):
+    """
+    Generate a mod log entry
+    :param action: the action
+    :param mod: the mod that performed the action
+    :param target: the target
+    :param reason: the reason
+    :param localize: the localization strings
+    :return: A discord embed object for the mod log entry
+    """
+    colour = {
+        'mute': 0x591f60,
+        'unmute': 0x4286f4,
+        'ban': 0xe52424,
+        'kick': 0xdd6f1a,
+        'warn': 0xddc61a
+    }[action]
+    author = {
+        'name': get_name_with_discriminator(target) + ' ({})'.format(target.id),
+        'icon_url': get_avatar_url(target)
+    }
+    body = [(localize['type'], action), (localize['reason'], reason)]
+    footer = {
+        'text': get_name_with_discriminator(mod) + ' | ' + get_date(),
+        'icon_url': get_avatar_url(mod)
+    }
+    return build_embed(body, colour=colour, author=author, footer=footer)

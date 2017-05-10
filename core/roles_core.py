@@ -2,21 +2,10 @@
 Functions to deal with the Roles class
 """
 
+from discord.utils import get
+
 from config.settings import DATA_CONTROLLER
 from core.discord_functions import handle_forbidden_http
-
-
-def role_exist(role, server):
-    """
-    Check if a role exist in the server
-
-    :param role: the role name
-
-    :param server: the server
-
-    :return: True if the role exist
-    """
-    return role in [r.name for r in server.roles]
 
 
 def get_role_list(ctx, bot):
@@ -35,7 +24,7 @@ def get_role_list(ctx, bot):
     # Check for any non-existing roles and remove them from the db
     for i in range(len(lst)):
         role = lst[i]
-        if not role_exist(role, ctx.message.server):
+        if get_server_role(role, ctx.message.server) is None:
             DATA_CONTROLLER.remove_role(server_id, role)
             lst.remove(role)
     if lst:
@@ -55,7 +44,7 @@ def get_server_role(role, server):
 
     :return: a list of discord role object
     """
-    return [r for r in server.roles if r.name == role]
+    return get(server.roles, name=role)
 
 
 def add_role(ctx, bot, role):
@@ -72,7 +61,7 @@ def add_role(ctx, bot, role):
     """
     server = ctx.message.server
     localize = bot.get_language_dict(ctx)
-    if not role_exist(role, server):
+    if get_server_role(role, server) is None:
         return localize['role_no_exist']
     else:
         DATA_CONTROLLER.add_role(server.id, role)
@@ -93,7 +82,7 @@ def remove_role(ctx, bot, role):
     """
     localize = bot.get_language_dict(ctx)
     server = ctx.message.server
-    res = localize['role_no_exist'] if not role_exist(role, server) \
+    res = localize['role_no_exist'] if get_server_role(role, server) is None \
         else localize['role_remove_success'].format(role)
     DATA_CONTROLLER.remove_role(server.id, role)
     return res
@@ -118,11 +107,12 @@ def role_add_rm(ctx, bot, role, is_add, check_db=True):
     lst = get_role_list(ctx, bot) if check_db else []  # To save runtime
     server = ctx.message.server
     localize = bot.get_language_dict(ctx)
-    if (not check_db or role in lst) and role_exist(role, server):
+    server_role = get_server_role(role, server)
+    if (not check_db or role in lst) and server_role is not None:
         s = localize['role_me_success'] if is_add \
             else localize['unrole_me_success']
-        return s.format(role), get_server_role(role, server)
-    elif role in lst and not role_exist(role, server):
+        return s.format(role), server_role
+    elif role in lst and server_role is None:
         return localize['role_unrole_no_exist'], None
     elif role not in lst:
         return localize['not_assignable'], None
@@ -151,13 +141,12 @@ async def role_unrole(bot, ctx, role_name, is_add, check_db=True, target=None):
     role_name = role_name if isinstance(role_name, str) else ' '.join(role_name)
     is_mute = target is not None
     target = ctx.message.author if target is None else target
-    res, roles = role_add_rm(ctx, bot, role_name, is_add, check_db)
+    res, role = role_add_rm(ctx, bot, role_name, is_add, check_db)
     localize = bot.get_language_dict(ctx)
     func = bot.add_roles if is_add else bot.remove_roles
     try:
-        if roles:
-            for role in roles:
-                await func(target, role)
+        if role is not None:
+            await func(target, role)
         if is_mute:
             action = localize['muted'] if is_add else localize['unmuted']
             res = localize['mute_unmute_success'].format(action, target.name)

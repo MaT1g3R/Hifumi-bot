@@ -74,7 +74,7 @@ def build_embed(content: list, colour, **kwargs):
                 'name': author name,
                 'icon_url': icon url, optional
             }
-        footer: the footer for the embed, optional
+        footer: the info_footer for the embed, optional
     :return: a discord embed object
     """
     res = Embed(colour=colour)
@@ -92,7 +92,16 @@ def build_embed(content: list, colour, **kwargs):
         inline = len(c) != 3 or c[2]
         res.add_field(name=name, value=value, inline=inline)
     if 'footer' in kwargs:
-        res.set_footer(text=kwargs['footer'])
+        if isinstance(kwargs['footer'], str):
+            res.set_footer(text=kwargs['footer'])
+        elif 'icon_url' in kwargs['footer']:
+            res.set_footer(
+                text=kwargs['footer']['text'],
+                icon_url=kwargs['footer']['icon_url']
+            )
+        else:
+            res.set_footer(text=kwargs['footer']['text'])
+
     return res
 
 
@@ -159,3 +168,22 @@ async def handle_forbidden_http(ex, bot, channel, localize, action):
         await bot.send_message(channel, localize['https_fail'].format(action))
     else:
         raise ex
+
+
+def get_avatar_url(member):
+    """
+    Get the avatar url of a member
+    :param member: the discord member
+    :return: the avatar url of the member
+    """
+    return '{0.avatar_url}'.format(member) if member.avatar_url != '' \
+        else member.default_avatar_url
+
+
+def get_name_with_discriminator(member):
+    """
+    Get the name of a member with discriminator
+    :param member: the member
+    :return: the name of a member with discriminator
+    """
+    return member.display_name + '#' + member.discriminator

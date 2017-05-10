@@ -144,6 +144,6 @@ def build_info_embed(ctx, bot, path=join('data', 'shard_info')):
         body += [(lan['sharding'],
                   '{}/{}'.format(str(bot.shard_id + 1), str(bot.shard_count)))]
 
-    footer = lan['footer'].format(get_prefix(bot, ctx.message))
+    footer = lan['info_footer'].format(get_prefix(bot, ctx.message))
 
     return build_embed(body, COLOUR, author=author, footer=footer)

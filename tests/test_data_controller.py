@@ -232,83 +232,144 @@ class TestDataController(TestCase):
         self.db.set_language(server, new_lan)
         self.assertEqual(new_lan, self.db.get_language(server))
 
-    def test_add_role(self):
+    def test_add_entry(self):
         """
-        Test for add_role
+        Test for adding an entry
         """
-        server = 'foo'
-        role = 'bar'
-        self.db.add_role(server, role)
-        self.assertTrue(role in self.db.get_role_list(server))
+        self.add_helper(self.db.add_role, self.db.get_role_list)
+        self.add_helper(self.db.set_mod_log, self.db.get_mod_log)
 
-    def test_add_role_overwrite(self):
+    def test_add_entry_overwrite(self):
         """
-        Test for add_role when it overrides the value
+        Test for adding an entry when it overrides the value
         """
-        server = 'foo'
-        role = 'bar'
-        self.db.add_role(server, role)
-        self.assertTrue(role in self.db.get_role_list(server))
-        self.db.add_role(server, role)
-        self.assertEqual(1, len(self.db.get_role_list(server)))
+        self.add_overwrite_helper(self.db.add_role, self.db.get_role_list)
+        self.add_overwrite_helper(self.db.set_mod_log, self.db.get_mod_log)
 
-    def test_remove_role(self):
+    def test_remove_entry(self):
         """
-        Test for remove role
+        Test for remove entry
+        """
+        self.remove_helper(
+            self.db.add_role, self.db.remove_role, self.db.get_role_list
+        )
+
+        self.remove_helper(
+            self.db.set_mod_log, self.db.remove_mod_log, self.db.get_mod_log
+        )
+
+    def test_remove_entry_no_server(self):
+        """
+        Test for remove entry for a non-existing server
+        """
+        self.remove_no_server_helepr(
+            self.db.add_role, self.db.remove_role, self.db.get_role_list
+        )
+
+        self.remove_no_server_helepr(
+            self.db.set_mod_log, self.db.remove_mod_log, self.db.get_mod_log)
+
+    def test_remove_entry_no_entry(self):
+        """
+        Test for removeentry for a non-existing entry
+        """
+        self.remove_no_entry_helper(
+            self.db.add_role, self.db.remove_role, self.db.get_role_list
+        )
+
+        self.remove_no_entry_helper(
+            self.db.set_mod_log, self.db.remove_mod_log, self.db.get_mod_log)
+
+    def test_get_entry_list(self):
+        """
+        Test for get a list of entry
+        """
+        self.get_list_helper(self.db.add_role, self.db.get_role_list)
+        self.get_list_helper(self.db.set_mod_log, self.db.get_mod_log)
+
+    def test_get_entry_list_empty(self):
+        """
+        Test for get a list of entry when it is empty
+        """
+        self.get_list_empty_helper(self.db.add_role, self.db.get_role_list)
+        self.get_list_empty_helper(self.db.set_mod_log, self.db.get_mod_log)
+
+    def add_helper(self, func_add, func_get_lst):
+        """
+        Helper method for testing adding an entry
         """
         server = 'foo'
-        role = 'bar'
+        entry = 'bar'
+        func_add(server, entry)
+        self.assertTrue(entry in func_get_lst(server))
+
+    def add_overwrite_helper(self, func_add, func_get_lst):
+        """
+        Helper method for testing adding an entry when it overrides the value
+        """
+        server = 'foo'
+        entry = 'bar'
+        func_add(server, entry)
+        self.assertTrue(entry in func_get_lst(server))
+        func_add(server, entry)
+        self.assertEqual(1, len(func_get_lst(server)))
+
+    def remove_helper(self, func_add, func_rm, func_lst):
+        """
+        Helper method for testing remove entry
+        """
+        server = 'foo'
+        entry = 'bar'
         other_roles = ['baz', 'qux']
-        for r in [role] + other_roles:
-            self.db.add_role(server, r)
-        self.db.remove_role(server, role)
-        self.assertListEqual(other_roles, self.db.get_role_list(server))
+        for r in [entry] + other_roles:
+            func_add(server, r)
+        func_rm(server, entry)
+        self.assertListEqual(other_roles, func_lst(server))
 
-    def test_remove_role_no_server(self):
+    def remove_no_server_helepr(self, func_add, func_rm, func_lst):
         """
-        Test for remove role for a non-existing server
+        Helper method for testing remove entry from a non-existing server
         """
         server = 'foo'
         wrong_server = 'bar'
-        roles = ['baz', 'qux']
-        for r in roles:
-            self.db.add_role(server, r)
-        self.db.remove_role(wrong_server, roles[0])
-        self.assertListEqual(roles, self.db.get_role_list(server))
+        entry_lst = ['baz', 'qux']
+        for r in entry_lst:
+            func_add(server, r)
+        func_rm(wrong_server, entry_lst[0])
+        self.assertListEqual(entry_lst, func_lst(server))
 
-    def test_remove_role_no_role(self):
+    def remove_no_entry_helper(self, func_add, func_rm, func_lst):
         """
-        Test for remove role for a non-existing role
-        :return:
+        Helper method for testing remove entry for a non-existing entry
         """
         server = 'foo'
         wrong_role = 'bar'
-        roles = ['baz', 'qux']
-        for r in roles:
-            self.db.add_role(server, r)
-        self.db.remove_role(server, wrong_role)
-        self.assertListEqual(roles, self.db.get_role_list(server))
+        entry_lst = ['baz', 'qux']
+        for r in entry_lst:
+            func_add(server, r)
+        func_rm(server, wrong_role)
+        self.assertListEqual(entry_lst, func_lst(server))
 
-    def test_get_role_list(self):
+    def get_list_helper(self, func_add, func_lst):
         """
-        Test for get_role_list
+        Helper method for testing get a list of entry
         """
-        role_list = ['foo', 'bar']
+        entry_lst = ['foo', 'bar']
         server = 'baz'
-        for r in role_list:
-            self.db.add_role(server, r)
-        self.assertListEqual(role_list, self.db.get_role_list(server))
+        for r in entry_lst:
+            func_add(server, r)
+        self.assertListEqual(entry_lst, func_lst(server))
 
-    def test_get_role_list_empty(self):
+    def get_list_empty_helper(self, func_add, func_lst):
         """
-        Test for get_role_list when it is empty
+        Helper method for testing getting a list of entry when it is empty
         """
-        role_list = ['foo', 'bar']
+        entry_lst = ['foo', 'bar']
         server = 'baz'
         wrong_server = 'qux'
-        for r in role_list:
-            self.db.add_role(server, r)
-        self.assertListEqual([], self.db.get_role_list(wrong_server))
+        for r in entry_lst:
+            func_add(server, r)
+        self.assertListEqual([], func_lst(wrong_server))
 
 
 if __name__ == '__main__':

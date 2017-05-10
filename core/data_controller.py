@@ -140,3 +140,40 @@ class DataController:
         '''
         self.cursor.execute(sql, [server_id])
         return [i[0] for i in self.cursor.fetchall()]
+
+    def set_mod_log(self, server_id: str, channel_id: str):
+        """
+        Set the mod log channel id for a given server
+        :param server_id: the server id
+        :param channel_id: the channel id
+        """
+        if channel_id not in self.get_mod_log(server_id):
+            sql = '''
+            REPLACE INTO mod_log VALUES (?, ?)
+            '''
+            self.cursor.execute(sql, [server_id, channel_id])
+            self.connection.commit()
+
+    def get_mod_log(self, server_id: str):
+        """
+        Get a list of all mod logs from a given server
+        :param server_id: the server id
+        :return: a list of all mod log channel ids
+        """
+        sql = '''
+        SELECT channel FROM mod_log WHERE server=?
+        '''
+        self.cursor.execute(sql, [server_id])
+        return [i[0] for i in self.cursor.fetchall()]
+
+    def remove_mod_log(self, server_id: str, channel_id: str):
+        """
+        Delete a modlog from the db
+        :param server_id: the server id
+        :param channel_id: the channel id
+        """
+        sql = '''
+        DELETE FROM mod_log WHERE server=? AND channel=?
+        '''
+        self.cursor.execute(sql, [server_id, channel_id])
+        self.connection.commit()

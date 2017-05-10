@@ -2,6 +2,7 @@
 Useful helper functions
 """
 import re
+from datetime import date, timedelta
 from platform import platform
 
 
@@ -127,3 +128,13 @@ def dict_has_empty(d: dict):
         if (not val or val is None) and not isinstance(val, int):
             return True
     return False
+
+
+def get_date(diff=0):
+    """
+    Return a date in YYYYMMDD format
+    :param diff: the amount of days to go back, 0 for today
+    :return: yesterday's date in YYYYMMDD format
+    """
+    yesterday = date.today() - timedelta(diff)
+    return yesterday.strftime('%Y/%m/%d')
