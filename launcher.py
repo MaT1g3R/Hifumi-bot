@@ -36,6 +36,11 @@ except ImportError:
     pass
 
 try:
+    import unittest
+except ImportError:
+    unittest = None
+
+try:
     import pip
 except ImportError:
     pip = None
@@ -701,18 +706,39 @@ def about_system():
             pause()
 
 
-def real_time_logging():
+def run_unittest():
     """
-    Opens the real time logs via PM2 with Hifumi information
-    :return: The process logging
+    Runs the unit test provider
+    :return: Unit test script
     """
     clear_screen()
-    try:
-        subprocess.call(["pm2", "logs", "Hifumi"])
-    except Exception as e:
-        error("Something went wrong. Logging not starting!\n")
-        error(str(e))
-        pause()
+    interpreter = sys.executable
+    if not interpreter:
+        return
+
+    call = "\"{}\" ./tests/suite.py".format(interpreter)
+    
+    warning("You're about to run unit test provider. This "
+            "function is aimed for advanced users. Make "
+            "sure to use it properly, preferably for testing, "
+            "otherwise bad things can happen. Please refer "
+            "to the 'Unit testing' section from the docs for "
+            "details. Continue?")
+    if user_pick_yes_no():
+        if unittest is None:
+            error("'unittest' module not found. Please install all "
+                  "requirements from update menu.")
+            pause()
+            main()
+        else:
+            try:
+                subprocess.call(call)
+            except Exception as e:
+                error("Something went wrong. Unit test interrupted!\n")
+                error(str(e))
+                pause()
+    else:
+        main()
 
 
 def edit_settings():
@@ -1003,7 +1029,7 @@ def main():
         print("2. Stop Hifumi if started with autorestart")
         print("3. Start Hifumi with no autorestart\n")
         print("Core options:")
-        print("4. Real-time logs (switch to read-only)")
+        print("4. Run unit test")
         print("5. Update environment")
         print("6. Install requirements")
         print("7. Edit settings")
@@ -1020,7 +1046,7 @@ def main():
         elif choice == "3":
             run_hifumi(autorestart=False)
         elif choice == "4":
-            real_time_logging()
+            run_unittest()
         elif choice == "5":
             update_menu()
         elif choice == "6":
