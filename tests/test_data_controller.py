@@ -235,6 +235,44 @@ class TestDataController(TestCase):
         self.__get_list_empty(self.db.add_role, self.db.get_role_list)
         self.__get_list_empty(self.db.set_mod_log, self.db.get_mod_log)
 
+    def test_warning(self):
+        """
+        Test adding and getting warning count
+        """
+        server = 'foo'
+        user = 'bar'
+        other_server = 'baz'
+        other_user = 'qux'
+        self.assertEqual(0, self.db.get_warn(server, user))
+        self.db.add_warn(server, user)
+        self.assertEqual(1, self.db.get_warn(server, user))
+        self.db.add_warn(server, user)
+        self.assertEqual(2, self.db.get_warn(server, user))
+        self.assertTrue(
+            0 == self.db.get_warn(other_server, user) ==
+            self.db.get_warn(server, other_user)
+        )
+
+    def test_remove_warning(self):
+        """
+        Test remove 1 from a user's warning count
+        """
+        server = 'foo'
+        user = 'bar'
+        other_server = 'baz'
+        other_user = 'qux'
+        self.db.add_warn(server, other_user)
+        self.db.add_warn(other_server, user)
+        self.db.remove_warn(server, user)
+        self.db.add_warn(server, user)
+        self.db.add_warn(server, user)
+        self.db.remove_warn(server, user)
+        self.assertEqual(1, self.db.get_warn(server, user))
+        self.assertTrue(
+            1 == self.db.get_warn(other_server, user) ==
+            self.db.get_warn(server, other_user)
+        )
+
     def __get_set(self, func_add, func_get):
         """
         Helper method to test get/set an entry from the db

@@ -223,7 +223,7 @@ class DataController:
         '''
         self.cursor.execute(sql, [server_id, user_id])
         result = self.cursor.fetchone()
-        return result[0]
+        return result[0] if result is not None else 0
 
 
 if __name__ == '__main__':
