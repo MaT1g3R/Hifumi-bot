@@ -449,7 +449,6 @@ def update_menu():
     Prints the options from the update menu.
     :return: The update menu.
     """
-    # TODO Check your logic here
     clear_screen()
     autoclean()
     while True:
