@@ -727,9 +727,9 @@ def run_unittest():
             main()
         else:
             try:
-                os.chdir(os.path.join('tests'))
-                run_tests(os.path.join(os.curdir, 'tests', '..'))
-                os.chdir(os.path.join('..'))
+                os.chdir(Path('tests').absolute())
+                run_tests(os.curdir)
+                os.chdir(Path('..').absolute())
                 pause()
             except Exception as e:
                 error("Something went wrong. Unit test interrupted!\n")
