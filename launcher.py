@@ -14,6 +14,7 @@ from pathlib import Path
 from __init__ import version_info, __author__, __helper__, __author_plain__, \
     __helper_plain__, __title__, LICENSE
 from autoclean import autoclean
+from tests.suite import run_tests
 
 logger_success = True
 
@@ -103,7 +104,7 @@ def computer_meets_color():
     :return: Pip call, then exit code. 
     0 if everything is fine, 1 if error ocurred.
     """
-    interpreter = sys.executable
+    interpreter = sys.executable.split('/')[-1]
 
     if not interpreter:
         error("Python interpreter not found.")
@@ -149,7 +150,7 @@ def install_reqs():
     0 if everything is fine, 1 if error ocurred.
     """
     remove_reqs_readonly()
-    interpreter = sys.executable
+    interpreter = sys.executable.split('/')[-1]
 
     if not interpreter:
         error("Python interpreter not found.")
@@ -194,7 +195,7 @@ def update_pip():
     :return: Pip call, then exit code. 
     0 if everything is fine, 1 if error ocurred.
     """
-    interpreter = sys.executable
+    interpreter = sys.executable.split('/')[-1]
 
     if not interpreter:
         error("Python interpreter not found.")
@@ -575,7 +576,7 @@ def run_hifumi(autorestart):
     Start Hifumi, autorestart is toggleable.
     :return: Exit code, 0 if fine, else more than 0.
     """
-    interpreter = sys.executable
+    interpreter = sys.executable.split('/')[-1]
     if not interpreter:
         raise RuntimeError("Couldn't find Python interpreter")
 
@@ -626,7 +627,7 @@ def stop_hifumi():
     Stops Hifumi from running if started with PM2
     :return: Exit code, 0 if fine, else more than 0.
     """
-    interpreter = sys.executable
+    interpreter = sys.executable.split('/')[-1]
     if not interpreter:
         raise RuntimeError("Couldn't find Python interpreter")
 
@@ -712,12 +713,6 @@ def run_unittest():
     :return: Unit test script
     """
     clear_screen()
-    interpreter = sys.executable
-    if not interpreter:
-        return
-
-    call = "\"{}\" ./tests/suite.py".format(interpreter)
-    
     warning("You're about to run unit test provider. This "
             "function is aimed for advanced users. Make "
             "sure to use it properly, preferably for testing, "
@@ -732,7 +727,10 @@ def run_unittest():
             main()
         else:
             try:
-                subprocess.call(call)
+                os.chdir(os.path.join('tests'))
+                run_tests(os.path.join(os.curdir, 'tests', '..'))
+                os.chdir(os.path.join('..'))
+                pause()
             except Exception as e:
                 error("Something went wrong. Unit test interrupted!\n")
                 error(str(e))
@@ -861,7 +859,7 @@ def faster_bash():
     through the launcher
     :return: The files created if successful
     """
-    interpreter = sys.executable
+    interpreter = sys.executable.split('/')[-1]
     if not interpreter:
         return
 
@@ -944,7 +942,7 @@ def string_errors():
     has_git = is_git_installed()
     has_ffmpeg = is_ffmpeg_installed()
     is_git_installation = os.path.isdir(".git")  # Check if .git folder exists
-    interpreter = sys.executable
+    interpreter = sys.executable.split('/')[-1]
     if not interpreter:
         raise RuntimeError("Couldn't find Python's interpreter")
     if not is_git_installation:
