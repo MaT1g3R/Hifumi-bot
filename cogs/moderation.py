@@ -5,7 +5,8 @@ from config.settings import DATA_CONTROLLER
 from core.checks import is_admin, has_manage_message, has_manage_role
 from core.discord_functions import get_prefix, get_name_with_discriminator
 from core.language_support import set_language
-from core.moderation_core import ban_kick, clean_msg, mute_unmute
+from core.moderation_core import ban_kick, clean_msg, mute_unmute, \
+    generate_mod_log_list, add_mod_log, remove_mod_log, send_mod_log
 
 
 class Moderation:
@@ -23,34 +24,51 @@ class Moderation:
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
-    async def ban(self, ctx, member: Member, delete_message_days=None):
+    async def ban(self, ctx, member: Member, *args):
         """
         Throw down the ban hammer on someone
         :param ctx: the discord context
         :param member: the discord member
-        :param delete_message_days: option to delete messages from the user
+        :param args: if args[0] is an interger it will be resolved as
+        delete_message_days, else delete_message_days will be 0
         """
-        bad_num_msg = self.bot.get_language_dict(ctx)['delete_message_days']
-        if delete_message_days is None:
-            delete_message_days = 0
+        localize = self.bot.get_language_dict(ctx)
+        bad_num_msg = localize['delete_message_days']
+        no_reason = localize['pls_provide_reason']
         try:
-            delete_message_days = int(delete_message_days)
+            delete_message_days = int(args[0])
+            args = args[1:]
+        except ValueError:
+            delete_message_days = 0
+        except IndexError:
+            await self.bot.say(no_reason)
+            return
+        if not args:
+            await self.bot.say(no_reason)
+        else:
+            reason = ' '.join(args)
             if 0 <= delete_message_days <= 7:
-                await ban_kick(self.bot, ctx, member, delete_message_days)
+                await ban_kick(
+                    self.bot, ctx, member, delete_message_days, reason
+                )
             else:
                 await self.bot.say(bad_num_msg)
-        except ValueError:
-            await self.bot.say(bad_num_msg)
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
-    async def kick(self, ctx, member: Member):
+    async def kick(self, ctx, member: Member, *reason):
         """
         Kick a member from the server
         :param ctx: the discord context object
         :param member: the member to be kicked
+        :param reason: the kick reason
         """
-        await ban_kick(self.bot, ctx, member, None)
+        if not reason:
+            await self.bot.say(
+                self.bot.get_language_dict(ctx)['pls_provide_reason']
+            )
+        else:
+            await ban_kick(self.bot, ctx, member, None, ' '.join(reason))
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(has_manage_message)
@@ -92,24 +110,25 @@ class Moderation:
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
-    async def warn(self, ctx, *args):
+    async def warn(self, ctx, member: Member, *reason):
         """
         Warn someone
         :param ctx: the discord context object
-        :param args: args[0] is targed to be warned, args[1:] is the reason
+        :param member: the member to be warned
+        :param reason: the warn reason
         """
         localize = self.bot.get_language_dict(ctx)
-        if not args:
-            await self.bot.say(localize['warn_no_args'])
-        elif len(args) == 1:
-            await self.bot.say(localize['warn_no_reason'])
+        if not reason:
+            await self.bot.say(localize['pls_provide_reason'])
         else:
-            target = args[0]
-            reason = ' '.join(args[1:])
+            reason = ' '.join(reason)
             author = ctx.message.author
             author = get_name_with_discriminator(author)
             await self.bot.say(
-                localize['warn_success'].format(target, reason, author)
+                localize['warn_success'].format(member, reason, author)
+            )
+            await send_mod_log(
+                ctx, self.bot, localize['warn'], member, reason, localize
             )
 
     @commands.command(pass_context=True, no_pm=True)
@@ -143,3 +162,31 @@ class Moderation:
         await self.bot.say(
             self.bot.get_language_dict(ctx)['set_prefix'].format(prefix)
         )
+
+    @commands.group(pass_context=True, no_pm=True)
+    @commands.check(is_admin)
+    async def modlog(self, ctx):
+        """
+        Command group for modlog, if no sub command is invoked,
+        the bot will display a generic message stating the list of modlogs
+        :param ctx: the discord context
+        """
+        if ctx.invoked_subcommand is None:
+            await self.bot.say(generate_mod_log_list(self.bot, ctx))
+
+    @modlog.command(pass_context=True)
+    async def add(self, ctx):
+        """
+        Add the current channel as a mod log channel
+        :param ctx: the discord context
+        """
+        await self.bot.say(add_mod_log(ctx, self.bot.get_language_dict(ctx)))
+
+    @modlog.command(pass_context=True)
+    async def remove(self, ctx):
+
+        """
+        Remove the current channel from mod log channels
+        :param ctx: the discord context
+        """
+        await self.bot.say(remove_mod_log(ctx, self.bot.get_language_dict(ctx)))

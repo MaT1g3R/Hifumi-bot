@@ -41,12 +41,9 @@ class DataController:
         :param site: the site name
         :param tag: the tag entry
         """
-        if self.tag_in_db(site, tag):
-            return
-        else:
-            sql = '''INSERT INTO nsfw_tags(site, tag) VALUES (?, ?)'''
-            self.cursor.execute(sql, (site, tag))
-            self.connection.commit()
+        sql = '''REPLACE INTO nsfw_tags(site, tag) VALUES (?, ?)'''
+        self.cursor.execute(sql, (site, tag))
+        self.connection.commit()
 
     def write_tag_list(self, site, tags):
         """
@@ -65,7 +62,8 @@ class DataController:
         :return: True if the tag is in the db else false
         """
         sql = '''
-    SELECT EXISTS(SELECT 1 FROM nsfw_tags WHERE site=? AND tag=?LIMIT 1)'''
+        SELECT EXISTS(SELECT 1 FROM nsfw_tags WHERE site=? AND tag=?LIMIT 1)
+        '''
         self.cursor.execute(sql, (site, tag))
         return self.cursor.fetchone() == (1,)
 
@@ -110,12 +108,11 @@ class DataController:
         :param server_id: the server id
         :param role: the role name
         """
-        if role not in self.get_role_list(server_id):
-            sql = '''
-            REPLACE INTO roles VALUES (?, ?)
-            '''
-            self.cursor.execute(sql, [server_id, role])
-            self.connection.commit()
+        sql = '''
+        REPLACE INTO roles VALUES (?, ?)
+        '''
+        self.cursor.execute(sql, [server_id, role])
+        self.connection.commit()
 
     def remove_role(self, server_id: str, role: str):
         """
@@ -147,12 +144,11 @@ class DataController:
         :param server_id: the server id
         :param channel_id: the channel id
         """
-        if channel_id not in self.get_mod_log(server_id):
-            sql = '''
-            REPLACE INTO mod_log VALUES (?, ?)
-            '''
-            self.cursor.execute(sql, [server_id, channel_id])
-            self.connection.commit()
+        sql = '''
+        REPLACE INTO mod_log VALUES (?, ?)
+        '''
+        self.cursor.execute(sql, [server_id, channel_id])
+        self.connection.commit()
 
     def get_mod_log(self, server_id: str):
         """
@@ -177,3 +173,58 @@ class DataController:
         '''
         self.cursor.execute(sql, [server_id, channel_id])
         self.connection.commit()
+
+    def __create_warn_entry(self, server_id, user_id):
+        """
+        Helper method to create a warn entry if it doesnt exist
+        :param server_id: the server id
+        :param user_id: the user id
+        """
+        sql_insert = '''
+        INSERT OR IGNORE INTO warns VALUES(?,?,0)
+        '''
+        self.cursor.execute(sql_insert, [server_id, user_id])
+
+    def add_warn(self, server_id: str, user_id: str):
+        """
+        Add 1 to the warning count of the user
+        :param server_id: the server id
+        :param user_id: the user id
+        """
+        self.__create_warn_entry(server_id, user_id)
+        sql = '''
+        UPDATE warns SET number = number + 1 WHERE server = ? AND user = ?
+        '''
+        self.cursor.execute(sql, [server_id, user_id])
+        self.connection.commit()
+
+    def remove_warn(self, server_id: str, user_id: str):
+        """
+        Subtract 1 from the warning count of the user
+        :param server_id: the server id
+        :param user_id: the user id
+        """
+        sql = '''
+        UPDATE warns SET number = number - 1 
+        WHERE server = ? AND user = ? AND number > 0
+        '''
+        self.cursor.execute(sql, [server_id, user_id])
+        self.connection.commit()
+
+    def get_warn(self, server_id: str, user_id: str):
+        """
+        Get the warning count of a user
+        :param server_id: the server id
+        :param user_id: the user id
+        :return: the warning count of the user
+        """
+        sql = '''
+        SELECT number FROM warns WHERE server = ? AND user = ?
+        '''
+        self.cursor.execute(sql, [server_id, user_id])
+        result = self.cursor.fetchone()
+        return result[0]
+
+
+if __name__ == '__main__':
+    d = DataController('../tests/test_data/mock_db')

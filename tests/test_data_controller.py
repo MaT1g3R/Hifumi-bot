@@ -358,7 +358,7 @@ class TestDataController(TestCase):
         server = 'baz'
         for r in entry_lst:
             func_add(server, r)
-        self.assertListEqual(entry_lst, func_lst(server))
+        self.assertEqual(set(entry_lst), set(func_lst(server)))
 
     def get_list_empty_helper(self, func_add, func_lst):
         """

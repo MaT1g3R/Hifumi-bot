@@ -3,7 +3,10 @@
     "native_name": "English",
     "english_name": "English",
     "code": "en",
-    "translators": ["Underforest#1284", "ラブアローシュート#6728"]
+    "translators": [
+      "Underforest#1284",
+      "ラブアローシュート#6728"
+    ]
   },
   "nsfw_str": "NSFW commands must be used in DM or a channel with a name that is equal to or starts with `nsfw` (case insensitive)",
   "time_out": "You are on cooldown. Try again in {}s",
@@ -53,7 +56,7 @@
   "banned_kicked": ":white_check_mark: I've {} ",
   "https_fail": ":no_entry_sign: Failed to {} ",
   "no_perms": ":no_entry_sign: I don't have the permissions to perform this action.",
-  "delete_message_days": ":warning: Your last argument for day cleaning must be between 0 to 7 (inclusive)",
+  "delete_message_days": ":warning: Your argument for day cleaning must be between 0 to 7 (inclusive)",
   "clean_message_bad_num": ":no_entry_sign: The number of messages cleaned must be an integer between 1 to 99 (inclusive)",
   "clean_message_success": ":recycle: Alright! Cleaned **{}** message(s).",
   "member_not_found": ":warning: Member **{}** not found.",
@@ -65,8 +68,6 @@
   "set_prefix": ":white_check_mark: The command prefix for this server has been set to `{}`",
   "lan_no_exist": ":information_source: Sorry! The language **{}** isn't supported yet. \n`{}languagelist` for a list of available languages.\nJoin our translation project here to make it available in the furure!\n<https://discord.gg/HKayCWp>",
   "lan_set_success": ":white_check_mark: The language for this server has been set to: `{}`\n Thanks to translators `{}` for making it possible.\nIf you are interested in translating Hifumi, you can join the translation project here: <https://discord.gg/HKayCWp>",
-  "warn_no_args": ":warning: Please specify the person and reason, so I can warn them.",
-  "warn_no_reason": ":warning: Please specify the reason to warn.",
   "warn_success": ":warning: **HEY**, **{}**! Can you please stop **{}**? It's annoying and it can lead you to a serious punishment from the admin/mod(s) of this server. Thanks!\nWarning given by **{}**",
   "ex_warn": ":warning: I ran into an error while executing this command. Please report this to my developers.\n**Triggered message**: {}\n**Type**: {}\n**Exception**: {}",
   "ex_error": ":x: I ran into a critical error, please report this to my developers.\n```Python\n{}\n```",
@@ -83,5 +84,13 @@
   "muted": "muted",
   "unmuted": "unmuted",
   "reason": "Reason",
-  "type": "Type"
+  "type": "Type",
+  "warn": "warn",
+  "pardon": "pardon",
+  "mod_log_empty": ":information_source: There does not exist a mod log channel in this server.",
+  "mod_log_list": ":information_source: Mod log channels in this server:\n```\n{}\n```",
+  "mod_log_info": "`{0}modlog add` to set the current channel as a mod log channel. `{0}modlog remove` to remove the current channel as a mod log channel.\n",
+  "mod_log_add": ":information_source: The current channel **{}** has been set as a mod log channel.",
+  "mod_log_rm": ":information_source: The current channel **{}** has been removed from mod log channels.",
+  "pls_provide_reason": ":warning: Please provide a reason."
 }

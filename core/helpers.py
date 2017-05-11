@@ -80,7 +80,7 @@ def get_system_name():
     """
     res = platform()
     regex = re.compile('[Ww]ith-.*')
-    res = regex.findall(res)[0]\
+    res = regex.findall(res)[0] \
         .lower().replace('-', ' ').replace('with', '').title()
     while res.startswith(' '):
         res = res[1:]

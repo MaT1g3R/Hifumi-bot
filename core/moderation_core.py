@@ -8,18 +8,19 @@ from discord.utils import get
 
 from config.settings import DATA_CONTROLLER
 from core.discord_functions import handle_forbidden_http, get_avatar_url, \
-    build_embed, get_name_with_discriminator
+    build_embed, get_name_with_discriminator, get_prefix
 from core.helpers import get_date
 from core.roles_core import get_server_role, role_unrole
 
 
-async def ban_kick(bot, ctx, member: Member, delete_message_days):
+async def ban_kick(bot, ctx, member: Member, delete_message_days, reason):
     """
     A function to handle banning and kicking of members
     :param bot: the bot
     :param ctx: the discord context
     :param member: the member to be banned/kicked
     :param delete_message_days: arg for bot.kick
+    :param reason: the reason the member is ban/kicked
     """
     localize = bot.get_language_dict(ctx)
     action = localize['ban'] if delete_message_days is not None \
@@ -36,6 +37,7 @@ async def ban_kick(bot, ctx, member: Member, delete_message_days):
             await bot.ban(member, delete_message_days)
         else:
             await bot.kick(member)
+        await send_mod_log(ctx, bot, action, member, reason, localize)
         await bot.say(localize['banned_kicked'].format(action_past) +
                       '`' + member.name + '`')
     except Exception as e:
@@ -112,10 +114,9 @@ def add_mod_log(ctx, localize):
     :return: a message to inform mod log has been added
     """
     DATA_CONTROLLER.set_mod_log(
-        ctx.message.server.id, ctx.message.server.channel.id
+        ctx.message.server.id, ctx.message.channel.id
     )
-    # TODO Return a proper message
-    return localize
+    return localize['mod_log_add'].format(ctx.message.channel.name)
 
 
 def remove_mod_log(ctx, localize):
@@ -126,11 +127,9 @@ def remove_mod_log(ctx, localize):
     :return: a message to inform the mod log has been removed
     """
     DATA_CONTROLLER.remove_mod_log(
-        server_id=ctx.message.server.id,
-        channel_id=ctx.message.server.channel.id
+        ctx.message.server.id, ctx.message.channel.id
     )
-    # TODO Return a proper message
-    return localize
+    return localize['mod_log_rm'].format(ctx.message.channel.name)
 
 
 def get_mod_log_name_list(ctx):
@@ -153,6 +152,20 @@ def get_mod_log_name_list(ctx):
     return res
 
 
+def generate_mod_log_list(bot, ctx):
+    """
+    Generate a mod log list, as a string
+    :param bot: the bot
+    :param ctx: the discord context
+    :return: A formatting string to list all mod log channels
+    """
+    localize = bot.get_language_dict(ctx)
+    names = get_mod_log_name_list(ctx)
+    res = localize['mod_log_info'].format(get_prefix(bot, ctx.message))
+    return res + localize['mod_log_list'].format('\n'.join(names)) if names \
+        else res + localize['mod_log_empty']
+
+
 def generate_mod_log_entry(action, mod, target, reason, localize):
     """
     Generate a mod log entry
@@ -164,11 +177,12 @@ def generate_mod_log_entry(action, mod, target, reason, localize):
     :return: A discord embed object for the mod log entry
     """
     colour = {
-        'mute': 0x591f60,
-        'unmute': 0x4286f4,
-        'ban': 0xe52424,
-        'kick': 0xdd6f1a,
-        'warn': 0xddc61a
+        localize['mute']: 0x591f60,
+        localize['unmute']: 0x4286f4,
+        localize['ban']: 0xe52424,
+        localize['kick']: 0xdd6f1a,
+        localize['warn']: 0xddc61a,
+        localize['pardon']: 0x4286f4
     }[action]
     author = {
         'name': get_name_with_discriminator(target) + ' ({})'.format(target.id),
@@ -180,3 +194,22 @@ def generate_mod_log_entry(action, mod, target, reason, localize):
         'icon_url': get_avatar_url(mod)
     }
     return build_embed(body, colour=colour, author=author, footer=footer)
+
+
+async def send_mod_log(ctx, bot, action, member, reason, localize):
+    """
+    Helper function to send a mod log
+    :param ctx: the discord funtion
+    :param bot: the bot
+    :param action: the action preformed
+    :param member: the target of the action
+    :param reason: the reason of the action
+    :param localize: the localization strings
+    """
+    log_lst = get_mod_log_channels(ctx)
+    if log_lst:
+        entry = generate_mod_log_entry(
+            action, ctx.message.author, member, reason, localize
+        )
+        for channel in log_lst:
+            await bot.send_message(channel, embed=entry)
