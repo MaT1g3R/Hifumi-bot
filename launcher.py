@@ -64,6 +64,10 @@ FFMPEG_FILES = {  # Names encoded to base 32-48
 }
 
 
+class VersionError(EnvironmentError):
+    pass
+
+
 def is_internet_on():
     """
     Checks if the computer or device that the process
@@ -216,11 +220,14 @@ def check_hifumi():
           'hifumibot/hifumibot/master/version.txt'
     r = requests.get(url)
     if r.status_code != 200 or not os.path.isfile("./version.txt"):
-        return None
-    online_output = r.text.replace("\n", "")
-    local_output = open("version.txt").read()
-    return local_output == online_output if local_output <= online_output \
-        else None
+        raise VersionError
+    online_output = r.text.strip("\n")
+    with open("version.txt") as f:
+        local_output = f.readline()
+        f.close()
+    if local_output > online_output:
+        raise VersionError
+    return local_output == online_output
 
 
 def update_hifumi():
@@ -230,26 +237,27 @@ def update_hifumi():
     :return: Git call, then exit code. 
     0 if went fine, 1 or exception if error ocurred.
     """
-    if check_hifumi() is True:
-        info("Hifumi is already the latest version. No need to update now!")
-    elif check_hifumi() is False:
-        try:
-            code = subprocess.call(("git", "pull", "--ff-only"))
-        except subprocess.CalledProcessError:
-            error("\nError: Git not found. It's either not installed or not in "
-                  "the PATH environment variable. Please fix this!")
-            return
-        if code == 0:
-            info("\nHifumi is now updated successfully!")
-            if os.path.isfile("./config/sample_settings.py"):
-                os.remove("./config/sample_settings.py")
+    try:
+        if check_hifumi():
+            info("Hifumi is already the latest version. No need to update now!")
         else:
-            error(
-                "\nUh oh! An error ocurred and update is going to be aborted.\n"
-                "This error might be caused from "
-                "the environment edits you made. "
-                "Please fix this by going to the maintenance menu.")
-    elif check_hifumi() is None:
+            try:
+                code = subprocess.call(("git", "pull", "--ff-only"))
+            except subprocess.CalledProcessError:
+                error("\nError: Git not found. It's either not installed or "
+                      "not in the PATH environment variable. Please fix this!")
+                return
+            if code == 0:
+                info("\nHifumi is now updated successfully!")
+                if os.path.isfile("./config/sample_settings.py"):
+                    os.remove("./config/sample_settings.py")
+            else:
+                error("\nUh oh! An error ocurred and "
+                      "update is going to be aborted.\n"
+                      "This error might be caused from "
+                      "the environment edits you made. "
+                      "Please fix this by going to the maintenance menu.")
+    except VersionError:
         error("An error ocurred because version.txt file is edited or invalid."
               "Please recover the version.txt file from the Git repo.")
 

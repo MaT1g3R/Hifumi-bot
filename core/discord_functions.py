@@ -147,10 +147,7 @@ def clense_prefix(message, prefix: str):
     if not message.content.startswith(prefix):
         return message.content
     else:
-        temp = message.content[len(prefix):]
-        while temp.startswith(' '):
-            temp = temp[1:]
-        return temp
+        return message.content[len(prefix):].strip()
 
 
 async def handle_forbidden_http(ex, bot, channel, localize, action):

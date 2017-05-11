@@ -82,9 +82,7 @@ def get_system_name():
     regex = re.compile('[Ww]ith-.*')
     res = regex.findall(res)[0] \
         .lower().replace('-', ' ').replace('with', '').title()
-    while res.startswith(' '):
-        res = res[1:]
-    return res
+    return res.strip()
 
 
 def strip_letters(s: str):
