@@ -245,7 +245,8 @@ def update_hifumi():
     """
     try:
         if check_hifumi():
-            info("Hifumi is already the latest version. No need to update now!")
+            info("Hifumi is already the latest version."
+                 "No need to perform an update right now!")
         else:
             try:
                 code = subprocess.call(("git", "pull", "--ff-only"))
