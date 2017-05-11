@@ -526,7 +526,8 @@ def maintenance_menu():
         print("1. Repair environment (this won't include data)")
         print("2. Wipe 'data' folder")
         print("3. Wipe 'lib' folder (pip packages and libraries)")
-        print("4. Factory reset (please be careful)")
+        print("4. Clean Python cache (experimental)")
+        print("5. Factory reset (please be careful)")
         print("\n0. Go back")
         choice = user_choice()
         if choice == "1":
@@ -546,6 +547,12 @@ def maintenance_menu():
             reset_hifumi(reqs=True)
             pause()
         elif choice == "4":
+            warning("Are you sure?")
+            if user_pick_yes_no():
+                autoclean()
+                info("Python cache should be cleaned now.")
+                pause()
+        elif choice == "5":
             warning("Are you sure? This will wipe ALL the installation "
                     "data.\nYou'll lose all your settings, cogs and any "
                     "modification you have made.\nThere is no going back, "
