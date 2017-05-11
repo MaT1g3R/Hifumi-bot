@@ -22,6 +22,7 @@ try:
     from core.logger import warning, info, error
     from colorlog import ColoredFormatter
     import requests
+
     # Recycling lines
 
     colorama.init()
@@ -112,8 +113,8 @@ def computer_meets_color():
         "--upgrade", REQS_DIR,
         "colorlog"
     ]
-    
-    args3 = [ # Just recycling lines
+
+    args3 = [  # Just recycling lines
         interpreter, "-m",
         "pip", "install",
         "--upgrade", REQS_DIR,
@@ -211,23 +212,15 @@ def check_hifumi():
     Checks if Hifumi's version is the latest. 
     :return: True if it's latest, otherwise False. None if an error returned.
     """
-    url = 'https://raw.githubusercontent.com/hifumibot/hifumibot/master/version.txt'
+    url = 'https://raw.githubusercontent.com/' \
+          'hifumibot/hifumibot/master/version.txt'
     r = requests.get(url)
-    if r.status_code === 200:
-        online_output = r.text.replace("\n", "")
-        if os.path.isfile("./version.txt"):
-            local_output = open("version.txt").read()
-            if local_output < online_output:
-                return False
-            elif local_output = online_output:
-                return True
-            else:
-                return None
-        else:
-            return None
-    else:
+    if r.status_code != 200 or not os.path.isfile("./version.txt"):
         return None
-        
+    online_output = r.text.replace("\n", "")
+    local_output = open("version.txt").read()
+    return local_output == online_output if local_output <= online_output \
+        else None
 
 
 def update_hifumi():
@@ -244,19 +237,21 @@ def update_hifumi():
             code = subprocess.call(("git", "pull", "--ff-only"))
         except subprocess.CalledProcessError:
             error("\nError: Git not found. It's either not installed or not in "
-              "the PATH environment variable. Please fix this!")
+                  "the PATH environment variable. Please fix this!")
             return
         if code == 0:
             info("\nHifumi is now updated successfully!")
             if os.path.isfile("./config/sample_settings.py"):
                 os.remove("./config/sample_settings.py")
         else:
-            error("\nUh oh! An error ocurred and update is going to be aborted.\n"
-                  "This error might be caused from the environment edits you made. "
-                  "Please fix this by going to the maintenance menu.")
+            error(
+                "\nUh oh! An error ocurred and update is going to be aborted.\n"
+                "This error might be caused from "
+                "the environment edits you made. "
+                "Please fix this by going to the maintenance menu.")
     elif check_hifumi() is None:
-            error("An error ocurred because version.txt file is edited or invalid."
-                  "Please recover the version.txt file from the Git repo.")
+        error("An error ocurred because version.txt file is edited or invalid."
+              "Please recover the version.txt file from the Git repo.")
 
 
 def reset_hifumi(reqs=False, data=False, cogs=False, git_reset=False):
@@ -1048,7 +1043,7 @@ def run():
     dirname = os.path.dirname(abspath)
     os.chdir(dirname)
     if not logger_success:
-        computer_meets_color() # lol
+        computer_meets_color()  # lol
         main()
     if not SYSTEM_OK:
         error("Sorry! This operation system is not compatible with "
