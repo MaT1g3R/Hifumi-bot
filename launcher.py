@@ -21,6 +21,8 @@ try:
     import colorama
     from core.logger import warning, info, error
     from colorlog import ColoredFormatter
+    import requests
+    # Recycling lines
 
     colorama.init()
 except ImportError:
@@ -44,9 +46,7 @@ FFMPEG_BUILDS_URL = "https://ffmpeg.zeranoe.com/builds/"
 IS_WINDOWS = os.name == "nt"
 IS_MAC = sys.platform == "darwin"
 IS_LINUX = platform.platform().lower().startswith("linux") or os.name == "posix"
-IS_ONE_OF_BOTH = IS_WINDOWS or IS_LINUX
-IS_DOCKER = IS_ONE_OF_BOTH and os.path.exists('.dockerenv')
-SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX or IS_DOCKER
+SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX
 IS_64BIT = platform.machine().endswith("64")
 
 PYTHON_OK = sys.version_info >= (3, 6)
@@ -112,11 +112,19 @@ def computer_meets_color():
         "--upgrade", REQS_DIR,
         "colorlog"
     ]
+    
+    args3 = [ # Just recycling lines
+        interpreter, "-m",
+        "pip", "install",
+        "--upgrade", REQS_DIR,
+        "requests"
+    ]
 
     code = subprocess.call(args)
     code2 = subprocess.call(args2)
+    code3 = subprocess.call(args3)
 
-    if code == 0 and code2 == 0:
+    if code == 0 and code2 == 0 and code3 == 0:
         pass
     else:
         error("\nUh oh! An error ocurred and installation is going to "
@@ -198,6 +206,30 @@ def update_pip():
             "to be aborted.\nPlease fix the error above basing in the docs.\n")
 
 
+def check_hifumi():
+    """
+    Checks if Hifumi's version is the latest. 
+    :return: True if it's latest, otherwise False. None if an error returned.
+    """
+    url = 'https://raw.githubusercontent.com/hifumibot/hifumibot/master/version.txt'
+    r = requests.get(url)
+    if r.status_code === 200:
+        online_output = r.text.replace("\n", "")
+        if os.path.isfile("./version.txt"):
+            local_output = open("version.txt").read()
+            if local_output < online_output:
+                return False
+            elif local_output = online_output:
+                return True
+            else:
+                return None
+        else:
+            return None
+    else:
+        return None
+        
+
+
 def update_hifumi():
     """
     Updates Hifumi via Git. 
@@ -205,20 +237,26 @@ def update_hifumi():
     :return: Git call, then exit code. 
     0 if went fine, 1 or exception if error ocurred.
     """
-    try:
-        code = subprocess.call(("git", "pull", "--ff-only"))
-    except subprocess.CalledProcessError:
-        error("\nError: Git not found. It's either not installed or not in "
+    if check_hifumi() is True:
+        info("Hifumi is already the latest version. No need to update now!")
+    elif check_hifumi() is False:
+        try:
+            code = subprocess.call(("git", "pull", "--ff-only"))
+        except subprocess.CalledProcessError:
+            error("\nError: Git not found. It's either not installed or not in "
               "the PATH environment variable. Please fix this!")
-        return
-    if code == 0:
-        info("\nHifumi is now updated successfully!")
-        if os.path.isfile("./config/sample_settings.py"):
-            os.remove("./config/sample_settings.py")
-    else:
-        error("\nUh oh! An error ocurred and update is going to be aborted.\n"
-              "This error might be caused from the environment edits you made. "
-              "Please fix this by going to the maintenance menu.")
+            return
+        if code == 0:
+            info("\nHifumi is now updated successfully!")
+            if os.path.isfile("./config/sample_settings.py"):
+                os.remove("./config/sample_settings.py")
+        else:
+            error("\nUh oh! An error ocurred and update is going to be aborted.\n"
+                  "This error might be caused from the environment edits you made. "
+                  "Please fix this by going to the maintenance menu.")
+    elif check_hifumi() is None:
+            error("An error ocurred because version.txt file is edited or invalid."
+                  "Please recover the version.txt file from the Git repo.")
 
 
 def reset_hifumi(reqs=False, data=False, cogs=False, git_reset=False):
@@ -427,7 +465,7 @@ def update_menu():
         print("\n0. Go back")
         choice = user_choice()
         if choice == "1":
-            update_hifumi()
+            check_hifumi()
             print("Updating requirements...")
             reqs = verify_requirements()
             if reqs is not False:
@@ -436,7 +474,7 @@ def update_menu():
                 print("The requirements haven't been installed yet.")
             pause()
         elif choice == "2":
-            update_hifumi()
+            check_hifumi()
             pause()
         elif choice == "3":
             reqs = verify_requirements()
@@ -1015,7 +1053,7 @@ def run():
     if not SYSTEM_OK:
         error("Sorry! This operation system is not compatible with "
               "Hifumi's environment and might not run at all. Hifumi "
-              "is only supported for Windows, Mac, Linux, Docker and "
+              "is only supported for Windows, Mac, Linux and "
               "Raspberry Pi. Please install one of those OS and try "
               "again.")
         exit(1)
