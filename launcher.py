@@ -449,11 +449,12 @@ def update_menu():
     Prints the options from the update menu.
     :return: The update menu.
     """
+    # TODO Check your logic here
     clear_screen()
     autoclean()
     while True:
         reqs = verify_requirements()
-        if reqs is False:
+        if not reqs:
             status = "No requirements installed"
         else:
             status = "Requirements installed"
@@ -470,8 +471,7 @@ def update_menu():
         if choice == "1":
             check_hifumi()
             print("Updating requirements...")
-            reqs = verify_requirements()
-            if reqs is not False:
+            if reqs:
                 install_reqs()
             else:
                 print("The requirements haven't been installed yet.")
@@ -480,8 +480,7 @@ def update_menu():
             check_hifumi()
             pause()
         elif choice == "3":
-            reqs = verify_requirements()
-            if reqs is not False:
+            if reqs:
                 install_reqs()
             else:
                 print("The requirements haven't been installed yet.\n"
