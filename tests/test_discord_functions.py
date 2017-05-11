@@ -1,8 +1,10 @@
+from os.path import join
 from unittest import TestCase, main
 
 from discord.ext.commands import CommandOnCooldown, MissingRequiredArgument
 
-from config.settings import DATA_CONTROLLER, COLOUR
+from config.settings import COLOUR
+from core.data_controller import DataController
 from core.discord_functions import command_error_handler, get_prefix, \
     build_embed, clense_prefix
 from core.helpers import dict_has_empty
@@ -83,6 +85,7 @@ class TestDiscordFunctons(TestCase):
         """
         Test get_prefix when the server is in the db
         """
+        db = DataController(join('test_data', 'mock_db'))
         sql_del = '''
                 DELETE FROM main.prefix WHERE server = ?
                 '''
@@ -91,13 +94,13 @@ class TestDiscordFunctons(TestCase):
         '''
         server = self.msg.server.id
         prefix = 'bar'
-        DATA_CONTROLLER.cursor.execute(sql_del, [server])
-        DATA_CONTROLLER.connection.commit()
-        DATA_CONTROLLER.cursor.execute(sql_insert, (server, prefix))
-        DATA_CONTROLLER.connection.commit()
-        self.assertEqual(prefix, get_prefix(self.bot, self.msg))
-        DATA_CONTROLLER.cursor.execute(sql_del, [server])
-        DATA_CONTROLLER.connection.commit()
+        db.cursor.execute(sql_del, [server])
+        db.connection.commit()
+        db.cursor.execute(sql_insert, (server, prefix))
+        db.connection.commit()
+        self.assertEqual(prefix, get_prefix(self.bot, self.msg, db))
+        db.cursor.execute(sql_del, [server])
+        db.connection.commit()
 
     def test_get_prefix_not_found(self):
         """

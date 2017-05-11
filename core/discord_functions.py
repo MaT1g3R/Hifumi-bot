@@ -48,16 +48,18 @@ def command_error_handler(bot, exception, context):
         raise exception
 
 
-def get_prefix(bot, message):
+def get_prefix(bot, message, data_controller=DATA_CONTROLLER):
     """
     the the prefix of commands for a channel
     :param bot: the discord bot object
     :param message: the message
+    :param data_controller: a DataController object to get the prefix from,
+    defaults to the default database
     :return: the prefix for the server
     """
     if message.server is None:
         return bot.default_prefix
-    res = DATA_CONTROLLER.get_prefix(message.server.id)
+    res = data_controller.get_prefix(message.server.id)
     return res if res is not None else bot.default_prefix
 
 
