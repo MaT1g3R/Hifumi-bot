@@ -21,9 +21,7 @@ except ImportError:
 IS_WINDOWS = name == "nt"
 IS_MAC = platform == "darwin"
 IS_LINUX = platform.startswith("linux") or name == "posix"
-IS_ONE_OF_BOTH = IS_WINDOWS or IS_LINUX
-IS_DOCKER = IS_ONE_OF_BOTH and path.exists('.dockerenv')
-SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX or IS_DOCKER
+SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX
 
 PYTHON_OK = version_info >= (3, 6)
 
@@ -44,7 +42,7 @@ if __name__ == '__main__':
     elif not SYSTEM_OK:
         logger.error("Sorry! This operation system is not compatible with "
                      "Hifumi's environment and might not run at all. Hifumi "
-                     "is only supported for Windows, Mac, Linux, Docker and "
+                     "is only supported for Windows, Mac, Linux and "
                      "Raspberry Pi. Please install one of those OS and try "
                      "again.")
         exit(1)
