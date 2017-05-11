@@ -36,41 +36,6 @@ class TestDataController(TestCase):
         conn.commit()
         conn.close()
 
-    def test_get_prefix_found(self):
-        """
-        Test case for get_prefix when it's found
-        """
-        self.db.set_prefix('foo', 'bar')
-        prefix = self.db.get_prefix('foo')
-        self.assertEqual(prefix, 'bar')
-
-    def test_get_prefix_not_found(self):
-        """
-        Test for get_prefix when it's not found
-        """
-        self.db.set_prefix('bar', 'baz')
-        self.assertIsNone(self.db.get_prefix('foo'))
-
-    def test_set_prefix(self):
-        """
-        Test for set_preifx
-        """
-        server = 'foo'
-        prefix = 'bar'
-        self.db.set_prefix(server, prefix)
-        self.assertEqual(prefix, self.db.get_prefix(server))
-
-    def test_set_prefix_overwrite(self):
-        """
-        Test case for over write in set_preifx
-        """
-        server = 'foo'
-        old_prefix = 'bar'
-        new_prefix = 'baz'
-        self.db.set_prefix(server, old_prefix)
-        self.db.set_prefix(server, new_prefix)
-        self.assertEqual(new_prefix, self.db.get_prefix(server))
-
     def test_write_tag(self):
         """
         Test case for write_tag
@@ -192,69 +157,45 @@ class TestDataController(TestCase):
         self.db.write_tag(site, tag)
         self.assertEqual(tag, self.db.fuzzy_match_tag(site, tag_to_match))
 
-    def test_get_language_success(self):
+    def test_get_set(self):
         """
-        Test for get_language
+        Test for get/set an entry, for cases where the server is a unique key
         """
-        server = 'foo'
-        lan = 'bar'
-        self.db.set_language(server, lan)
-        self.assertEqual(lan, self.db.get_language(server))
+        self.__get_set(self.db.set_prefix, self.db.get_prefix)
+        self.__get_set(self.db.set_language, self.db.get_language)
 
-    def test_get_language_fail(self):
+    def test_get_fail(self):
         """
-        Test for get_language when nothing is found
+        Test case for failed to get an entry from the db
         """
-        server = 'foo'
-        self.assertIsNone(self.db.get_language(server))
-        lan = 'bar'
-        wrong_server = 'baz'
-        self.db.set_language(server, lan)
-        self.assertIsNone(self.db.get_language(wrong_server))
-
-    def test_set_language(self):
-        """
-        Test for set_language
-        """
-        server = 'foo'
-        lan = 'bar'
-        self.db.set_language(server, lan)
-        self.assertEqual(lan, self.db.get_language(server))
-
-    def test_set_language_overwrite(self):
-        """
-        Test for set_language when it overrides the value
-        """
-        server = 'foo'
-        old_lan = 'bar'
-        new_lan = 'baz'
-        self.db.set_language(server, old_lan)
-        self.db.set_language(server, new_lan)
-        self.assertEqual(new_lan, self.db.get_language(server))
+        self.__get_fail(self.db.set_language, self.db.get_language)
+        self.__get_fail(self.db.set_prefix, self.db.get_prefix)
 
     def test_add_entry(self):
         """
         Test for adding an entry
         """
-        self.add_helper(self.db.add_role, self.db.get_role_list)
-        self.add_helper(self.db.set_mod_log, self.db.get_mod_log)
+        self.__add_with_list(self.db.add_role, self.db.get_role_list)
+        self.__add_with_list(self.db.set_mod_log, self.db.get_mod_log)
 
     def test_add_entry_overwrite(self):
         """
         Test for adding an entry when it overrides the value
         """
-        self.add_overwrite_helper(self.db.add_role, self.db.get_role_list)
-        self.add_overwrite_helper(self.db.set_mod_log, self.db.get_mod_log)
+        self.__add_overwrite_with_list(self.db.add_role, self.db.get_role_list)
+        self.__add_overwrite_with_list(self.db.set_mod_log, self.db.get_mod_log)
+        self.__set_overwrite(self.db.set_language, self.db.get_language)
+        self.__set_overwrite(self.db.set_prefix, self.db.get_prefix)
 
     def test_remove_entry(self):
         """
         Test for remove entry
         """
-        self.remove_helper(
+        self.__remove_with_list(
             self.db.add_role, self.db.remove_role, self.db.get_role_list
         )
 
-        self.remove_helper(
+        self.__remove_with_list(
             self.db.set_mod_log, self.db.remove_mod_log, self.db.get_mod_log
         )
 
@@ -262,50 +203,84 @@ class TestDataController(TestCase):
         """
         Test for remove entry for a non-existing server
         """
-        self.remove_no_server_helepr(
+        self.__remove_no_server_with_list(
             self.db.add_role, self.db.remove_role, self.db.get_role_list
         )
 
-        self.remove_no_server_helepr(
+        self.__remove_no_server_with_list(
             self.db.set_mod_log, self.db.remove_mod_log, self.db.get_mod_log)
 
     def test_remove_entry_no_entry(self):
         """
         Test for removeentry for a non-existing entry
         """
-        self.remove_no_entry_helper(
+        self.__remove_no_entry_with_list(
             self.db.add_role, self.db.remove_role, self.db.get_role_list
         )
 
-        self.remove_no_entry_helper(
+        self.__remove_no_entry_with_list(
             self.db.set_mod_log, self.db.remove_mod_log, self.db.get_mod_log)
 
     def test_get_entry_list(self):
         """
         Test for get a list of entry
         """
-        self.get_list_helper(self.db.add_role, self.db.get_role_list)
-        self.get_list_helper(self.db.set_mod_log, self.db.get_mod_log)
+        self.__get_list(self.db.add_role, self.db.get_role_list)
+        self.__get_list(self.db.set_mod_log, self.db.get_mod_log)
 
     def test_get_entry_list_empty(self):
         """
         Test for get a list of entry when it is empty
         """
-        self.get_list_empty_helper(self.db.add_role, self.db.get_role_list)
-        self.get_list_empty_helper(self.db.set_mod_log, self.db.get_mod_log)
+        self.__get_list_empty(self.db.add_role, self.db.get_role_list)
+        self.__get_list_empty(self.db.set_mod_log, self.db.get_mod_log)
 
-    def add_helper(self, func_add, func_get_lst):
+    def __get_set(self, func_add, func_get):
         """
-        Helper method for testing adding an entry
+        Helper method to test get/set an entry from the db
+        """
+        server = 'foo'
+        entry = 'bar'
+        func_add(server, entry)
+        self.assertEqual(entry, func_get(server))
+
+    def __get_fail(self, func_add, func_get):
+        """
+        Helper method to test get entry from the db when the entry doesn't
+        exist
+        """
+        server = 'foo'
+        self.assertIsNone(func_get(server))
+        entry = 'bar'
+        wrong_server = 'baz'
+        func_add(server, entry)
+        self.assertIsNone(func_get(wrong_server))
+
+    def __set_overwrite(self, func_add, func_get):
+        """
+        Helper method to test overwriting a value in the db
+        """
+        server = 'foo'
+        old_entry = 'bar'
+        new_entry = 'baz'
+        func_add(server, old_entry)
+        func_add(server, new_entry)
+        self.assertEqual(new_entry, func_get(server))
+
+    def __add_with_list(self, func_add, func_get_lst):
+        """
+        Helper method for testing adding an entry, when the server is not
+        a unique key in the db
         """
         server = 'foo'
         entry = 'bar'
         func_add(server, entry)
         self.assertTrue(entry in func_get_lst(server))
 
-    def add_overwrite_helper(self, func_add, func_get_lst):
+    def __add_overwrite_with_list(self, func_add, func_get_lst):
         """
-        Helper method for testing adding an entry when it overrides the value
+        Helper method for testing adding an entry when it overrides the value,
+        when the server is not a unique key in the db
         """
         server = 'foo'
         entry = 'bar'
@@ -314,9 +289,10 @@ class TestDataController(TestCase):
         func_add(server, entry)
         self.assertEqual(1, len(func_get_lst(server)))
 
-    def remove_helper(self, func_add, func_rm, func_lst):
+    def __remove_with_list(self, func_add, func_rm, func_lst):
         """
-        Helper method for testing remove entry
+        Helper method for testing remove entry,
+        when the server is not a unique key in the db
         """
         server = 'foo'
         entry = 'bar'
@@ -326,9 +302,10 @@ class TestDataController(TestCase):
         func_rm(server, entry)
         self.assertListEqual(other_roles, func_lst(server))
 
-    def remove_no_server_helepr(self, func_add, func_rm, func_lst):
+    def __remove_no_server_with_list(self, func_add, func_rm, func_lst):
         """
-        Helper method for testing remove entry from a non-existing server
+        Helper method for testing remove entry from a non-existing server,
+        when the server is not a unique key in the db
         """
         server = 'foo'
         wrong_server = 'bar'
@@ -338,9 +315,10 @@ class TestDataController(TestCase):
         func_rm(wrong_server, entry_lst[0])
         self.assertListEqual(entry_lst, func_lst(server))
 
-    def remove_no_entry_helper(self, func_add, func_rm, func_lst):
+    def __remove_no_entry_with_list(self, func_add, func_rm, func_lst):
         """
-        Helper method for testing remove entry for a non-existing entry
+        Helper method for testing remove entry for a non-existing entry,
+        when the server is not a unique key in the db
         """
         server = 'foo'
         wrong_role = 'bar'
@@ -350,7 +328,7 @@ class TestDataController(TestCase):
         func_rm(server, wrong_role)
         self.assertListEqual(entry_lst, func_lst(server))
 
-    def get_list_helper(self, func_add, func_lst):
+    def __get_list(self, func_add, func_lst):
         """
         Helper method for testing get a list of entry
         """
@@ -360,7 +338,7 @@ class TestDataController(TestCase):
             func_add(server, r)
         self.assertEqual(set(entry_lst), set(func_lst(server)))
 
-    def get_list_empty_helper(self, func_add, func_lst):
+    def __get_list_empty(self, func_add, func_lst):
         """
         Helper method for testing getting a list of entry when it is empty
         """
