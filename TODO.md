@@ -84,7 +84,6 @@ selfrole add        ✔
 selfrole remove	    ✔
 ```
 5. Moderation :white_check_mark:
-* customize removed and replaced with setlanguage and setprefix
 * setlevel removed in favour of role based permissions
 * Mod log function is ~~planned~~ finished
 ```
