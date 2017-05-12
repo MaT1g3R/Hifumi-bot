@@ -1,6 +1,7 @@
 """
 The main run file.
 """
+import traceback
 from os import name
 from sys import platform, version_info
 
@@ -82,6 +83,8 @@ if __name__ == '__main__':
                 "to know how to fix this problem. Exit code: 1"
             )
             print(e)
+            tb = traceback.format_exc()
+            print(tb)
             exit(1)
         except KeyboardInterrupt:
             logger.info("Hifumi has been terminated.")
