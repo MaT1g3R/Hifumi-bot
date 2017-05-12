@@ -84,10 +84,9 @@ selfrole add        ✔
 selfrole remove	    ✔
 ```
 5. Moderation :white_check_mark:
-* levelup removed because setlevel exists
 * customize removed and replaced with setlanguage and setprefix
 * setlevel removed in favour of role based permissions
-* A mod log function is planned
+* Mod log function is ~~planned~~ finished
 ```
 ban                 ✔
 kick                ✔
@@ -95,8 +94,12 @@ clean               ✔
 mute                ✔
 unmute              ✔
 warn                ✔
+pardon *new         ○
 setlanguage *new    ✔
 setprefix *new      ✔
+modlog *new         ○
+modlog add *new     ○
+modlog remove *new  ○
 ```
 6. Music
 ```
