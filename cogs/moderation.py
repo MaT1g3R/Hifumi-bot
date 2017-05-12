@@ -2,9 +2,6 @@ from discord import Member
 from discord.ext import commands
 
 from core.checks import is_admin, has_manage_message, has_manage_role
-from core.data_controller import set_prefix
-from core.discord_functions import get_prefix
-from core.language_support import set_language
 from core.moderation_core import ban_kick, clean_msg, mute_unmute, \
     generate_mod_log_list, add_mod_log, remove_mod_log, warn_pardon
 
@@ -149,41 +146,6 @@ class Moderation:
             )
         else:
             await warn_pardon(self.bot, ctx, ' '.join(reason), member, False)
-
-    @commands.command(pass_context=True, no_pm=True)
-    @commands.check(is_admin)
-    async def setlanguage(self, ctx, language: str = None):
-        """
-        Set the language for the server
-        :param ctx: the discord context object
-        :param language: the language to set to
-        """
-        localize = self.bot.get_language_dict(ctx)
-        if language not in self.bot.language or language is None:
-            await self.bot.say(
-                localize['lan_no_exist'].format(
-                    language,
-                    get_prefix(
-                        self.bot.cur, ctx.message.server,
-                        self.bot.default_prefix
-                    )
-                )
-            )
-        else:
-            await self.bot.say(set_language(self.bot, ctx, language))
-
-    @commands.command(pass_context=True, no_pm=True)
-    @commands.check(is_admin)
-    async def setprefix(self, ctx, prefix: str):
-        """
-        Set the prefix for the server
-        :param ctx: the discord context object
-        :param prefix: the prefix to set to
-        """
-        set_prefix(self.bot.conn, self.bot.cur, ctx.message.server.id, prefix)
-        await self.bot.say(
-            self.bot.get_language_dict(ctx)['set_prefix'].format(prefix)
-        )
 
     @commands.group(pass_context=True, no_pm=True)
     @commands.check(is_admin)
