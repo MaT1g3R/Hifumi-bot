@@ -95,5 +95,7 @@
   "pls_provide_reason": ":warning: Please provide a reason.",
   "warnings": "Total Warnings",
   "pardon_success": ":information_source: Member **{}** has been pardoned. Reason: **{}** \nPardon given by **{}** Total warn count on target: ",
-  "owner_only": "Sorry! Only my owner can use this command."
+  "owner_only": "Sorry! Only my owner can use this command.",
+  "bash_success": ":white_check_mark: Command success!\nOutput:\n",
+  "bash_fail": ":no_entry_sign: Command failed!\nOutput:\n"
 }

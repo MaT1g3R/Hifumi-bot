@@ -1,5 +1,15 @@
 """
 Owner only commands
+bash                ✕
+setavatar           ✕
+eval                ✔
+shard               ✕
+shardinfo           ✕
+editsettings        ✕
+reload              ✕
+restart             ✕
+shutdown            ✕
+blacklist           ✕
 """
 
 from discord.ext import commands
@@ -8,7 +18,7 @@ from config.settings import OWNER
 from core.checks import is_owner
 from core.discord_functions import check_message_startwith, clense_prefix, \
     get_prefix
-from core.owner_only_core import handle_eval
+from core.owner_only_core import handle_eval, bash_script
 
 
 class OwnerOnly:
@@ -41,7 +51,13 @@ class OwnerOnly:
                     message.channel,
                     self.bot.get_language_dict(message)['owner_only'])
 
-    @commands.command()
+    @commands.command(pass_context=True)
     @commands.check(is_owner)
-    async def test(self):
-        await self.bot.say('foo')
+    async def bash(self, ctx, *args):
+        localize = self.bot.get_language_dict(ctx)
+        result, success = bash_script(list(args))
+        str_out = ['```\n' + s + '\n```' for s in result]
+        header = localize['bash_success'] if success else localize['bash_fail']
+        await self.bot.say(header)
+        for s in str_out:
+            await self.bot.say(s)

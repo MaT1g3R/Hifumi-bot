@@ -4,6 +4,9 @@ Functions for the owner only cog
 
 import ast
 
+from subprocess import check_output, STDOUT, CalledProcessError
+from textwrap import wrap
+
 
 def handle_eval(code):
     """
@@ -25,3 +28,23 @@ def handle_eval(code):
         return ':no_entry_sign: **Evaluation failed!**\n' \
                'Output:' + '```Python\n{}```'. \
                    format(e.__class__.__name__ + ': ' + str(e))
+
+
+def bash_script(command: list):
+    """
+    Run a bash script
+    :param command: the bash command
+    :return: (the result of the command in a list, success)
+    :rtype: tuple
+    """
+    try:
+        output = check_output(command, stderr=STDOUT)
+        res_str = output.decode()
+        success = True
+    except CalledProcessError as ex:
+        res_str = ex.output.decode()
+        success = False
+    except Exception as ex:
+        res_str = str(ex)
+        success = False
+    return wrap(res_str, 1800), success
