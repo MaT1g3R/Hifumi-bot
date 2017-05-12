@@ -47,4 +47,4 @@ def bash_script(command: list):
     except Exception as ex:
         res_str = str(ex)
         success = False
-    return wrap(res_str, 1800), success
+    return wrap(res_str, 1800, replace_whitespace=False), success
