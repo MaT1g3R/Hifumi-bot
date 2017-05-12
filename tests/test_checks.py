@@ -1,8 +1,7 @@
 from unittest import TestCase, main
 
 from core.checks import *
-from tests.mock_objects import MockContext, MockMemberAllRoles, MockMessage, \
-    MockTextChannel, MockMemberNoRoles, MockNsfwChannel, MockPrivateChannel
+from tests.mock_objects import *
 
 
 class TestChecks(TestCase):
@@ -42,6 +41,12 @@ class TestChecks(TestCase):
                 channel=MockPrivateChannel()
             )
         )
+        self.ctx_owner = MockContext(
+            MockMessage(
+                author=MockMemberOwner(),
+                channel=MockTextChannel()
+            )
+        )
 
     def test_is_nsfw_true(self):
         self.assertTrue(is_nsfw(self.ctx_nsfw))
@@ -65,20 +70,26 @@ class TestChecks(TestCase):
     def test_has_manage_role(self):
         self.assertTrue(has_manage_role(self.ctx_admin))
 
-    def test_is_admin(self):
-        self.assertTrue(is_admin(self.ctx_admin))
-
-    def test_has_manage_message(self):
-        self.assertTrue(has_manage_message(self.ctx_admin))
-
     def test_has_manage_role_false(self):
         self.assertRaises(ManageRoleError, has_manage_role, self.ctx_no)
+
+    def test_is_admin(self):
+        self.assertTrue(is_admin(self.ctx_admin))
 
     def test_is_admin_false(self):
         self.assertRaises(AdminError, is_admin, self.ctx_no)
 
+    def test_has_manage_message(self):
+        self.assertTrue(has_manage_message(self.ctx_admin))
+
     def test_has_manage_message_false(self):
         self.assertRaises(ManageMessageError, has_manage_message, self.ctx_no)
+
+    def test_is_owner(self):
+        self.assertTrue(is_owner(self.ctx_owner))
+
+    def test_is_owner_false(self):
+        self.assertRaises(OwnerError, is_owner, self.ctx_admin)
 
 
 if __name__ == '__main__':

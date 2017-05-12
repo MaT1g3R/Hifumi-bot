@@ -2,10 +2,12 @@
 A collection of mock objects
 """
 from os.path import join
+from random import choice
 from unittest.mock import MagicMock
 
 from discord import ChannelType
 
+from config.settings import OWNER
 from core.file_io import read_json
 
 
@@ -110,6 +112,11 @@ class MockMemberAllRoles(MagicMock):
 
 class MockMemberNoRoles(MagicMock):
     id = 'n'
+    server_permissions = MockServerPermissions(False)
+
+
+class MockMemberOwner(MagicMock):
+    id = choice(OWNER)
     server_permissions = MockServerPermissions(False)
 
 
