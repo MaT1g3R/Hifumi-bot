@@ -62,13 +62,13 @@
   "member_not_found": ":warning: Member **{}** not found.",
   "prefix": "The prefix for this server is: `{}`",
   "muted_role_not_found": ":no_entry_sign: Sorry, I cannot find a role called \"**Muted**\" in this server. Please create a role called \"**Muted**\" without permissions to send message and try again.",
-  "mute_unmute_success": ":white_check_mark: Successfully {} **{}**",
+  "mute_unmute_success": ":white_check_mark: Successfully {} **{}**\nReason: **{}**",
   "go_away": ":information_source: If you don't like me, go away.",
   "empty_member": ":no_entry_sign: Please provide a member for me to perform this action on.",
   "set_prefix": ":white_check_mark: The command prefix for this server has been set to `{}`",
   "lan_no_exist": ":information_source: Sorry! The language **{}** isn't supported yet. \n`{}languagelist` for a list of available languages.\nJoin our translation project here to make it available in the furure!\n<https://discord.gg/HKayCWp>",
   "lan_set_success": ":white_check_mark: The language for this server has been set to: `{}`\n Thanks to translators `{}` for making it possible.\nIf you are interested in translating Hifumi, you can join the translation project here: <https://discord.gg/HKayCWp>",
-  "warn_success": ":warning: **HEY**, **{}**! Can you please stop **{}**? It's annoying and it can lead you to a serious punishment from the admin/mod(s) of this server. Thanks!\nWarning given by **{}**",
+  "warn_success": ":warning: **HEY**, **{}**! Can you please stop **{}**? It's annoying and it can lead you to a serious punishment from the admin/mod(s) of this server. Thanks!\nWarning given by **{}**. Total warn count on target: ",
   "ex_warn": ":warning: I ran into an error while executing this command. Please report this to my developers.\n**Triggered message**: {}\n**Type**: {}\n**Exception**: {}",
   "ex_error": ":x: I ran into a critical error, please report this to my developers.\n```Python\n{}\n```",
   "ban": "ban",
@@ -92,5 +92,7 @@
   "mod_log_info": "`{0}modlog add` to set the current channel as a mod log channel. `{0}modlog remove` to remove the current channel as a mod log channel.\n",
   "mod_log_add": ":information_source: The current channel **{}** has been set as a mod log channel.",
   "mod_log_rm": ":information_source: The current channel **{}** has been removed from mod log channels.",
-  "pls_provide_reason": ":warning: Please provide a reason."
+  "pls_provide_reason": ":warning: Please provide a reason.",
+  "warnings": "Total Warnings",
+  "pardon_success": ":information_source: Member **{}** has been pardoned. Reason: **{}** \nPardon given by **{}** Total warn count on target: "
 }

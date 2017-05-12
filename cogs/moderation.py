@@ -3,10 +3,10 @@ from discord.ext import commands
 
 from core.checks import is_admin, has_manage_message, has_manage_role
 from core.data_controller import set_prefix
-from core.discord_functions import get_prefix, get_name_with_discriminator
+from core.discord_functions import get_prefix
 from core.language_support import set_language
 from core.moderation_core import ban_kick, clean_msg, mute_unmute, \
-    generate_mod_log_list, add_mod_log, remove_mod_log, send_mod_log
+    generate_mod_log_list, add_mod_log, remove_mod_log, warn_pardon
 
 
 class Moderation:
@@ -90,23 +90,33 @@ class Moderation:
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(has_manage_role)
-    async def mute(self, ctx, member: Member):
+    async def mute(self, ctx, member: Member, *reason):
         """
         Give a member the "Muted" role
         :param ctx: the discord context object
         :param member: the member to be muted
         """
-        await mute_unmute(ctx, self.bot, member, True)
+        if not reason:
+            await self.bot.say(
+                self.bot.get_language_dict(ctx)['pls_provide_reason']
+            )
+        else:
+            await mute_unmute(ctx, self.bot, member, True, ' '.join(reason))
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(has_manage_role)
-    async def unmute(self, ctx, member: Member):
+    async def unmute(self, ctx, member: Member, *reason):
         """
         Remove the "Muted" role from a member
         :param ctx: the discord context object
         :param member: the member to be unmuted
         """
-        await mute_unmute(ctx, self.bot, member, False)
+        if not reason:
+            await self.bot.say(
+                self.bot.get_language_dict(ctx)['pls_provide_reason']
+            )
+        else:
+            await mute_unmute(ctx, self.bot, member, False, ' '.join(reason))
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
@@ -117,19 +127,28 @@ class Moderation:
         :param member: the member to be warned
         :param reason: the warn reason
         """
-        localize = self.bot.get_language_dict(ctx)
         if not reason:
-            await self.bot.say(localize['pls_provide_reason'])
-        else:
-            reason = ' '.join(reason)
-            author = ctx.message.author
-            author = get_name_with_discriminator(author)
             await self.bot.say(
-                localize['warn_success'].format(member, reason, author)
+                self.bot.get_language_dict(ctx)['pls_provide_reason']
             )
-            await send_mod_log(
-                ctx, self.bot, localize['warn'], member, reason
+        else:
+            await warn_pardon(self.bot, ctx, ' '.join(reason), member, True)
+
+    @commands.command(pass_context=True, no_pm=True)
+    @commands.check(is_admin)
+    async def pardon(self, ctx, member: Member, *reason):
+        """
+        Warn someone
+        :param ctx: the discord context object
+        :param member: the member to be warned
+        :param reason: the warn reason
+        """
+        if not reason:
+            await self.bot.say(
+                self.bot.get_language_dict(ctx)['pls_provide_reason']
             )
+        else:
+            await warn_pardon(self.bot, ctx, ' '.join(reason), member, False)
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)

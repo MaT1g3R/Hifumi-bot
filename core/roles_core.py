@@ -4,8 +4,21 @@ Functions to deal with the Roles class
 
 from discord.utils import get
 
-import core.data_controller as db
+from core import data_controller as db
 from core.discord_functions import handle_forbidden_http
+
+
+def get_server_role(role, server):
+    """
+    Get a list of server roles with the name ame as :param role
+
+    :param role: the role name
+
+    :param server: the server
+
+    :return: a list of discord role object
+    """
+    return get(server.roles, name=role)
 
 
 def get_role_list(*, server, conn, cur, localize):
@@ -34,19 +47,6 @@ def get_role_list(*, server, conn, cur, localize):
         return localize['has_role_list'] + '```' + '\n'.join(lst) + '```'
     else:
         return localize['no_role_list']
-
-
-def get_server_role(role, server):
-    """
-    Get a list of server roles with the name ame as :param role
-
-    :param role: the role name
-
-    :param server: the server
-
-    :return: a list of discord role object
-    """
-    return get(server.roles, name=role)
 
 
 def add_role(*, conn, cur, server, localize, role):
@@ -128,7 +128,7 @@ def role_add_rm(*, role, localize, server, cur, conn, is_add, check_db=True):
 
 
 async def role_unrole(*, bot, ctx, target, role_name, is_add,
-                      is_mute, check_db):
+                      is_mute, check_db, reason=None):
     """
     A helper function to handle adding/removing role from a member
 
@@ -147,8 +147,11 @@ async def role_unrole(*, bot, ctx, target, role_name, is_add,
 
     :param check_db: if need to check the db for self role
 
+    :param reason: the reason for mute/unmute
+
     :param target: the role assignment target
     """
+    from core.moderation_core import send_mod_log
     localize = bot.get_language_dict(ctx)
     server = ctx.message.server
     channel = ctx.message.channel
@@ -167,7 +170,11 @@ async def role_unrole(*, bot, ctx, target, role_name, is_add,
             await func(target, role)
         if is_mute:
             action = localize['muted'] if is_add else localize['unmuted']
-            res = localize['mute_unmute_success'].format(action, target.name)
+            mod_log_action = localize['mute'] if is_add else localize['unmute']
+            res = localize['mute_unmute_success'].format(
+                action, target.name, reason
+            )
+            await send_mod_log(ctx, bot, mod_log_action, target, reason)
         await bot.say(res)
     except Exception as e:
         action = localize['assign'] if is_add else localize['remove']

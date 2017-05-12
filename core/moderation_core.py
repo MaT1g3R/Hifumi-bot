@@ -7,10 +7,9 @@ from discord import Member
 from discord.utils import get
 
 import core.data_controller as db
-from core.discord_functions import handle_forbidden_http, get_avatar_url, \
-    build_embed, get_name_with_discriminator, get_prefix
+from core.discord_functions import get_name_with_discriminator, build_embed, \
+    get_avatar_url, handle_forbidden_http, get_prefix
 from core.helpers import get_date
-from core.roles_core import get_server_role, role_unrole
 
 
 async def ban_kick(bot, ctx, member: Member, delete_message_days, reason):
@@ -71,14 +70,17 @@ async def clean_msg(ctx, bot, count):
             )
 
 
-async def mute_unmute(ctx, bot, member, is_mute):
+async def mute_unmute(ctx, bot, member, is_mute, reason):
     """
     Mute/unmute a member
     :param ctx: the message context
     :param bot: the bot
     :param member: the member to be muted/unmuted
     :param is_mute: if True mute, if False unmute
+    :param reason: the reason for mute/unmute
     """
+    from core.roles_core import get_server_role
+    from core.roles_core import role_unrole
     server = ctx.message.server
     localize = bot.get_language_dict(ctx)
     action = localize['mute'] if is_mute else localize['unmute']
@@ -87,7 +89,6 @@ async def mute_unmute(ctx, bot, member, is_mute):
     elif member == ctx.message.author and is_mute:
         await bot.say(localize['ban_kick_mute_self'].format(action))
     elif get_server_role('Muted', server) is not None:
-        # await role_unrole(bot, ctx, 'Muted', is_mute, False, member)
         await role_unrole(
             bot=bot,
             target=member,
@@ -95,7 +96,8 @@ async def mute_unmute(ctx, bot, member, is_mute):
             is_add=is_mute,
             is_mute=True,
             check_db=False,
-            ctx=ctx
+            ctx=ctx,
+            reason=reason
         )
     else:
         await bot.say(localize['muted_role_not_found'])
@@ -199,7 +201,8 @@ def generate_mod_log_list(*, localize, conn, cur, server, default_prefix):
         else res + localize['mod_log_empty']
 
 
-def generate_mod_log_entry(action, mod, target, reason, localize):
+def generate_mod_log_entry(action, mod, target, reason, localize,
+                           warn_count=None):
     """
     Generate a mod log entry
     :param action: the action
@@ -207,6 +210,7 @@ def generate_mod_log_entry(action, mod, target, reason, localize):
     :param target: the target
     :param reason: the reason
     :param localize: the localization strings
+    :param warn_count: the total warning count on the user
     :return: A discord embed object for the mod log entry
     """
     colour = {
@@ -221,7 +225,9 @@ def generate_mod_log_entry(action, mod, target, reason, localize):
         'name': get_name_with_discriminator(target) + ' ({})'.format(target.id),
         'icon_url': get_avatar_url(target)
     }
-    body = [(localize['type'], action), (localize['reason'], reason)]
+    body = [(localize['type'], action.title()), (localize['reason'], reason)]
+    if action == localize['warn'] or action == localize['pardon']:
+        body.append((localize['warnings'], str(warn_count)))
     footer = {
         'text': get_name_with_discriminator(mod) + ' | ' + get_date(),
         'icon_url': get_avatar_url(mod)
@@ -229,7 +235,7 @@ def generate_mod_log_entry(action, mod, target, reason, localize):
     return build_embed(body, colour=colour, author=author, footer=footer)
 
 
-async def send_mod_log(ctx, bot, action, member, reason):
+async def send_mod_log(ctx, bot, action, member, reason, warn_count=None):
     """
     Helper function to send a mod log
     :param ctx: the discord funtion
@@ -237,6 +243,7 @@ async def send_mod_log(ctx, bot, action, member, reason):
     :param action: the action preformed
     :param member: the target of the action
     :param reason: the reason of the action
+    :param warn_count: the total warning count on the user
     """
     localize = bot.get_language_dict(ctx)
     log_lst = get_mod_log_channels(
@@ -244,7 +251,41 @@ async def send_mod_log(ctx, bot, action, member, reason):
     )
     if log_lst:
         entry = generate_mod_log_entry(
-            action, ctx.message.author, member, reason, localize
+            action, ctx.message.author, member, reason, localize, warn_count
         )
         for channel in log_lst:
             await bot.send_message(channel, embed=entry)
+
+
+async def warn_pardon(bot, ctx, reason, member, is_warn):
+    """
+    Helper function for warn/pardon commands
+    :param bot: the bot
+    :param ctx: the discord context
+    :param reason: the warn/pardon reason
+    :param member: the warn/pardon target
+    :param is_warn: True for warn, False for pardon
+    """
+    localize = bot.get_language_dict(ctx)
+    author = ctx.message.author
+    author = get_name_with_discriminator(author)
+    server_id = ctx.message.server.id
+    user_id = ctx.message.author.id
+    if is_warn:
+        db.add_warn(
+            bot.conn, bot.cur, server_id, user_id
+        )
+        actions = 'warn', 'warn_success'
+    else:
+        db.remove_warn(
+            bot.conn, bot.cur, server_id, user_id
+        )
+        actions = 'pardon', 'pardon_success'
+    warn_count = db.get_warn(bot.cur, server_id, user_id)
+    await bot.say(
+        localize[actions[1]].format(member, reason, author) +
+        str(warn_count)
+    )
+    await send_mod_log(
+        ctx, bot, localize[actions[0]], member, reason, warn_count
+    )

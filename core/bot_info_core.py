@@ -9,10 +9,10 @@ from os.path import join
 
 from discord import ChannelType, version_info
 
-from config.settings import NAME, DEVS, HELPERS, COLOUR, SHARDED
+from config.settings import COLOUR, SHARDED, NAME, HELPERS, DEVS
 from core.discord_functions import build_embed, get_prefix
-from core.file_io import read_all_files, read_json
-from core.helpers import combine_dicts, get_system_name, comma
+from core.file_io import read_json, read_all_files
+from core.helpers import get_system_name, comma, combine_dicts
 
 
 def time_elapsed(start_time, day_str):

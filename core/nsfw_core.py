@@ -8,7 +8,7 @@ from random import choice
 from pybooru import Danbooru, PybooruAPIError
 from requests import get, ConnectionError, HTTPError
 
-from core.data_controller import fuzzy_match_tag, tag_in_db, write_tag
+from core.data_controller import write_tag, fuzzy_match_tag, tag_in_db
 
 SEARCH = '//post.json?tags={}'
 
