@@ -28,6 +28,20 @@ def set_prefix(connection, cursor, server_id: str, prefix: str):
     connection.commit()
 
 
+def delete_prefix(connection, cursor, server_id: str):
+    """
+    Delete the prefix for a server
+    :param connection: the db connection
+    :param cursor: the db cursor
+    :param server_id: the server id
+    """
+    sql_delete = '''
+    DELETE FROM prefix WHERE server=?
+    '''
+    cursor.execute(sql_delete, [server_id])
+    connection.commit()
+
+
 def write_tag(connection, cursor, site, tag):
     """
     Write a tag entry into the database
@@ -107,6 +121,20 @@ def set_language(connection, cursor, server_id: str, language: str):
     """
     sql_replace = '''REPLACE INTO language VALUES (?, ?)'''
     cursor.execute(sql_replace, (server_id, language))
+    connection.commit()
+
+
+def delete_language(connection, cursor, server_id: str):
+    """
+    Delete the language info for a server
+    :param connection: the db connection
+    :param cursor: the db cursor
+    :param server_id: the server id
+    """
+    sql_delete = '''
+    DELETE FROM language WHERE server=?
+    '''
+    cursor.execute(sql_delete, [server_id])
     connection.commit()
 
 

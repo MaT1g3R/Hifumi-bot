@@ -7,7 +7,7 @@ A collection of functions to deal with language support
 import codecs
 from ntpath import basename
 
-from core.data_controller import set_language as sl
+from core.data_controller import set_language as sl, delete_language
 from core.file_io import read_all_files, read_json
 from core.helpers import suplement_dict
 
@@ -58,18 +58,22 @@ def generate_language_list(language, key):
     return language_dict['language_list'].format(s)
 
 
-def set_language(bot, ctx, language):
+def set_language(bot, ctx, language, delete=False):
     """
     Set the language for the server, and return the message
     :param bot: the bot
     :param ctx: the discord context
     :param language: the language to set to
+    :param delete: True of deleting the server language info from the db
     :return: the message
     """
     conn = bot.conn
     cur = bot.cur
     server_id = ctx.message.server.id
-    sl(conn, cur, server_id, language)
+    if delete:
+        delete_language(conn, cur, server_id)
+    else:
+        sl(conn, cur, server_id, language)
     localize = bot.get_language_dict(ctx)
     language_data = localize['language_data']
     translators = language_data['translators']

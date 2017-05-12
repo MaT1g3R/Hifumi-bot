@@ -188,35 +188,30 @@ class TestDataController(TestCase):
         """
         Test for remove entry
         """
-        self.__remove_with_list(
-            add_role, remove_role, get_role_list
-        )
-
-        self.__remove_with_list(
-            set_mod_log, remove_mod_log, get_mod_log
-        )
+        self.__remove_with_list(add_role, remove_role, get_role_list)
+        self.__remove_with_list(set_mod_log, remove_mod_log, get_mod_log)
+        self.__delete(set_language, delete_language, get_language)
+        self.__delete(set_prefix, delete_prefix, get_prefix)
 
     def test_remove_entry_no_server(self):
         """
         Test for remove entry for a non-existing server
         """
+        self.__remove_no_server_with_list(add_role, remove_role, get_role_list)
         self.__remove_no_server_with_list(
-            add_role, remove_role, get_role_list
+            set_mod_log, remove_mod_log, get_mod_log
         )
-
-        self.__remove_no_server_with_list(
-            set_mod_log, remove_mod_log, get_mod_log)
+        self.__delete(set_language, delete_language, get_language)
+        self.__delete(set_prefix, delete_prefix, get_prefix)
 
     def test_remove_entry_no_entry(self):
         """
         Test for removeentry for a non-existing entry
         """
+        self.__remove_no_entry_with_list(add_role, remove_role, get_role_list)
         self.__remove_no_entry_with_list(
-            add_role, remove_role, get_role_list
+            set_mod_log, remove_mod_log, get_mod_log
         )
-
-        self.__remove_no_entry_with_list(
-            set_mod_log, remove_mod_log, get_mod_log)
 
     def test_get_entry_list(self):
         """
@@ -323,6 +318,31 @@ class TestDataController(TestCase):
         self.assertTrue(entry in func_lst(self.cur, server))
         func_add(self.conn, self.cur, server, entry)
         self.assertEqual(1, len(func_lst(self.cur, server)))
+
+    def __delete(self, func_add, func_rm, func_get):
+        """
+        Helper method to testing deleting entries from the db
+        """
+        server = 'foo'
+        other_server = 'bar'
+        entry = 'baz'
+        func_add(self.conn, self.cur, server, entry)
+        func_add(self.conn, self.cur, other_server, entry)
+        func_rm(self.conn, self.cur, server)
+        self.assertIsNone(func_get(self.cur, server))
+        self.assertEqual(func_get(self.cur, other_server), entry)
+
+    def __delete_no_server(self, func_add, func_rm, func_get):
+        """
+        Helper method for testing deleting entries from a non-existing server
+        """
+        server = 'foo'
+        other_server = 'bar'
+        entry = 'baz'
+        func_add(self.conn, self.cur, other_server, entry)
+        func_rm(self.conn, self.cur, server)
+        self.assertIsNone(func_get(self.cur, server))
+        self.assertEqual(func_get(self.cur, other_server), entry)
 
     def __remove_with_list(self, func_add, func_rm, func_lst):
         """

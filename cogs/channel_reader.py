@@ -33,4 +33,4 @@ class ChannelReader:
             localize = self.bot.get_language_dict(message)
             await self.bot.send_message(
                 message.channel,
-                localize['prefix'].format(prefix))
+                localize['prefix'].format(prefix, self.bot.default_prefix))

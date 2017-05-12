@@ -5,7 +5,7 @@ from discord.ext import commands
 from config.settings import INVITE, SUPPORT, WEBSITE, TWITTER
 from core.bot_info_core import build_info_embed
 from core.checks import is_admin
-from core.data_controller import set_prefix
+from core.data_controller import set_prefix, delete_prefix
 from core.discord_functions import get_prefix
 from core.language_support import generate_language_entry, \
     generate_language_list, set_language
@@ -71,11 +71,13 @@ class BotInfo:
         """
         ping command
         """
-        start_time = int(round(time.time() * 1000))
+        start_time = time.time()
         msg = await self.bot.say('Pong! :hourglass:')
-        end_time = int(round(time.time() * 1000))
+        end_time = time.time()
         await self.bot.edit_message(
-            msg, 'Pong! | :timer: {}ms'.format(end_time - start_time))
+            msg, 'Pong! | :timer: {}ms'.format(
+                round((end_time - start_time) * 1000))
+        )
 
     @commands.command(pass_context=True)
     async def invite(self, ctx):
@@ -96,15 +98,13 @@ class BotInfo:
             localize = self.bot.get_language_dict(ctx)
             await self.bot.say(
                 localize['language'].format(
-                    generate_language_entry(
-                        localize['language_data']
-                    ),
+                    generate_language_entry(localize['language_data']),
                     get_prefix(
                         self.bot.cur,
                         ctx.message.server, self.bot.default_prefix
-                    )
+                    ),
+                    self.bot.default_language
                 )
-
             )
 
     @language.command(pass_context=True)
@@ -117,9 +117,9 @@ class BotInfo:
             self.bot.language, self.bot.get_language_key(ctx))
         )
 
-    @language.command(pass_context=True, no_pm=True)
+    @language.command(pass_context=True, no_pm=True, name='set')
     @commands.check(is_admin)
-    async def set(self, ctx, language: str = None):
+    async def l_set(self, ctx, language: str = None):
         """
         Set the language for the server
         :param ctx: the discord context object
@@ -139,9 +139,37 @@ class BotInfo:
         else:
             await self.bot.say(set_language(self.bot, ctx, language))
 
-    @commands.command(pass_context=True, no_pm=True)
+    @language.command(pass_context=True, no_pm=True, name='reset')
     @commands.check(is_admin)
-    async def setprefix(self, ctx, prefix: str):
+    async def l_reset(self, ctx):
+        """
+        Reset the language for the current server
+        :param ctx: the discord context
+        """
+        await self.bot.say(
+            set_language(self.bot, ctx, self.bot.default_language, True)
+        )
+
+    @commands.group(pass_context=True, no_pm=True)
+    async def prefix(self, ctx):
+        """
+        Show the prefix for the current server
+        :param ctx: the discord context
+        """
+        if ctx.invoked_subcommand is None:
+            await self.bot.say(
+                self.bot.get_language_dict(ctx)['prefix'].format(
+                    get_prefix(
+                        self.bot.cur, ctx.message.server,
+                        self.bot.default_prefix
+                    ),
+                    self.bot.default_prefix
+                )
+            )
+
+    @prefix.command(pass_context=True, no_pm=True, name='set')
+    @commands.check(is_admin)
+    async def p_set(self, ctx, prefix: str):
         """
         Set the prefix for the server
         :param ctx: the discord context object
@@ -150,4 +178,18 @@ class BotInfo:
         set_prefix(self.bot.conn, self.bot.cur, ctx.message.server.id, prefix)
         await self.bot.say(
             self.bot.get_language_dict(ctx)['set_prefix'].format(prefix)
+        )
+
+    @prefix.command(pass_context=True, no_pm=True, name='reset')
+    @commands.check(is_admin)
+    async def p_reset(self, ctx):
+        """
+        Reset the prefix of the server
+        :param ctx: the discord context
+        """
+        delete_prefix(self.bot.conn, self.bot.cur, ctx.message.server.id)
+        await self.bot.say(
+            self.bot.get_language_dict(ctx)['set_prefix'].format(
+                self.bot.default_prefix
+            )
         )
