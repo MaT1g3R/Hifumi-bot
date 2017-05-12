@@ -1,8 +1,9 @@
 from discord.ext import commands
 from pybooru import Danbooru
 
-from config.settings import DANBOORU_API, DANBOORU_USERNAME, DATA_CONTROLLER
+from config.settings import DANBOORU_API, DANBOORU_USERNAME
 from core.checks import is_nsfw, no_badword
+from core.data_controller import write_tag_list
 from core.nsfw_core import danbooru, gelbooru, k_or_y, random_str, e621, \
     greenteaneko
 
@@ -32,15 +33,18 @@ class Nsfw:
         :param ctx: the discord context
         :param query: the sarch queries
         """
+        localize = self.bot.get_language_dict(ctx)
         if len(query) > 2:
-            await self.bot.say(self.bot.get_language_dict(ctx)['two_term'])
+            await self.bot.say(localize['two_term'])
             return
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
-        result, tags = danbooru(self.bot, ctx, query, self.danbooru_api)
+        result, tags = danbooru(
+            self.bot.cur, query, self.danbooru_api, localize
+        )
         await self.bot.say(result)
         if tags is not None:
-            DATA_CONTROLLER.write_tag_list('danbooru', tags)
+            write_tag_list(self.bot.conn, self.bot.cur, 'danbooru', tags)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -49,10 +53,12 @@ class Nsfw:
     async def konachan(self, ctx, *query: str):
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
-        res, tags = k_or_y(self.bot, ctx, query, 'Konachan')
+        res, tags = k_or_y(
+            self.bot.cur, query, 'Konachan', self.bot.get_language_dict(ctx)
+        )
         await self.bot.say(res)
         if tags is not None:
-            DATA_CONTROLLER.write_tag_list('konachan', tags)
+            write_tag_list(self.bot.conn, self.bot.cur, 'konachan', tags)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -66,10 +72,12 @@ class Nsfw:
         """
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
-        res, tags = k_or_y(self.bot, ctx, query, 'Yandere')
+        res, tags = k_or_y(
+            self.bot.cur, query, 'Yandere', self.bot.get_language_dict(ctx)
+        )
         await self.bot.say(res)
         if tags is not None:
-            DATA_CONTROLLER.write_tag_list('yandere', tags)
+            write_tag_list(self.bot.conn, self.bot.cur, 'yandere', tags)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -83,7 +91,12 @@ class Nsfw:
         """
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
-        await self.bot.say(gelbooru(self.bot, ctx, query))
+        await self.bot.say(
+            gelbooru(
+                self.bot.conn, self.bot.cur,
+                query, self.bot.get_language_dict(ctx)
+            )
+        )
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -97,10 +110,10 @@ class Nsfw:
        """
         if len(query) == 0:
             await self.bot.say(random_str(self.bot, ctx))
-        res, tags = e621(self.bot, ctx, query)
+        res, tags = e621(self.bot.cur, query, self.bot.get_language_dict(ctx))
         await self.bot.say(res)
         if tags is not None:
-            DATA_CONTROLLER.write_tag_list('e621', tags)
+            write_tag_list(self.bot.conn, self.bot.cur, 'e621', tags)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -110,4 +123,4 @@ class Nsfw:
         Find a random greenteaneko comic
         :param ctx: the discord context
         """
-        await self.bot.say(greenteaneko(ctx, self.bot))
+        await self.bot.say(greenteaneko(self.bot.get_language_dict(ctx)))

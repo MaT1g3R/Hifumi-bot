@@ -6,7 +6,7 @@ from asyncio import sleep
 from discord import Member
 from discord.utils import get
 
-from config.settings import DATA_CONTROLLER
+import core.data_controller as db
 from core.discord_functions import handle_forbidden_http, get_avatar_url, \
     build_embed, get_name_with_discriminator, get_prefix
 from core.helpers import get_date
@@ -37,7 +37,7 @@ async def ban_kick(bot, ctx, member: Member, delete_message_days, reason):
             await bot.ban(member, delete_message_days)
         else:
             await bot.kick(member)
-        await send_mod_log(ctx, bot, action, member, reason, localize)
+        await send_mod_log(ctx, bot, action, member, reason)
         await bot.say(localize['banned_kicked'].format(action_past) +
                       '`' + member.name + '`')
     except Exception as e:
@@ -87,81 +87,114 @@ async def mute_unmute(ctx, bot, member, is_mute):
     elif member == ctx.message.author and is_mute:
         await bot.say(localize['ban_kick_mute_self'].format(action))
     elif get_server_role('Muted', server) is not None:
-        await role_unrole(bot, ctx, 'Muted', is_mute, False, member)
+        # await role_unrole(bot, ctx, 'Muted', is_mute, False, member)
+        await role_unrole(
+            bot=bot,
+            target=member,
+            role_name='Muted',
+            is_add=is_mute,
+            is_mute=True,
+            check_db=False,
+            ctx=ctx
+        )
     else:
         await bot.say(localize['muted_role_not_found'])
 
 
-def get_mod_log_channels(ctx):
+def get_mod_log_channels(cur, server):
     """
     Get the mod log of a server based on the context
+    :param cur: the database cursor
+    :param server: the discord server
     :return: A list of discord.Channel objects for the mod logs
     """
-    ids = DATA_CONTROLLER.get_mod_log(ctx.message.server.id)
+    ids = db.get_mod_log(cur, server.id)
     res = []
     for id_ in ids:
-        channel = get(ctx.message.server.channels, id=id_)
+        channel = get(server.channels, id=id_)
         if channel is not None:
             res.append(channel)
     return res
 
 
-def add_mod_log(ctx, localize):
+def add_mod_log(*, conn, cur, server_id, channel_id, channel_name, localize):
     """
     Add a mod log channel into the db
-    :param ctx: the discord context
+    :param conn: the database connection,
+    :param cur: the databse cursor
+    :param server_id: the server id
+    :param channel_id: the channel id
+    :param channel_name: the channel name
     :param localize: the localizationn strings
     :return: a message to inform mod log has been added
     """
-    DATA_CONTROLLER.set_mod_log(
-        ctx.message.server.id, ctx.message.channel.id
+    db.set_mod_log(
+        conn, cur, server_id, channel_id
     )
-    return localize['mod_log_add'].format(ctx.message.channel.name)
+    return localize['mod_log_add'].format(channel_name)
 
 
-def remove_mod_log(ctx, localize):
+def remove_mod_log(*, conn, cur, server_id, channel_id, channel_name, localize):
     """
     Remove a mod log entry from the db
-    :param ctx: the discord context object
-    :param localize: the localization strings
+    :param conn: the database connection,
+    :param cur: the databse cursor
+    :param server_id: the server id
+    :param channel_id: the channel id
+    :param channel_name: the channel name
+    :param localize: the localizationn strings
     :return: a message to inform the mod log has been removed
     """
-    DATA_CONTROLLER.remove_mod_log(
-        ctx.message.server.id, ctx.message.channel.id
+    db.remove_mod_log(
+        conn, cur, server_id, channel_id
     )
-    return localize['mod_log_rm'].format(ctx.message.channel.name)
+    return localize['mod_log_rm'].format(channel_name)
 
 
-def get_mod_log_name_list(ctx):
+def get_mod_log_name_list(conn, cur, server):
     """
     Get a list of mod log channel names
-    :param ctx: the message context
+    :param conn: the database connection,
+    :param cur: the databse cursor
+    :param server: the discord server
     :return: a list of mod log channel names
     """
-    id_lst = DATA_CONTROLLER.get_mod_log(ctx.message.server.id)
+    id_lst = db.get_mod_log(cur, server.id)
     res = []
     for id_ in id_lst:
-        channel = get(ctx.message.server.channels, id=id_)
+        channel = get(server.channels, id=id_)
         if channel is not None:
             res.append(channel.name)
         else:
-            DATA_CONTROLLER.remove_mod_log(
-                server_id=ctx.message.server.id,
+            db.remove_mod_log(
+                connection=conn,
+                cursor=cur,
+                server_id=server.id,
                 channel_id=id_
             )
     return res
 
 
-def generate_mod_log_list(bot, ctx):
+def generate_mod_log_list(*, localize, conn, cur, server, default_prefix):
     """
     Generate a mod log list, as a string
-    :param bot: the bot
-    :param ctx: the discord context
+
+    :param localize: the localization strings
+
+    :param conn: the database connection
+
+    :param cur: the database cursor
+
+    :param server: the discord server
+
+    :param default_prefix: the bot default prefix
+
     :return: A formatting string to list all mod log channels
     """
-    localize = bot.get_language_dict(ctx)
-    names = get_mod_log_name_list(ctx)
-    res = localize['mod_log_info'].format(get_prefix(bot, ctx.message))
+    names = get_mod_log_name_list(conn, cur, server)
+    res = localize['mod_log_info'].format(
+        get_prefix(cur, server, default_prefix)
+    )
     return res + localize['mod_log_list'].format('\n'.join(names)) if names \
         else res + localize['mod_log_empty']
 
@@ -196,7 +229,7 @@ def generate_mod_log_entry(action, mod, target, reason, localize):
     return build_embed(body, colour=colour, author=author, footer=footer)
 
 
-async def send_mod_log(ctx, bot, action, member, reason, localize):
+async def send_mod_log(ctx, bot, action, member, reason):
     """
     Helper function to send a mod log
     :param ctx: the discord funtion
@@ -204,9 +237,11 @@ async def send_mod_log(ctx, bot, action, member, reason, localize):
     :param action: the action preformed
     :param member: the target of the action
     :param reason: the reason of the action
-    :param localize: the localization strings
     """
-    log_lst = get_mod_log_channels(ctx)
+    localize = bot.get_language_dict(ctx)
+    log_lst = get_mod_log_channels(
+        bot.cur, ctx.message.server
+    )
     if log_lst:
         entry = generate_mod_log_entry(
             action, ctx.message.author, member, reason, localize

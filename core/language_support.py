@@ -6,7 +6,7 @@ A collection of functions to deal with language support
 
 from ntpath import basename
 
-from config.settings import DATA_CONTROLLER
+from core.data_controller import set_language as sl
 from core.file_io import read_all_files, read_json
 from core.helpers import suplement_dict
 
@@ -57,16 +57,17 @@ def generate_language_list(language, key):
     return language_dict['language_list'].format(s)
 
 
-def set_language(ctx, bot, language):
+def set_language(conn, cur, localize, server_id, language):
     """
     Set the language for the server, and return the message
-    :param ctx: the discord context
-    :param bot: the bot
+    :param conn: the databse connection
+    :param cur: the database cursor
+    :param localize: the localization strings
+    :param server_id: the server id
     :param language: the language to set to
     :return: the message
     """
-    DATA_CONTROLLER.set_language(ctx.message.server.id, language)
-    localize = bot.get_language_dict(ctx)
+    sl(conn, cur, server_id, language)
     language_data = localize['language_data']
     translators = language_data['translators']
     return localize['lan_set_success'].format(

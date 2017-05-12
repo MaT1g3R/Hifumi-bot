@@ -23,21 +23,44 @@ class Roles:
         """
         Assign a role to the user
         """
-        await role_unrole(self.bot, ctx, args, True)
+        await role_unrole(
+            bot=self.bot,
+            ctx=ctx,
+            target=ctx.message.author,
+            role_name=' '.join(args),
+            is_add=True,
+            is_mute=False,
+            check_db=True
+        )
 
     @commands.command(no_pm=True, pass_context=True)
     async def unroleme(self, ctx, *args):
         """
         Removes a role from a user
         """
-        await role_unrole(self.bot, ctx, args, False)
+        await role_unrole(
+            bot=self.bot,
+            ctx=ctx,
+            target=ctx.message.author,
+            role_name=' '.join(args),
+            is_add=False,
+            is_mute=False,
+            check_db=True
+        )
 
     @commands.command(no_pm=True, pass_context=True)
     async def rolelist(self, ctx):
         """
         Display the rolelist for the server
         """
-        await self.bot.say(get_role_list(ctx, self.bot))
+        await self.bot.say(
+            get_role_list(
+                server=ctx.message.server,
+                conn=self.bot.conn,
+                cur=self.bot.cur,
+                localize=self.bot.get_language_dict(ctx)
+            )
+        )
 
     @commands.group(no_pm=True, pass_context=True)
     @commands.check(has_manage_role)
@@ -47,20 +70,41 @@ class Roles:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
-            localize = self.bot.get_language_dict(ctx)['selfrole_bad_command']
             await self.bot.say(
-                localize.format(get_prefix(self.bot, ctx.message)))
+                self.bot.get_language_dict(ctx)['selfrole_bad_command'].format(
+                    get_prefix(
+                        self.bot.cur, ctx.message.server,
+                        self.bot.default_prefix
+                    )
+                )
+            )
 
     @selfrole.command(pass_context=True)
     async def add(self, ctx, *args):
         """
         Add a self assignable role to the server
         """
-        await self.bot.say(add_role(ctx, self.bot, ' '.join(args)))
+        await self.bot.say(
+            add_role(
+                conn=self.bot.conn,
+                cur=self.bot.cur,
+                server=ctx.message.server,
+                localize=self.bot.get_language_dict(ctx),
+                role=' '.join(args)
+            )
+        )
 
     @selfrole.command(pass_context=True)
     async def remove(self, ctx, *args):
         """
         Removes a self assignable role from the server
         """
-        await self.bot.say(remove_role(ctx, self.bot, ' '.join(args)))
+        await self.bot.say(
+            remove_role(
+                conn=self.bot.conn,
+                cur=self.bot.cur,
+                server=ctx.message.server,
+                localize=self.bot.get_language_dict(ctx),
+                role=' '.join(args)
+            )
+        )

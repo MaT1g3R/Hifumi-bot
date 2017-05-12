@@ -23,10 +23,13 @@ class ChannelReader:
         :param message: the message
         """
         if check_message(
-                self.bot, message, self.bot.mention_normal + ' prefix') \
-                or check_message(
-                    self.bot, message, self.bot.mention_nick + ' prefix'):
-            prefix = get_prefix(self.bot, message)
+                self.bot, message, self.bot.mention_normal + ' prefix'
+        ) or check_message(
+            self.bot, message, self.bot.mention_nick + ' prefix'
+        ):
+            prefix = get_prefix(
+                self.bot.cur, message.server, self.bot.default_prefix
+            )
             localize = self.bot.get_language_dict(message)
             await self.bot.send_message(
                 message.channel,

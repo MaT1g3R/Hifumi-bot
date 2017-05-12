@@ -25,7 +25,12 @@ class TestBotInfoCore(TestCase):
         Test case for time_elapsed
         """
         res_str = [
-            int(i) for i in strip_letters(time_elapsed(self.bot, self.ctx))
+            int(i) for i in strip_letters(
+                time_elapsed(
+                    self.bot.start_time,
+                    self.bot.get_language_dict(self.ctx)['days']
+                )
+            )
         ]
         time_diff = int(time() - self.bot.start_time)
         result = \
@@ -39,7 +44,13 @@ class TestBotInfoCore(TestCase):
         """
         Test case for generate_shard_info
         """
-        result = generate_shard_info(self.bot)
+        result = generate_shard_info(
+            channels=self.bot.get_all_channels(),
+            servers=self.bot.servers,
+            logged_in=self.bot.is_logged_in,
+            members=self.bot.get_all_members(),
+            voice=self.bot.voice_clients
+        )
         expected = {
             'server_count': 50,
             'user_count': 500,

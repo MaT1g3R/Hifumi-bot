@@ -1,7 +1,7 @@
 """
 The main run file.
 """
-from os import name, path
+from os import name
 from sys import platform, version_info
 
 from colorama import init
@@ -9,7 +9,6 @@ from colorama import init
 import core.logger as logger
 from cogs import bot_info, testing, channel_reader, nsfw, roles, moderation
 from config.settings import TOKEN, SHARD_COUNT, SHARD_ID, SHARDED, SAFE_SHUTDOWN
-from core.discord_functions import get_prefix
 from launcher import is_internet_on
 from shell.hifumi import Hifumi
 
@@ -64,10 +63,10 @@ if __name__ == '__main__':
             init()
             if SHARDED:
                 bot = Hifumi(
-                    get_prefix, shard_count=SHARD_COUNT, shard_id=SHARD_ID
+                    shard_count=SHARD_COUNT, shard_id=SHARD_ID
                 )
             else:
-                bot = Hifumi(get_prefix)
+                bot = Hifumi()
             cogs = [bot_info.BotInfo(bot), testing.Testing(bot),
                     channel_reader.ChannelReader(bot), nsfw.Nsfw(bot),
                     roles.Roles(bot),

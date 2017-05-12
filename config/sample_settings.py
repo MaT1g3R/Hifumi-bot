@@ -2,15 +2,6 @@
 A sample settings file, please fill this out and rename it to "settings.py"
 """
 
-# DON'T EDIT THOSE LINES
-# -----------------------------------------------
-from os.path import join
-from sqlite3 import DatabaseError
-
-from core.data_controller import DataController
-
-# -----------------------------------------------
-
 # The bot token
 TOKEN = 'INSERT_YOUR_TOKEN'
 
@@ -65,15 +56,6 @@ SHARD_ID = 0
 SHARD_COUNT = 1
 # Toggle this to true if you want to enable console logging
 ENABLE_CONSOLE_LOGGING = False
-
-# The data controller for the sqlite3 database
-# Only edit the path variable if you move the database, although is strongly
-# recommended to keep it in place
-path = join('data', 'hifumi_db')
-try:
-    DATA_CONTROLLER = DataController(path)
-except DatabaseError:
-    DATA_CONTROLLER = DataController(join('..', path))
 
 # If True, Hifumi will not run until it's toggled to False
 # Useful if the bot is running into PM2 and need to fix high priority bugs or

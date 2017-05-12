@@ -8,39 +8,9 @@ from random import choice
 from pybooru import Danbooru, PybooruAPIError
 from requests import get, ConnectionError, HTTPError
 
-from config.settings import DATA_CONTROLLER
+from core.data_controller import fuzzy_match_tag, tag_in_db, write_tag
 
 SEARCH = '//post.json?tags={}'
-
-
-def sorry(bot, ctx):
-    """
-    Get the sorry string for nsfw
-    :param bot: the bot
-    :param ctx: the discord context object
-    :return: the nsfw sorry message
-    """
-    return bot.get_language_dict(ctx)['nsfw_sorry']
-
-
-def error(bot, ctx):
-    """
-    Get the nsfw error string
-    :param bot: the bot
-    :param ctx: the discord context 
-    :return: the nsfw error sting
-    """
-    return bot.get_language_dict(ctx)['nsfw_error']
-
-
-def fuzzy(bot, ctx):
-    """
-    Get the nsfw fuzzy string
-    :param bot: the bot
-    :param ctx: the discord context
-    :return: the nsfw fuzzy string
-    """
-    return bot.get_language_dict(ctx)['nsfw_fuzzy']
 
 
 def random_str(bot, ctx):
@@ -53,18 +23,19 @@ def random_str(bot, ctx):
     return bot.get_language_dict(ctx)['random_nsfw']
 
 
-def tag_finder(tag, site):
+def tag_finder(cur, site, tag):
     """
     Try to find or fuzzy match tag in db then the site after the attempt
+    :param cur: the database cursor
     :param tag: the tag to look for
     :param site: the site name
     :return: (tag, is_fuzzy)
     :rtype: tuple
     """
-    if DATA_CONTROLLER.tag_in_db(site, tag):
+    if tag_in_db(cur, site, tag):
         return tag, False
     else:
-        return DATA_CONTROLLER.fuzzy_match_tag(site, tag), True
+        return fuzzy_match_tag(cur, site, tag), True
 
 
 def tag_list_gen(all_results, site_name):
@@ -83,43 +54,44 @@ def tag_list_gen(all_results, site_name):
     return result + ['rating:safe', 'rating:explicit', 'rating:questionable']
 
 
-def danbooru(bot, ctx, search, api: Danbooru, limit=0, is_fuzzy=False):
+def danbooru(cur, search, api: Danbooru, localize, limit=0, is_fuzzy=False):
     """
     Search danbooru for lewds
+    :param cur: the database cursor
     :param search: the search terms
-    :param bot: the bot
-    :param ctx: the discord context
     :param api: the danbooru api object
+    :param localize: the localizaton strings
     :param limit: limit to prevent infinite recursion
     :param is_fuzzy: if the search is is_fuzzy
     :return: lewds
     """
     if limit > 2:
-        return sorry(bot, ctx), None
-    res, tags, success = __danbooru(bot, ctx, search, api)
+        return localize['nsfw_sorry'], None
+    res, tags, success = __danbooru(search, api, localize)
     if success:
         if is_fuzzy:
-            res = fuzzy(bot, ctx).format('danbooru', ', '.join(search)) + res
+            res = localize['nsfw_fuzzy'].format('danbooru', ', '.join(search)) \
+                  + res
         return res, tags
     else:
-        tag_res = [tag_finder(t, 'danbooru') for t in search]
+        tag_res = [tag_finder(cur, 'danbooru', t) for t in search]
         new_tags = [t[0] for t in tag_res if t[0] is not None]
         for t in tag_res:
             if t[1]:
                 is_fuzzy = True
                 break
         if new_tags:
-            return danbooru(bot, ctx, new_tags, api, limit + 1, is_fuzzy)
+            return danbooru(
+                cur, new_tags, api, localize, limit + 1, is_fuzzy
+            )
         else:
-            return sorry(bot, ctx), None
+            return localize['nsfw_sorry'], None
 
 
-def __danbooru(bot, ctx, search, api):
+def __danbooru(search, api, localize):
     """
     A helper function for danbooru search
     :param search: the search terms
-    :param bot: the bot
-    :param ctx: the discord context
     :param api: the danbooru api 
     :return: a danbooru url if something is found else sorry string,
     or error string if API error is raised
@@ -128,28 +100,28 @@ def __danbooru(bot, ctx, search, api):
     try:
         res = api.post_list(tags=' '.join(search), random=True, limit=1)
     except PybooruAPIError:
-        return error(bot, ctx).format('Danbooru'), None, False
+        return localize['nsfw_error'].format('Danbooru'), None, False
     if len(res) > 0 and 'large_file_url' in res[0]:
         return base + res[0]['large_file_url'], \
                tag_list_gen(res, 'danbooru'), True
     else:
-        return sorry(bot, ctx), None, False
+        return localize['nsfw_sorry'], None, False
 
 
-def k_or_y(bot, ctx, search, site_name, limit=0, is_fuzzy=False):
+def k_or_y(cur, search, site_name, localize, limit=0, is_fuzzy=False):
     """
     Search konachan or yandere for lewds
-    :param bot: the bot
-    :param ctx: the discord context
+    :param cur: the database cursor
     :param search: the search terms
     :param site_name: which site to search for 
+    :param localize: the localization strings
     :param limit: the limit of the recursion depth, 
     to prevent infinite recursion
     :param is_fuzzy: indicates if this search is a fuzzy result
     :return: lewds
     """
     if limit > 2:
-        return sorry(bot, ctx)
+        return localize['nsfw_sorry']
     base = {
         'Konachan': 'https://konachan.com',
         'Yandere': 'https://yande.re'
@@ -158,117 +130,120 @@ def k_or_y(bot, ctx, search, site_name, limit=0, is_fuzzy=False):
     try:
         res = loads(get(r_url).content)
     except decoder.JSONDecodeError:
-        return error(bot, ctx).format(site_name), None
+        return localize['nsfw_error'].format(site_name), None
     if len(res) <= 0:
         tags = []
         for query in search:
-            res, fuz = tag_finder(query, site_name.lower())
+            res, fuz = tag_finder(cur, site_name.lower(), query)
             if res is not None:
                 tags.append(res)
             if fuz:
                 is_fuzzy = fuz
         if not tags:
-            return sorry(bot, ctx), None
+            return localize['nsfw_sorry'], None
         else:
-            return k_or_y(bot, ctx, tags, site_name, limit + 1, is_fuzzy)
+            return k_or_y(cur, tags, site_name, localize, limit + 1, is_fuzzy)
     else:
         tags = tag_list_gen(res, site_name)
         img = choice(res)['file_url']
         res = 'https:' + img if site_name == 'Konachan' else img
         if is_fuzzy:
-            res = fuzzy(bot, ctx).format(site_name, ', '.join(search)) + res
+            res = localize['nsfw_fuzzy'].format(site_name, ', '.join(search)) \
+                  + res
         return res, tags
 
 
-def gelbooru(bot, ctx, search, limit=0, is_fuzzy=False):
+def gelbooru(conn, cur, search, localize, limit=0, is_fuzzy=False):
     """
     Search gelbooru for lewds
-    :param bot: the bot
-    :param ctx: the discord context
+    :param conn: the database connection
+    :param cur: the database cursor
     :param search: the search terms
+    :param localize: the localization strings
     :param limit: the limit of the recursion depth, 
     to prevent infinite recursion
     :param is_fuzzy: indicates if this search is a fuzzy result
     :return: lewds
     """
     if limit > 2:
-        return sorry(bot, ctx)
+        return localize['nsfw_sorry']
     url = "https://gelbooru.com//index.php?page=dapi&s=post&q=index&tags={}" \
         .format('%20'.join(search))
     try:
         result = get(url).content
     except ConnectionError and HTTPError:
-        return error(bot, ctx).format('Gelbooru')
+        return localize['nsfw_error'].format('Gelbooru')
     root = Et.fromstring(result)
     res = ['https:' + child.attrib['file_url'] for child in root]
     if len(res) > 0:
         res = choice(res)
         for tag in search:
-            DATA_CONTROLLER.write_tag('gelbooru', tag)
+            write_tag(conn, cur, 'gelbooru', tag)
         if is_fuzzy:
-            res = fuzzy(bot, ctx).format('Gelbooru', ', '.join(search)) + res
+            res = localize['nsfw_fuzzy'].format('Gelbooru',
+                                                ', '.join(search)) + res
         return res
     else:
         tags = []
         for tag in search:
-            t, fuz = tag_finder(tag, 'gelbooru')
+            t, fuz = tag_finder(cur, 'gelbooru', tag)
             if t is not None:
                 tags.append(t)
             if fuz:
                 is_fuzzy = fuz
         if not tags:
-            return sorry(bot, ctx)
+            return localize['nsfw_sorry']
         else:
-            return gelbooru(bot, ctx, tags, limit + 1, is_fuzzy)
+            return gelbooru(conn, cur, tags, localize, limit + 1, is_fuzzy)
 
 
-def e621(bot, ctx, search, limit=0, is_fuzzy=False):
+def e621(cur, search, localize, limit=0, is_fuzzy=False):
     """
     Search e621 for lewds
-    :param bot: the bot
-    :param ctx: the discord context
+    :param cur: the database cursor
     :param search: the search terms
+    :param localize: the localization strings
     :param limit: max recursion depth to prevent infinite recursion
     :param is_fuzzy: if the search is fuzzy
     :return: the lewds
     """
     if limit > 2:
-        return sorry(bot, ctx)
+        return localize['nsfw_sorry']
     url = 'https://e621.net/post/index.json?limit=30&tags=' + '%20'.join(search)
     try:
         res = loads(get(url).content)
     except decoder.JSONDecodeError:
-        return error(bot, ctx).format('e621'), None
+        return localize['nsfw_error'].format('e621'), None
     if len(res) > 0:
         img = choice(res)['file_url']
-        fuz = fuzzy(bot, ctx).format('e621', ', '.join(search)) if is_fuzzy \
+        fuz = localize['nsfw_fuzzy'].format('e621',
+                                            ', '.join(search)) if is_fuzzy \
             else ''
         return fuz + img, tag_list_gen(res, 'e621')
     else:
         tags = []
         for query in search:
-            res, fuz = tag_finder(query, 'e621')
+            res, fuz = tag_finder(cur, 'e621', query)
             if fuz:
                 is_fuzzy = fuz
             if res is not None:
                 tags.append(res)
         if not tags:
-            return sorry(bot, ctx), None
+            return localize['nsfw_sorry'], None
         else:
-            return e621(bot, ctx, tags, limit + 1, is_fuzzy)
+            return e621(cur, tags, localize, limit + 1, is_fuzzy)
 
 
-def greenteaneko(ctx, bot):
+def greenteaneko(localize):
     """
     Get a random green tea neko comic
-    :param ctx: the discord context
-    :param bot: the bot
+    :param localize: the localization strings
     :return: the green tea neko comic
     """
     url = 'https://rra.ram.moe/i/r?type=nsfw-gtn&nsfw=true'
     try:
         result = loads(get(url).content)
-        credit = bot.get_language_dict(ctx)['gtn_artist']
+        credit = localize['gtn_artist']
         return 'https://rra.ram.moe' + result['path'] + '\n' + credit
     except decoder.JSONDecodeError:
-        error(bot, ctx).format('rra.ram.moe')
+        localize['nsfw_error'].format('rra.ram.moe')

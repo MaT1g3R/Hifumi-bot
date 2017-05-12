@@ -26,7 +26,9 @@ class Testing:
         Events for reading messages
         :param message: the message
         """
-        prefix = get_prefix(self.bot, message)
+        prefix = get_prefix(
+            self.bot.cur, message.server, self.bot.default_prefix
+        )
         if check_message_startwith(self.bot, message, '{}eval'.format(prefix)):
             if str(message.author.id) in OWNER:
                 args = clense_prefix(message, '{}eval'.format(prefix))

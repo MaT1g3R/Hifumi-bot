@@ -15,15 +15,14 @@ from core.file_io import read_all_files, read_json
 from core.helpers import combine_dicts, get_system_name, comma
 
 
-def time_elapsed(bot, ctx):
+def time_elapsed(start_time, day_str):
     """
     Get the time elapsed from start_time in a hh:mm:ss format
-    :param bot: the bot object
-    :param ctx: the discord context
+    :param start_time: the start time for the elapsed time calculation
+    :param day_str: the localization string that says "day"
     :return: time elapsed from start_time in a hh:mm:ss format
     :rtype: str
     """
-    start_time = bot.start_time
     time_elapsed_ = int(time.time() - start_time)
     days = math.floor(time_elapsed_ / (60 * 60 * 24))
     time_elapsed_ -= days * 60 * 60 * 24
@@ -34,26 +33,31 @@ def time_elapsed(bot, ctx):
     minutes_str = str(minutes) if minutes >= 10 else '0' + str(minutes)
     seconds_str = str(time_elapsed_) if time_elapsed_ >= 10 \
         else '0' + str(time_elapsed_)
-    day_str = bot.get_language_dict(ctx)['days']
     days = ' ({} {})'.format(days, day_str)
     return '{}:{}:{}'.format(str(hours), minutes_str, seconds_str) + days
 
 
-def generate_shard_info(bot):
+def generate_shard_info(*, servers, members, channels, voice, logged_in):
     """
     Generates the shard info for a given shard
-    :param bot: the bot
+
+    :param servers: the list of servers the bot is in
+
+    :param members: the list of members in all the servers the bot is in
+
+    :param channels: the lsit of channels the bot is in
+
+    :param voice: the list of voice channels the bot is in
+
+    :param logged_in: is the bot logged in
+
     :return: the shard info of the bot
     """
-    servers = bot.servers
-    members = bot.get_all_members()
-    channels = bot.get_all_channels()
-    voice = bot.voice_clients
-    server_count = len([s for s in servers])
-    user_count = len([u for u in members])
+    server_count = len(list(servers))
+    user_count = len(list(members))
     text_channel_count = len(
         [c for c in channels if c.type == ChannelType.text])
-    voice_count = len([v for v in voice])
+    voice_count = len(list(voice))
     ram = float(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
     return {
         'ram': ram,
@@ -61,7 +65,7 @@ def generate_shard_info(bot):
         'user_count': user_count,
         'text_channel_count': text_channel_count,
         'voice_count': voice_count,
-        'logged_in': bot.is_logged_in
+        'logged_in': logged_in
     }
 
 
@@ -91,7 +95,13 @@ def build_info_embed(ctx, bot, path=join('data', 'shard_info')):
     :param path: the path that points to the shard_info folder
     :return: the info embed
     """
-    shard_stat = generate_shard_info(bot)
+    shard_stat = generate_shard_info(
+        servers=bot.servers,
+        members=bot.get_all_members(),
+        channels=bot.get_all_channels(),
+        voice=bot.voice_clients,
+        logged_in=bot.is_logged_in
+    )
     total_stat = get_all_shard_info(path)
     user = bot.user
     author = {'name': user.name, 'icon_url': '{0.avatar_url}'.format(user)}
@@ -123,7 +133,7 @@ def build_info_embed(ctx, bot, path=join('data', 'shard_info')):
     body = [(NAME, lan['stats_order'], False)] if SHARDED else []
     body += [
         (lan['ram_used'], ram_str),
-        (lan['uptime'], time_elapsed(bot, ctx)),
+        (lan['uptime'], time_elapsed(bot.start_time, lan['days'])),
         (lan['python_ver'], platform.python_version()),
         (lan['lib'],
          'Discord.py v{}.{}.{}'.format(
@@ -143,7 +153,9 @@ def build_info_embed(ctx, bot, path=join('data', 'shard_info')):
     if SHARDED:
         body += [(lan['sharding'],
                   '{}/{}'.format(str(bot.shard_id + 1), str(bot.shard_count)))]
-
-    footer = lan['info_footer'].format(get_prefix(bot, ctx.message))
+    # cur, server, default_prefix
+    footer = lan['info_footer'].format(get_prefix(
+        bot.cur, ctx.message.server, bot.default_prefix)
+    )
 
     return build_embed(body, COLOUR, author=author, footer=footer)

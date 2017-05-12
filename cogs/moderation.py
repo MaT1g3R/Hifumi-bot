@@ -1,8 +1,8 @@
 from discord import Member
 from discord.ext import commands
 
-from config.settings import DATA_CONTROLLER
 from core.checks import is_admin, has_manage_message, has_manage_role
+from core.data_controller import set_prefix
 from core.discord_functions import get_prefix, get_name_with_discriminator
 from core.language_support import set_language
 from core.moderation_core import ban_kick, clean_msg, mute_unmute, \
@@ -128,7 +128,7 @@ class Moderation:
                 localize['warn_success'].format(member, reason, author)
             )
             await send_mod_log(
-                ctx, self.bot, localize['warn'], member, reason, localize
+                ctx, self.bot, localize['warn'], member, reason
             )
 
     @commands.command(pass_context=True, no_pm=True)
@@ -139,15 +139,22 @@ class Moderation:
         :param ctx: the discord context object
         :param language: the language to set to
         """
+        localize = self.bot.get_language_dict(ctx)
         if language not in self.bot.language or language is None:
-            localize = self.bot.get_language_dict(ctx)
             await self.bot.say(
                 localize['lan_no_exist'].format(
-                    language, get_prefix(self.bot, ctx.message)
+                    language,
+                    get_prefix(
+                        self.bot.cur, ctx.message.server,
+                        self.bot.default_prefix
+                    )
                 )
             )
         else:
-            res = set_language(ctx, self.bot, language)
+            res = set_language(
+                self.bot.conn, self.bot.cur,
+                localize, ctx.message.server.id, language
+            )
             await self.bot.say(res)
 
     @commands.command(pass_context=True, no_pm=True)
@@ -158,7 +165,7 @@ class Moderation:
         :param ctx: the discord context object
         :param prefix: the prefix to set to
         """
-        DATA_CONTROLLER.set_prefix(ctx.message.server.id, prefix)
+        set_prefix(self.bot.conn, self.bot.cur, ctx.message.server.id, prefix)
         await self.bot.say(
             self.bot.get_language_dict(ctx)['set_prefix'].format(prefix)
         )
@@ -172,7 +179,15 @@ class Moderation:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
-            await self.bot.say(generate_mod_log_list(self.bot, ctx))
+            await self.bot.say(
+                generate_mod_log_list(
+                    localize=self.bot.get_language_dict(ctx),
+                    conn=self.bot.conn,
+                    cur=self.bot.cur,
+                    server=ctx.message.server,
+                    default_prefix=self.bot.default_prefix
+                )
+            )
 
     @modlog.command(pass_context=True)
     async def add(self, ctx):
@@ -180,7 +195,16 @@ class Moderation:
         Add the current channel as a mod log channel
         :param ctx: the discord context
         """
-        await self.bot.say(add_mod_log(ctx, self.bot.get_language_dict(ctx)))
+        await self.bot.say(
+            add_mod_log(
+                conn=self.bot.conn,
+                cur=self.bot.cur,
+                server_id=ctx.message.server.id,
+                channel_id=ctx.message.channel.id,
+                channel_name=ctx.message.channel.name,
+                localize=self.bot.get_language_dict(ctx)
+            )
+        )
 
     @modlog.command(pass_context=True)
     async def remove(self, ctx):
@@ -189,4 +213,13 @@ class Moderation:
         Remove the current channel from mod log channels
         :param ctx: the discord context
         """
-        await self.bot.say(remove_mod_log(ctx, self.bot.get_language_dict(ctx)))
+        await self.bot.say(
+            remove_mod_log(
+                conn=self.bot.conn,
+                cur=self.bot.cur,
+                server_id=ctx.message.server.id,
+                channel_id=ctx.message.channel.id,
+                channel_name=ctx.message.channel.name,
+                localize=self.bot.get_language_dict(ctx)
+            )
+        )

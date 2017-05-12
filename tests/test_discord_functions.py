@@ -1,10 +1,10 @@
+import sqlite3
 from os.path import join
 from unittest import TestCase, main
 
 from discord.ext.commands import CommandOnCooldown, MissingRequiredArgument
 
 from config.settings import COLOUR
-from core.data_controller import DataController
 from core.discord_functions import command_error_handler, get_prefix, \
     build_embed, clense_prefix
 from core.helpers import dict_has_empty
@@ -45,7 +45,7 @@ class TestDiscordFunctons(TestCase):
         """
         ex = CommandOnCooldown(1, 1)
         try:
-            command_error_handler(self.bot, ex, self.ctx)
+            command_error_handler(self.bot.get_language_dict(self.ctx), ex)
         except Exception as e:
             self.fail(str(e))
 
@@ -56,7 +56,7 @@ class TestDiscordFunctons(TestCase):
         """
         ex = Exception('Member "asdasd" not found')
         try:
-            command_error_handler(self.bot, ex, self.ctx)
+            command_error_handler(self.bot.get_language_dict(self.ctx), ex)
         except Exception as e:
             self.fail(str(e))
 
@@ -67,7 +67,7 @@ class TestDiscordFunctons(TestCase):
         """
         ex = MissingRequiredArgument('member asdasdsad')
         try:
-            command_error_handler(self.bot, ex, self.ctx)
+            command_error_handler(self.bot.get_language_dict(self.ctx), ex)
         except Exception as e:
             self.fail(str(e))
 
@@ -78,14 +78,16 @@ class TestDiscordFunctons(TestCase):
         """
         ex = MockExpection()
         self.assertRaises(
-            MockExpection, command_error_handler, self.bot, ex, self.ctx
+            MockExpection, command_error_handler,
+            self.bot.get_language_dict(self.ctx), ex
         )
 
     def test_get_prefix(self):
         """
         Test get_prefix when the server is in the db
         """
-        db = DataController(join('test_data', 'mock_db'))
+        db = sqlite3.connect(join('test_data', 'mock_db'))
+        cursor = db.cursor()
         sql_del = '''
                 DELETE FROM main.prefix WHERE server = ?
                 '''
@@ -94,28 +96,39 @@ class TestDiscordFunctons(TestCase):
         '''
         server = self.msg.server.id
         prefix = 'bar'
-        db.cursor.execute(sql_del, [server])
-        db.connection.commit()
-        db.cursor.execute(sql_insert, (server, prefix))
-        db.connection.commit()
-        self.assertEqual(prefix, get_prefix(self.bot, self.msg, db))
-        db.cursor.execute(sql_del, [server])
-        db.connection.commit()
+        cursor.execute(sql_del, [server])
+        db.commit()
+        cursor.execute(sql_insert, (server, prefix))
+        db.commit()
+        self.assertEqual(
+            prefix, get_prefix(cursor, self.msg.server, self.bot.default_prefix)
+        )
+        cursor.execute(sql_del, [server])
+        db.commit()
+        db.close()
 
     def test_get_prefix_not_found(self):
         """
         Test for get_prefix when the server is not found in the db
         """
+        db = sqlite3.connect(join('test_data', 'mock_db'))
+        cursor = db.cursor()
         self.assertEqual(
-            self.bot.default_prefix, get_prefix(self.bot, self.msg_bad_server)
+            self.bot.default_prefix,
+            get_prefix(
+                cursor, self.msg_bad_server.server, self.bot.default_prefix
+            )
         )
+        db.close()
 
     def test_get_prefix_none(self):
         """
         Test for get_prefix when server is None
         """
         self.assertEqual(
-            self.bot.default_prefix, get_prefix(self.bot, self.msg_none_server)
+            self.bot.default_prefix,
+            get_prefix('', self.msg_none_server.server, self.bot.default_prefix)
+
         )
 
     def embed_correct(self, res, with_footer=True):

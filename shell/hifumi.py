@@ -1,6 +1,7 @@
 """
 The Hifumi bot object
 """
+import sqlite3
 import time
 import traceback
 from asyncio import coroutine
@@ -13,16 +14,21 @@ from discord.ext.commands import Bot, CommandOnCooldown, Context
 from discord.ext.commands.errors import MissingRequiredArgument, CommandNotFound
 from discord.game import Game
 
-from config.settings import DEFAULT_PREFIX, SHARDED, DATA_CONTROLLER, \
+from config.settings import DEFAULT_PREFIX, SHARDED, \
     ENABLE_CONSOLE_LOGGING
 from config.settings import OWNER
 from core.bot_info_core import generate_shard_info
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError
-from core.discord_functions import command_error_handler
+from core.data_controller import get_language
+from core.discord_functions import command_error_handler, get_prefix
 from core.file_io import write_json
 from core.language_support import read_language
 from core.logger import setup_logging, get_console_handler, info
+
+
+def __prefix__(bot, message):
+    return get_prefix(bot.cur, message.server, bot.default_prefix)
 
 
 class Hifumi(Bot):
@@ -31,21 +37,23 @@ class Hifumi(Bot):
     """
     __slots__ = ['default_prefix', 'shard_id', 'shard_count', 'start_time',
                  'language', 'default_language', 'logger', 'mention_normal',
-                 'mention_nick', 'working_dir']
+                 'mention_nick', 'working_dir', 'conn', 'cur']
 
-    def __init__(self, prefix, shard_count=1, shard_id=0,
+    def __init__(self, shard_count=1, shard_id=0,
                  default_language='en', working_dir=''):
         """
         Initialize the bot object
-        :param prefix: the function to get prefix for a server
         :param shard_count: the shard count, default is 1
         :param shard_id: shard id, default is 0
         :param default_language: the default language of the bot, default is en
         :param working_dir: the working directory for the bot, dont change this
         unless you know what you are doing
         """
-        super().__init__(command_prefix=prefix, shard_count=shard_count,
+        super().__init__(command_prefix=__prefix__, shard_count=shard_count,
                          shard_id=shard_id)
+        self.working_dir = working_dir
+        self.conn = sqlite3.connect(join(working_dir, 'data', 'hifumi_db'))
+        self.cur = self.conn.cursor()
         self.default_prefix = DEFAULT_PREFIX
         self.shard_id = shard_id
         self.shard_count = shard_count
@@ -57,7 +65,6 @@ class Hifumi(Bot):
         )
         self.mention_normal = ''
         self.mention_nick = ''
-        self.working_dir = working_dir
 
     @coroutine
     async def on_ready(self):
@@ -92,7 +99,9 @@ class Hifumi(Bot):
                 or isinstance(exception, handled_exceptions):
             await self.send_message(
                 context.message.channel,
-                command_error_handler(self, exception, context)
+                command_error_handler(
+                    self.get_language_dict(context), exception
+                )
             )
         elif isinstance(exception, CommandNotFound):
             # Ignore this case
@@ -170,7 +179,7 @@ class Hifumi(Bot):
             raise TypeError
         channel = message.channel
         if channel.type == ChannelType.text:
-            lan = DATA_CONTROLLER.get_language(message.server.id)
+            lan = get_language(self.cur, message.server.id)
             return lan if lan is not None else self.default_language
         else:
             return self.default_language
@@ -182,5 +191,11 @@ class Hifumi(Bot):
         Timer(1, self.update_shard_info).start()
         file_name = join(self.working_dir, 'data', 'shard_info',
                          'shard_{}.json'.format(self.shard_id))
-        content = generate_shard_info(self)
+        content = generate_shard_info(
+            servers=self.servers,
+            channels=self.get_all_channels(),
+            members=self.get_all_members(),
+            voice=self.voice_clients,
+            logged_in=self.is_logged_in
+        )
         write_json(open(file_name, 'w+'), content)

@@ -8,21 +8,19 @@ from discord.embeds import Embed
 from discord.ext.commands import CommandOnCooldown
 from discord.ext.commands.errors import MissingRequiredArgument
 
-from config.settings import DATA_CONTROLLER
+import core.data_controller as db
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError
 from core.helpers import strip_letters
 
 
-def command_error_handler(bot, exception, context):
+def command_error_handler(localize, exception):
     """
     A function that handles command errors
-    :param bot: the bot object
+    :param localize: the localization strings
     :param exception: the exception raised
-    :param context: the discord context object
     :return: the message to be sent based on the exception type
     """
-    localize = bot.get_language_dict(context)
     if isinstance(exception, CommandOnCooldown):
         return localize['time_out'].format(strip_letters(str(exception))[0])
     elif isinstance(exception, NsfwError):
@@ -48,19 +46,19 @@ def command_error_handler(bot, exception, context):
         raise exception
 
 
-def get_prefix(bot, message, data_controller=DATA_CONTROLLER):
+def get_prefix(cur, server, default_prefix):
     """
     the the prefix of commands for a channel
-    :param bot: the discord bot object
-    :param message: the message
-    :param data_controller: a DataController object to get the prefix from,
     defaults to the default database
+    :param cur: the database cursor
+    :param server: the discord server
+    :param default_prefix: the bot default prefix
     :return: the prefix for the server
     """
-    if message.server is None:
-        return bot.default_prefix
-    res = data_controller.get_prefix(message.server.id)
-    return res if res is not None else bot.default_prefix
+    if server is None:
+        return default_prefix
+    res = db.get_prefix(cur, server.id)
+    return res if res is not None else default_prefix
 
 
 def build_embed(content: list, colour, **kwargs):

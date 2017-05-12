@@ -4,28 +4,30 @@ Functions to deal with the Roles class
 
 from discord.utils import get
 
-from config.settings import DATA_CONTROLLER
+import core.data_controller as db
 from core.discord_functions import handle_forbidden_http
 
 
-def get_role_list(ctx, bot):
+def get_role_list(*, server, conn, cur, localize):
     """
     Get the role list of the server
 
-    :param ctx: the discord context object
+    :param server: the discord server
 
-    :param bot: the hifumi bot
+    :param conn: the db connection
+
+    :param cur: the db cursor
+
+    :param localize: localization strings
 
     :return: the string representation of the server role list
     """
-    server_id = ctx.message.server.id
-    localize = bot.get_language_dict(ctx)
-    lst = DATA_CONTROLLER.get_role_list(server_id)
+    lst = db.get_role_list(cur, server.id)
     # Check for any non-existing roles and remove them from the db
     for i in range(len(lst)):
         role = lst[i]
-        if get_server_role(role, ctx.message.server) is None:
-            DATA_CONTROLLER.remove_role(server_id, role)
+        if get_server_role(role, server) is None:
+            db.remove_role(conn, cur, server.id, role)
             lst.remove(role)
     if lst:
         lst = ['* ' + r for r in lst]
@@ -47,54 +49,62 @@ def get_server_role(role, server):
     return get(server.roles, name=role)
 
 
-def add_role(ctx, bot, role):
+def add_role(*, conn, cur, server, localize, role):
     """
     Add a role to the db to be self assignable
 
-    :param ctx: the discord context
+    :param conn: the database connection
 
-    :param bot: the bot
+    :param cur: the database cursor
+
+    :param server: the discord server
+
+    :param localize: the localization strings
 
     :param role: the role to be added
 
     :return: the response string
     """
-    server = ctx.message.server
-    localize = bot.get_language_dict(ctx)
     if get_server_role(role, server) is None:
         return localize['role_no_exist']
     else:
-        DATA_CONTROLLER.add_role(server.id, role)
+        db.add_role(conn, cur, server.id, role)
         return localize['role_add_success'].format(role)
 
 
-def remove_role(ctx, bot, role):
+def remove_role(*, localize, server, conn, cur, role):
     """
     Remove a role from the db
 
-    :param ctx: the discord context
-
-    :param bot: the bot
-
     :param role: the role to be removed
+
+    :param localize: the localization strings
+
+    :param server: the discord server
+
+    :param conn: the database connection
+
+    :param cur: the database cursor
 
     :return: the response string
     """
-    localize = bot.get_language_dict(ctx)
-    server = ctx.message.server
     res = localize['role_no_exist'] if get_server_role(role, server) is None \
         else localize['role_remove_success'].format(role)
-    DATA_CONTROLLER.remove_role(server.id, role)
+    db.remove_role(conn, cur, server.id, role)
     return res
 
 
-def role_add_rm(ctx, bot, role, is_add, check_db=True):
+def role_add_rm(*, role, localize, server, cur, conn, is_add, check_db=True):
     """
     A helper function for role_unrole
 
-    :param ctx: the discord context
+    :param localize: the localization strings
 
-    :param bot: the bot
+    :param server: the discord server
+
+    :param cur: the database cursor
+
+    :param conn: the database connection
 
     :param role: the role name
 
@@ -104,9 +114,8 @@ def role_add_rm(ctx, bot, role, is_add, check_db=True):
 
     :return: (the response string, the role to be handled)
     """
-    lst = get_role_list(ctx, bot) if check_db else []  # To save runtime
-    server = ctx.message.server
-    localize = bot.get_language_dict(ctx)
+    lst = get_role_list(server=server, conn=conn, cur=cur, localize=localize) \
+        if check_db else []  # To save runtime
     server_role = get_server_role(role, server)
     if (not check_db or role in lst) and server_role is not None:
         s = localize['role_me_success'] if is_add \
@@ -118,13 +127,16 @@ def role_add_rm(ctx, bot, role, is_add, check_db=True):
         return localize['not_assignable'], None
 
 
-async def role_unrole(bot, ctx, role_name, is_add, check_db=True, target=None):
+async def role_unrole(*, bot, ctx, target, role_name, is_add,
+                      is_mute, check_db):
     """
     A helper function to handle adding/removing role from a member
 
     :param bot: the bot
 
-    :param ctx: the context
+    :param ctx: the discord context
+
+    :param is_mute: If the action is a mute role assignment
 
     :param role_name: The role name, can be either a string
     or a collection of strings. Will join the collection with a white space
@@ -132,17 +144,23 @@ async def role_unrole(bot, ctx, role_name, is_add, check_db=True, target=None):
 
     :param is_add: wether if the method is add or remove
 
-    :param check_db: If it's True then this function will check the db
-    for self assign roles
 
-    :param target: the role assignment target, if it's None the role assignment
-    target will be the message author
+    :param check_db: if need to check the db for self role
+
+    :param target: the role assignment target
     """
-    role_name = role_name if isinstance(role_name, str) else ' '.join(role_name)
-    is_mute = target is not None
-    target = ctx.message.author if target is None else target
-    res, role = role_add_rm(ctx, bot, role_name, is_add, check_db)
     localize = bot.get_language_dict(ctx)
+    server = ctx.message.server
+    channel = ctx.message.channel
+    res, role = role_add_rm(
+        role=role_name,
+        localize=localize,
+        server=server,
+        cur=bot.cur,
+        conn=bot.conn,
+        is_add=is_add,
+        check_db=check_db
+    )
     func = bot.add_roles if is_add else bot.remove_roles
     try:
         if role is not None:
@@ -154,7 +172,7 @@ async def role_unrole(bot, ctx, role_name, is_add, check_db=True, target=None):
     except Exception as e:
         action = localize['assign'] if is_add else localize['remove']
         await handle_forbidden_http(
-            e, bot, ctx.message.channel, localize, '{} {}'.format(
+            e, bot, channel, localize, '{} {}'.format(
                 action, localize['role']
             )
         )
