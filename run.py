@@ -3,7 +3,7 @@ The main run file.
 """
 import traceback
 from os import name
-from sys import platform, version_info
+from sys import platform, version_info, getdefaultencoding
 
 from colorama import init
 

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 A collection of functions to deal with language support
 """
@@ -7,7 +9,7 @@ from ntpath import basename
 from core.data_controller import set_language as sl
 from core.file_io import read_all_files, read_json
 from core.helpers import suplement_dict
-
+import codecs
 
 def read_language(path):
     """
@@ -15,7 +17,7 @@ def read_language(path):
     :param path: the path that points to the language folder
     :return: all language files in a dict
     """
-    language = {basename(f)[:-5]: read_json(open(f))
+    language = {basename(f)[:-5]: read_json(codecs.open(f, encoding='utf-8'))
                 for f in read_all_files(path)
                 if f.endswith('.json')}
     for key, val in language.items():
