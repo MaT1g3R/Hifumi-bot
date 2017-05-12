@@ -3,9 +3,10 @@ Functions for the owner only cog
 """
 
 import ast
-
 from subprocess import check_output, STDOUT, CalledProcessError
 from textwrap import wrap
+
+from discord import HTTPException, InvalidArgument
 
 
 def handle_eval(code):
@@ -48,3 +49,28 @@ def bash_script(command: list):
         res_str = str(ex)
         success = False
     return wrap(res_str, 1800, replace_whitespace=False), success
+
+
+async def setavatar(bot, localize, channel, avatar, retry=0):
+    """
+    I'm going to hell with this.
+    Set the bot's avatar.
+    :param bot: the bot
+    :param localize: the localization strings
+    :param channel: the discord channel
+    :param avatar: the url that points to the image
+    :param retry: the retry count
+    """
+    while True:
+        try:
+            await bot.edit_profile(avatar=avatar)
+            await bot.send_message(channel, localize['avatar_success'])
+            break
+        except InvalidArgument:
+            await bot.send_message(channel, localize['avatar_fail'])
+            break
+        except HTTPException:
+            await bot.send_message(
+                channel, localize['avatar_error'].format(retry)
+            )
+            retry += 1

@@ -97,5 +97,8 @@
   "pardon_success": ":information_source: Member **{}** has been pardoned. Reason: **{}** \nPardon given by **{}** Total warn count on target: ",
   "owner_only": "Sorry! Only my owner can use this command.",
   "bash_success": ":white_check_mark: Command success!\nOutput:\n",
-  "bash_fail": ":no_entry_sign: Command failed!\nOutput:\n"
+  "bash_fail": ":no_entry_sign: Command failed!\nOutput:\n",
+  "avatar_success": ":white_check_mark:",
+  "avatar_fail": ":no_entry_sign: Please enter a hotlink to the avatar image you desire and try again.",
+  "avatar_error": ":x: Setting avatar failed, retrying... (retry count: {})"
 }

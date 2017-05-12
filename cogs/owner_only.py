@@ -1,8 +1,6 @@
 """
 Owner only commands
-bash                ✕
 setavatar           ✕
-eval                ✔
 shard               ✕
 shardinfo           ✕
 editsettings        ✕
@@ -13,12 +11,13 @@ blacklist           ✕
 """
 
 from discord.ext import commands
+from requests import get, RequestException, ConnectionError
 
 from config.settings import OWNER
 from core.checks import is_owner
 from core.discord_functions import check_message_startwith, clense_prefix, \
     get_prefix
-from core.owner_only_core import handle_eval, bash_script
+from core.owner_only_core import handle_eval, bash_script, setavatar
 
 
 class OwnerOnly:
@@ -54,6 +53,11 @@ class OwnerOnly:
     @commands.command(pass_context=True)
     @commands.check(is_owner)
     async def bash(self, ctx, *args):
+        """
+        Run a bash command
+        :param ctx: the discord context
+        :param args: the bash command arguments
+        """
         localize = self.bot.get_language_dict(ctx)
         result, success = bash_script(list(args))
         str_out = ['```\n' + s + '\n```' for s in result]
@@ -61,3 +65,21 @@ class OwnerOnly:
         await self.bot.say(header)
         for s in str_out:
             await self.bot.say(s)
+
+    @commands.command(pass_context=True)
+    @commands.check(is_owner)
+    async def setavatar(self, ctx, url=None):
+        """
+        Set avatar of the bot
+        :param ctx: the discord context
+        :param url: the url to the picture
+        """
+        localize = self.bot.get_language_dict(ctx)
+        if url is None:
+            await self.bot.say(localize['avatar_fail'])
+        else:
+            try:
+                avatar = get(url).content
+                await setavatar(self.bot, localize, ctx.message.channel, avatar)
+            except (RequestException, ConnectionError):
+                await self.bot.say(localize['avatar_fail'])
