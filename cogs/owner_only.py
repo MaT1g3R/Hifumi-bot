@@ -1,22 +1,22 @@
 """
-Testing commands
+Owner only commands
 """
 
 from config.settings import OWNER
 from core.discord_functions import check_message_startwith, clense_prefix, \
     get_prefix
-from core.testing_core import handle_eval
+from core.owner_only_core import handle_eval
 
 
-class Testing:
+class OwnerOnly:
     """
-    Testing commands
+    OwnerOnly commands
     """
     __slots__ = ['bot']
 
     def __init__(self, bot):
         """
-        Initialize the Testing class
+        Initialize the OwnerOnly class
         :param bot: the bot object
         """
         self.bot = bot

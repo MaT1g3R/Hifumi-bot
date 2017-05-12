@@ -1,5 +1,5 @@
 """
-Functions for the testing cog
+Functions for the owner only cog
 """
 
 import ast
@@ -23,5 +23,5 @@ def handle_eval(code):
                'Output:```Python\n{}```'.format(res)
     except Exception as e:
         return ':no_entry_sign: **Evaluation failed!**\n' \
-               'Output:' + '```Python\n{}```'.\
-            format(e.__class__.__name__ + ': ' + str(e))
+               'Output:' + '```Python\n{}```'. \
+                   format(e.__class__.__name__ + ': ' + str(e))

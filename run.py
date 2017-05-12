@@ -7,7 +7,7 @@ from sys import platform, version_info
 from colorama import init
 
 import core.logger as logger
-from cogs import bot_info, testing, channel_reader, nsfw, roles, moderation
+from cogs import bot_info, owner_only, channel_reader, nsfw, roles, moderation
 from config.settings import TOKEN, SHARD_COUNT, SHARD_ID, SHARDED, SAFE_SHUTDOWN
 from launcher import is_internet_on
 from shell.hifumi import Hifumi
@@ -67,7 +67,7 @@ if __name__ == '__main__':
                 )
             else:
                 bot = Hifumi()
-            cogs = [bot_info.BotInfo(bot), testing.Testing(bot),
+            cogs = [bot_info.BotInfo(bot), owner_only.OwnerOnly(bot),
                     channel_reader.ChannelReader(bot), nsfw.Nsfw(bot),
                     roles.Roles(bot),
                     moderation.Moderation(bot)]
