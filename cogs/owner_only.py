@@ -59,7 +59,8 @@ class OwnerOnly:
         """
         localize = self.bot.get_language_dict(ctx)
         result, success = bash_script(list(args))
-        str_out = ['```\n' + s + '\n```' for s in result]
+        str_out = ['```\n' + s.replace('`', chr(0x1fef)) + '\n```'
+                   for s in result]
         header = localize['bash_success'] if success else localize['bash_fail']
         await self.bot.say(header)
         for s in str_out:
