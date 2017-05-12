@@ -4,7 +4,7 @@ Checks for commands
 from discord import ChannelType
 from discord.ext.commands import CommandError
 
-from config.settings import BAD_WORD
+from config.settings import BAD_WORD, OWNER
 
 
 class NsfwError(CommandError):
@@ -24,6 +24,10 @@ class AdminError(CommandError):
 
 
 class ManageMessageError(CommandError):
+    pass
+
+
+class OwnerError(CommandError):
     pass
 
 
@@ -88,3 +92,15 @@ def has_manage_message(ctx):
     if ctx.message.server.get_member(id_).server_permissions.manage_messages:
         return True
     raise ManageMessageError
+
+
+def is_owner(ctx):
+    """
+    Check if the user is the bot owner
+    :param ctx: the discord context
+    :return: True if the user is the bot owner
+    """
+    id_ = ctx.message.author.id
+    if id_ in OWNER:
+        return True
+    raise OwnerError

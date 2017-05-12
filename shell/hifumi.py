@@ -15,11 +15,10 @@ from discord.ext.commands.errors import MissingRequiredArgument, CommandNotFound
 from discord.game import Game
 
 from config.settings import DEFAULT_PREFIX, SHARDED, \
-    ENABLE_CONSOLE_LOGGING
-from config.settings import OWNER
+    ENABLE_CONSOLE_LOGGING, OWNER
 from core.bot_info_core import generate_shard_info
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
-    ManageMessageError
+    ManageMessageError, OwnerError
 from core.data_controller import get_language
 from core.discord_functions import command_error_handler, get_prefix
 from core.file_io import write_json
@@ -93,7 +92,7 @@ class Hifumi(Bot):
         """
         handled_exceptions = (
             CommandOnCooldown, NsfwError, BadWordError, ManageRoleError,
-            AdminError, ManageMessageError, MissingRequiredArgument
+            AdminError, ManageMessageError, MissingRequiredArgument, OwnerError
         )
         if ('Member' in str(exception) and 'not found' in str(exception)) \
                 or isinstance(exception, handled_exceptions):

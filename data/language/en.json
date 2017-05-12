@@ -94,5 +94,6 @@
   "mod_log_rm": ":information_source: The current channel **{}** has been removed from mod log channels.",
   "pls_provide_reason": ":warning: Please provide a reason.",
   "warnings": "Total Warnings",
-  "pardon_success": ":information_source: Member **{}** has been pardoned. Reason: **{}** \nPardon given by **{}** Total warn count on target: "
+  "pardon_success": ":information_source: Member **{}** has been pardoned. Reason: **{}** \nPardon given by **{}** Total warn count on target: ",
+  "owner_only": "Sorry! Only my owner can use this command."
 }

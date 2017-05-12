@@ -10,7 +10,7 @@ from discord.ext.commands.errors import MissingRequiredArgument
 
 from core import data_controller as db
 from core.checks import ManageMessageError, AdminError, ManageRoleError, \
-    BadWordError, NsfwError
+    BadWordError, NsfwError, OwnerError
 from core.helpers import strip_letters
 
 
@@ -37,9 +37,11 @@ def command_error_handler(localize, exception):
         regex = re.compile('\".*\"')
         name = regex.findall(str(exception))[0].strip('"')
         return localize['member_not_found'].format(name)
-    elif isinstance(exception, MissingRequiredArgument):
-        if str(exception).startswith('member'):
-            return localize['empty_member']
+    elif isinstance(exception, MissingRequiredArgument) \
+            and str(exception).startswith('member'):
+        return localize['empty_member']
+    elif isinstance(exception, OwnerError):
+        return localize['owner_only']
     else:
         # This case should never happen, since it's should be checked in
         # bot.on_command_error

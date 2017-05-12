@@ -2,7 +2,10 @@
 Owner only commands
 """
 
+from discord.ext import commands
+
 from config.settings import OWNER
+from core.checks import is_owner
 from core.discord_functions import check_message_startwith, clense_prefix, \
     get_prefix
 from core.owner_only_core import handle_eval
@@ -36,4 +39,9 @@ class OwnerOnly:
             else:
                 await self.bot.send_message(
                     message.channel,
-                    'Sorry! Only my owner can use this command.')
+                    self.bot.get_language_dict(message)['owner_only'])
+
+    @commands.command()
+    @commands.check(is_owner)
+    async def test(self):
+        await self.bot.say('foo')
