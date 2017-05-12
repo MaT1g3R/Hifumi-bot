@@ -1,9 +1,8 @@
 """
 The main run file.
 """
-import traceback
 from os import name
-from sys import platform, version_info, getdefaultencoding
+from sys import platform, version_info
 
 from colorama import init
 
@@ -74,7 +73,7 @@ if __name__ == '__main__':
                     moderation.Moderation(bot)]
 
             bot.start_bot(cogs, TOKEN)
-        except (UnicodeEncodeError, UnicodeDecodeError) as e:
+        except (UnicodeEncodeError, UnicodeDecodeError):
             # If locales are not returned
             logger.warning(
                 "Hifumi startup error:\n\nLocales failed to load because your "
@@ -82,9 +81,6 @@ if __name__ == '__main__':
                 "Please read the docs (Troubleshooting section) "
                 "to know how to fix this problem. Exit code: 1"
             )
-            print(e)
-            tb = traceback.format_exc()
-            print(tb)
             exit(1)
         except KeyboardInterrupt:
             logger.info("Hifumi has been terminated.")

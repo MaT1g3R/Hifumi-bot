@@ -4,12 +4,13 @@
 A collection of functions to deal with language support
 """
 
+import codecs
 from ntpath import basename
 
 from core.data_controller import set_language as sl
 from core.file_io import read_all_files, read_json
 from core.helpers import suplement_dict
-import codecs
+
 
 def read_language(path):
     """
