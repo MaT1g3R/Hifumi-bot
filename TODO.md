@@ -95,8 +95,6 @@ mute                ✔
 unmute              ✔
 warn                ✔
 pardon *new         ○
-setlanguage *new    ✔
-setprefix *new      ✔
 modlog *new         ○
 modlog add *new     ○
 modlog remove *new  ○
@@ -146,6 +144,13 @@ git                 ✔
 help                ✕
 ping                ✔
 invite              ✔
+language *new       ○
+language list *new  ○
+language set *new   ○
+language reset *new ○
+prefix              ✔
+prefix set          ✔
+prefix reset *new   ○
 ```
 10. Owner only
 ```
