@@ -73,7 +73,7 @@ if __name__ == '__main__':
                     moderation.Moderation(bot)]
 
             bot.start_bot(cogs, TOKEN)
-        except (UnicodeEncodeError, UnicodeDecodeError):
+        except (UnicodeEncodeError, UnicodeDecodeError) as e:
             # If locales are not returned
             logger.warning(
                 "Hifumi startup error:\n\nLocales failed to load because your "
@@ -81,6 +81,7 @@ if __name__ == '__main__':
                 "Please read the docs (Troubleshooting section) "
                 "to know how to fix this problem. Exit code: 1"
             )
+            print(e)
             exit(1)
         except KeyboardInterrupt:
             logger.info("Hifumi has been terminated.")
