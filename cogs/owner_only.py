@@ -1,6 +1,5 @@
 """
 Owner only commands
-setavatar           ✕
 shard               ✕
 shardinfo           ✕
 editsettings        ✕
