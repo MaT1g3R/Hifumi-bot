@@ -170,11 +170,7 @@ class Moderation:
                 )
             )
         else:
-            res = set_language(
-                self.bot.conn, self.bot.cur,
-                localize, ctx.message.server.id, language
-            )
-            await self.bot.say(res)
+            await self.bot.say(set_language(self.bot, ctx, language))
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)

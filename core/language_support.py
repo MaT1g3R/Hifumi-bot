@@ -58,17 +58,19 @@ def generate_language_list(language, key):
     return language_dict['language_list'].format(s)
 
 
-def set_language(conn, cur, localize, server_id, language):
+def set_language(bot, ctx, language):
     """
     Set the language for the server, and return the message
-    :param conn: the databse connection
-    :param cur: the database cursor
-    :param localize: the localization strings
-    :param server_id: the server id
+    :param bot: the bot
+    :param ctx: the discord context
     :param language: the language to set to
     :return: the message
     """
+    conn = bot.conn
+    cur = bot.cur
+    server_id = ctx.message.server.id
     sl(conn, cur, server_id, language)
+    localize = bot.get_language_dict(ctx)
     language_data = localize['language_data']
     translators = language_data['translators']
     return localize['lan_set_success'].format(
