@@ -153,8 +153,8 @@ prefix reset *new   ○
 ```
 10. Owner only
 ```
-bash                ✕
-setavatar           ✕
+bash                ✔
+setavatar           ✔
 eval                ✔
 shard               ✕
 shardinfo           ✕
@@ -163,6 +163,16 @@ reload              ✕
 restart             ✕
 shutdown            ✕
 blacklist           ✕
+```
+
+11. Currency
+```
+daily               ✕
+balance             ✕
+transfer            ✕
+market              ✕
+slots               ✕
+trivia              ✕
 ```
 
 ## 4. New features
