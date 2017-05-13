@@ -1,6 +1,7 @@
 """
 A sqlite3 database handler
 """
+from time import time
 
 
 def get_prefix(cursor, server_id: str):
@@ -270,3 +271,70 @@ def get_warn(cursor, server_id: str, user_id: str):
     cursor.execute(sql, [server_id, user_id])
     result = cursor.fetchone()
     return result[0] if result is not None else 0
+
+
+def get_balance(cursor, user_id: str):
+    """
+    Get the balance of a user
+    :param cursor: the db cursor
+    :param user_id: the user id
+    :return: the balance of the user
+    """
+    sql = '''
+    SELECT balance FROM currency WHERE user = ?
+    '''
+    cursor.execute(sql, [user_id])
+    res = cursor.fetchone()
+    return res[0] if res is not None else 0
+
+
+def change_balance(connection, cursor, user_id: str, delta: int):
+    """
+    Set the balance of a user
+    :param connection: the db connection
+    :param cursor: the db cursor
+    :param user_id: the user id
+    :param delta: how much to change the balance by
+    """
+    sql_insert = '''
+    INSERT OR IGNORE INTO currency VALUES (?, 0)
+    '''
+    sql_change = '''
+    UPDATE currency SET balance = balance + ? WHERE user = ?
+    '''
+    cursor.execute(sql_insert, [user_id])
+    cursor.execute(sql_change, [delta, user_id])
+    connection.commit()
+
+
+def get_daily(cursor, user_id: str):
+    """
+    Get the daily time stamp of a user
+    :param cursor: the db cursor
+    :param user_id: the user id
+    :return: the daily timestamp of a user
+    """
+    sql = '''
+    SELECT daily FROM currency WHERE user = ?
+    '''
+    cursor.execute(sql, [user_id])
+    res = cursor.fetchone()
+    return res[0] if res is not None else None
+
+
+def set_daily(connection, cursor, user_id: str):
+    """
+    Set the daily time stamp for a user
+    :param connection: the db connection
+    :param cursor: the db cursor
+    :param user_id: the user id
+    """
+    sql_insert = '''
+    INSERT OR IGNORE INTO currency VALUES (?, 0)
+    '''
+    sql_update = '''
+    UPDATE currency SET daily = ? WHERE user = ?
+    '''
+    cursor.execute(sql_insert, [user_id])
+    cursor.execute(sql_update, [time(), user_id])
+    connection.commit()
