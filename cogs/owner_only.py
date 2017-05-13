@@ -41,13 +41,21 @@ class OwnerOnly:
             self.bot.cur, message.server, self.bot.default_prefix
         )
         if check_message_startwith(self.bot, message, '{}eval'.format(prefix)):
+            localize = self.bot.get_language_dict(message)
             if str(message.author.id) in OWNER:
                 args = clense_prefix(message, '{}eval'.format(prefix))
-                await self.bot.send_message(message.channel, handle_eval(args))
+                res, success = handle_eval(args)
+                str_out = ['```Python\n' + s.replace('`', chr(0x1fef)) + '\n```'
+                           for s in res]
+                header = localize['bash_success'] if success else localize[
+                    'bash_fail']
+                await self.bot.send_message(message.channel, header)
+                for s in str_out:
+                    await self.bot.send_message(message.channel, s)
             else:
                 await self.bot.send_message(
-                    message.channel,
-                    self.bot.get_language_dict(message)['owner_only'])
+                    message.channel, localize['owner_only']
+                )
 
     @commands.command(pass_context=True)
     @commands.check(is_owner)

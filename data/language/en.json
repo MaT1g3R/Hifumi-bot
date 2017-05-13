@@ -100,5 +100,7 @@
   "bash_fail": ":no_entry_sign: Command failed!\nOutput:\n",
   "avatar_success": ":white_check_mark:",
   "avatar_fail": ":no_entry_sign: Please enter a hotlink to the avatar image with JPG or PNG format and try again.",
-  "avatar_error": ":x: Setting avatar failed, retrying... (retry count: {})"
+  "avatar_error": ":x: Setting avatar failed, retrying... (retry count: {})",
+  "eval_success": ":white_check_mark: Evaluation success!\nOutput:\n",
+  "eval_fail": ":no_entry_sign: Evaluation failed!\nOutput:\n"
 }

@@ -2,7 +2,8 @@
 Functions for the owner only cog
 """
 
-import ast
+import sys
+from io import StringIO
 from subprocess import check_output, STDOUT, CalledProcessError
 from textwrap import wrap
 
@@ -13,22 +14,20 @@ def handle_eval(code):
     """
     Handle the eval request from testing_core
     :param code: the code block
-    :return: the eval result
+    :return: (the eval result, success)
+    :rtype: tuple
     """
     try:
-        block = ast.parse(code, mode='exec')
-
-        last = ast.Expression(block.body.pop().value)
-
-        _globals, _locals = {}, {}
-        exec(compile(block, '<string>', mode='exec'), _globals, _locals)
-        res = eval(compile(last, '<string>', mode='eval'), _globals, _locals)
-        return ':white_check_mark: **Evaluation success!**\n' \
-               'Output:```Python\n{}```'.format(res)
+        buffer = StringIO()
+        sys.stdout = buffer
+        exec(code)
+        res = buffer.getvalue()
+        sys.stdout = sys.__stdout__
+        success = True
     except Exception as e:
-        return ':no_entry_sign: **Evaluation failed!**\n' \
-               'Output:' + '```Python\n{}```'. \
-                   format(e.__class__.__name__ + ': ' + str(e))
+        success = False
+        res = format(e.__class__.__name__ + ': ' + str(e))
+    return wrap(res, 1800, replace_whitespace=False), success
 
 
 def bash_script(command: list):
