@@ -4,6 +4,10 @@ A sqlite3 database handler
 from time import time
 
 
+class TransferError(ValueError):
+    pass
+
+
 def get_prefix(cursor, server_id: str):
     """
     Get the server prefix from databse
@@ -304,6 +308,31 @@ def change_balance(connection, cursor, user_id: str, delta: int):
     '''
     cursor.execute(sql_insert, [user_id])
     cursor.execute(sql_change, [delta, user_id])
+    connection.commit()
+
+
+def transfer_balance(connection, cursor, root_id, target_id, amount: int):
+    """
+    Transfer x amout of money from root to target
+    :param connection: the db connection
+    :param cursor: the db cursor
+    :param root_id: the root user id
+    :param target_id: the target user id
+    :param amount: the amout of transfer
+    :raises: TransferError if the root doesnt have enough money
+    """
+    sql_insert = '''
+    INSERT OR IGNORE INTO currency VALUES (?, 0, NULL)
+    '''
+    sql_change = '''
+    UPDATE currency SET balance = balance + ? WHERE user = ?
+    '''
+    root_balance = get_balance(cursor, root_id)
+    if root_balance < amount:
+        raise TransferError(str(root_balance))
+    cursor.execute(sql_insert, [target_id])
+    cursor.execute(sql_change, (-amount, root_id))
+    cursor.execute(sql_change, (amount, target_id))
     connection.commit()
 
 

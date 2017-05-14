@@ -296,6 +296,49 @@ class TestDataController(TestCase):
         set_daily(self.conn, self.cur, user)
         self.assertAlmostEqual(time(), get_daily(self.cur, user), delta=10)
 
+    def test_transfer(self):
+        """
+        Test transfer_balance
+        """
+        root = 'foo'
+        target = 'bar'
+        amout = choice(range(500, 1000))
+        transfer_amount = choice(range(100, 300))
+        change_balance(self.conn, self.cur, root, amout)
+        change_balance(self.conn, self.cur, target, amout)
+        transfer_balance(self.conn, self.cur, root, target, transfer_amount)
+        self.assertEqual(amout - transfer_amount, get_balance(self.cur, root))
+        self.assertEqual(amout + transfer_amount, get_balance(self.cur, target))
+
+    def test_transfer_new(self):
+        """
+        Test transfer_balance to a new user
+        """
+        root = 'foo'
+        target = 'bar'
+        amount = choice(range(500, 1000))
+        transfer_amount = choice(range(100, 300))
+        change_balance(self.conn, self.cur, root, amount)
+        transfer_balance(self.conn, self.cur, root, target, transfer_amount)
+        self.assertEqual(amount - transfer_amount, get_balance(self.cur, root))
+        self.assertEqual(transfer_amount, get_balance(self.cur, target))
+
+    def test_transfer_fail(self):
+        """
+        Test transfer_balance fail
+        """
+        root = 'foo'
+        target = 'bar'
+        amount = choice(range(100, 300))
+        transfer_amonut = choice(range(500, 1000))
+        change_balance(self.conn, self.cur, root, amount)
+        try:
+            transfer_balance(self.conn, self.cur, root, target, transfer_amonut)
+            self.fail()
+        except TransferError:
+            self.assertEqual(amount, get_balance(self.cur, root))
+            self.assertEqual(0, get_balance(self.cur, target))
+
     def __insert_balance(self):
         """
         Insert a random balance into the db

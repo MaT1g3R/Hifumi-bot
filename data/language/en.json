@@ -105,5 +105,10 @@
   "eval_fail": ":no_entry_sign: Evaluation failed!\nOutput:\n",
   "daily_first_time": ":atm: You received your daily. Since it's your first time using this command, you'll get **{}** credits. Come back tomorrow for another daily!",
   "daily_come_back": ":atm: You already claimed your daily. Please come back again in **{} hours, {} minutes, {} seconds**.",
-  "daily_success": ":atm: You received your daily of **{}** credits!"
+  "daily_success": ":atm: You received your daily of **{}** credits!",
+  "balance_self": "**{}**, your balance is **{}** credits.",
+  "balance_other": "**{}**'s balance is **{}** credits.",
+  "transfer_success": ":white_check_mark: Successfully transfered **{0}** credits to **{1}**.\nYour new balance: **{2}**\n{1}'s new balance: **{3}**",
+  "transfer_fail": "You do not have enough credits in your account to perform this action. You currently have **{}** credits.",
+  "transfer_bad_num": ":no_entry_sign: Please enter a number greater than 0."
 }

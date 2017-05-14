@@ -168,8 +168,8 @@ blacklist           ✕
 11. Currency
 ```
 daily               ✔
-balance             ✕
-transfer            ✕
+balance             ✔
+transfer            ✔
 market              ✕
 slots               ✕
 trivia              ✕
