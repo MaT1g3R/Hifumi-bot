@@ -1,5 +1,6 @@
 import sqlite3
 from os.path import join
+from random import choice
 from unittest import TestCase, main
 
 from core.data_controller import *
@@ -264,6 +265,50 @@ class TestDataController(TestCase):
             1 == get_warn(self.cur, other_server, user) ==
             get_warn(self.cur, server, other_user)
         )
+
+    def test_get_balance(self):
+        """
+        Test get_balance
+        """
+        user, balance = self.__insert_balance()
+        self.assertEqual(balance, get_balance(self.cur, user))
+        self.assertEqual(0, get_balance(self.cur, 'bar'))
+
+    def test_change_balance(self):
+        """
+        Test change balance
+        """
+        user, balance = self.__insert_balance()
+        other_user = 'bar'
+        delta_positive = choice(range(1, 50))
+        delta_negative = choice(range(-50, -1))
+        change_balance(self.conn, self.cur, user, delta_negative)
+        change_balance(self.conn, self.cur, other_user, delta_positive)
+        self.assertEqual(balance + delta_negative, get_balance(self.cur, user))
+        self.assertEqual(delta_positive, get_balance(self.cur, other_user))
+
+    def test_get_set_daily(self):
+        """
+        Test get_daily and set_daily
+        """
+        user = 'foo'
+        self.assertIsNone(get_daily(self.cur, user))
+        set_daily(self.conn, self.cur, user)
+        self.assertAlmostEqual(time(), get_daily(self.cur, user), delta=10)
+
+    def __insert_balance(self):
+        """
+        Insert a random balance into the db
+        :return: (user, balance)
+        """
+        user = 'foo'
+        balance = choice(range(1, 100))
+        sql = '''
+                INSERT INTO currency VALUES (?, ?, NULL)
+                '''
+        self.cur.execute(sql, (user, balance))
+        self.conn.commit()
+        return user, balance
 
     def __get_set(self, func_add, func_get):
         """

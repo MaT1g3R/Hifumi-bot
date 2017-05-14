@@ -297,7 +297,7 @@ def change_balance(connection, cursor, user_id: str, delta: int):
     :param delta: how much to change the balance by
     """
     sql_insert = '''
-    INSERT OR IGNORE INTO currency VALUES (?, 0)
+    INSERT OR IGNORE INTO currency VALUES (?, 0, NULL)
     '''
     sql_change = '''
     UPDATE currency SET balance = balance + ? WHERE user = ?
@@ -330,7 +330,7 @@ def set_daily(connection, cursor, user_id: str):
     :param user_id: the user id
     """
     sql_insert = '''
-    INSERT OR IGNORE INTO currency VALUES (?, 0)
+    INSERT OR IGNORE INTO currency VALUES (?, 0, NULL)
     '''
     sql_update = '''
     UPDATE currency SET daily = ? WHERE user = ?
