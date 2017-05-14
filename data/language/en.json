@@ -112,7 +112,7 @@
   "low_balance": "You do not have enough credits in your account to perform this action. You currently have **{}** credits.",
   "currency_bad_num": ":no_entry_sign: Please enter a number greater than 0.",
   "slots_header": ":game_die: You pulled the lever, the slot machine starts to spin...",
-  "slots_win": "**Congratulations!** You won and you got **{}** added to your account.",
+  "slots_win": "**Congratulations!** You won and **{}** credits is added to your account.",
   "slots_draw": ":thinking: You didn't gain or loose any credits.",
   "slots_loose": "**Bad luck!** You lost and **{}** credits is deducted from your account.",
   "new_balance": "Your new balance: **{}**"
