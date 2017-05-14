@@ -23,7 +23,7 @@ def daily(conn, cur, user_id, localize):
     if not first_time:
         time_delta = int(time() - current_daily)
         if time_delta < 86400:
-            hours, minutes, seconds = get_time_elapsed(0, time_delta)[1:]
+            hours, minutes, seconds = get_time_elapsed(time_delta, 86400)[1:]
             return localize['daily_come_back'].format(hours, minutes, seconds)
     set_daily(conn, cur, user_id)
     change_balance(conn, cur, user_id, delta)
