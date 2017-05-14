@@ -91,7 +91,7 @@ class Currency:
                 await self.bot.say(localize['low_balance'].format(balance))
             else:
                 change_balance(conn, cur, user_id, -amount)
-                q1, q2, q3, n1, n2, n3 = slots_setup(self.bot.all_emojis, 4, 5)
+                q1, q2, q3, n1, n2, n3 = slots_setup(self.bot.all_emojis, 2, 5)
                 await self.bot.say(localize['slots_header'])
                 msg = await self.bot.say(
                     '[ {} | {} | {} ]'.format(q1[0], q2[0], q3[0])
