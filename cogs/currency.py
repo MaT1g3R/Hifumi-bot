@@ -52,11 +52,11 @@ class Currency:
         """
         localize = self.bot.get_language_dict(ctx)
         try:
-            amount = int(amount)
+            amount = round(float(amount))
             if amount <= 0:
                 raise ValueError
         except (ValueError, TypeError):
-            await self.bot.say(localize['transfer_bad_num'])
+            await self.bot.say(localize['currency_bad_num'])
         else:
             await self.bot.say(
                 transfer(
@@ -64,3 +64,21 @@ class Currency:
                     ctx.message.author, member, amount, localize
                 )
             )
+
+    @commands.command(pass_context=True)
+    @commands.cooldown(rate=1, per=7, type=commands.BucketType.user)
+    async def slots(self, ctx, amount=None):
+        """
+        Play slots
+        :param ctx: the discord context
+        :param amount: the amount of bet
+        """
+        localize = self.bot.get_language_dict(ctx)
+        try:
+            amount = round(float(amount))
+            if amount <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            await self.bot.say(localize['currency_bad_num'])
+        else:
+            await self.bot.say(self.bot.all_emojis)

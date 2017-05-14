@@ -36,7 +36,7 @@ class Hifumi(Bot):
     """
     __slots__ = ['default_prefix', 'shard_id', 'shard_count', 'start_time',
                  'language', 'default_language', 'logger', 'mention_normal',
-                 'mention_nick', 'working_dir', 'conn', 'cur']
+                 'mention_nick', 'working_dir', 'conn', 'cur', 'all_emojis']
 
     def __init__(self, shard_count=1, shard_id=0,
                  default_language='en', working_dir=''):
@@ -64,6 +64,9 @@ class Hifumi(Bot):
         )
         self.mention_normal = ''
         self.mention_nick = ''
+        with open(join(self.working_dir, 'data', 'emojis.txt')) as f:
+            self.all_emojis = f.read().splitlines()
+            f.close()
 
     @coroutine
     async def on_ready(self):

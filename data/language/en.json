@@ -110,5 +110,5 @@
   "balance_other": "**{}**'s balance is **{}** credits.",
   "transfer_success": ":white_check_mark: Successfully transfered **{0}** credits to **{1}**.\nYour new balance: **{2}**\n{1}'s new balance: **{3}**",
   "transfer_fail": "You do not have enough credits in your account to perform this action. You currently have **{}** credits.",
-  "transfer_bad_num": ":no_entry_sign: Please enter a number greater than 0."
+  "currency_bad_num": ":no_entry_sign: Please enter a number greater than 0."
 }
