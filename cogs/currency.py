@@ -1,8 +1,9 @@
 from discord import Member
 from discord.ext import commands
 
-from core.currency_core import daily, transfer
-from core.data_controller import get_balance
+from core.currency_core import daily, transfer, slots_setup, roll_slots, \
+    determine_slot_result
+from core.data_controller import get_balance, change_balance
 
 
 class Currency:
@@ -66,7 +67,7 @@ class Currency:
             )
 
     @commands.command(pass_context=True)
-    @commands.cooldown(rate=1, per=7, type=commands.BucketType.user)
+    @commands.cooldown(rate=1, per=6, type=commands.BucketType.server)
     async def slots(self, ctx, amount=None):
         """
         Play slots
@@ -81,4 +82,26 @@ class Currency:
         except (ValueError, TypeError):
             await self.bot.say(localize['currency_bad_num'])
         else:
-            await self.bot.say(self.bot.all_emojis)
+            localize = self.bot.get_language_dict(ctx)
+            conn = self.bot.conn
+            cur = self.bot.cur
+            user_id = ctx.message.author.id
+            balance = get_balance(cur, user_id)
+            if balance < amount:
+                await self.bot.say(localize['low_balance'].format(balance))
+            else:
+                change_balance(conn, cur, user_id, -amount)
+                q1, q2, q3, n1, n2, n3 = slots_setup(self.bot.all_emojis, 4, 5)
+                await self.bot.say(localize['slots_header'])
+                msg = await self.bot.say(
+                    '[ {} | {} | {} ]'.format(q1[0], q2[0], q3[0])
+                )
+                r1, r2, r3 = await roll_slots(
+                    self.bot, msg, q1, q2, q3, n1, n2, n3
+                )
+                await self.bot.say(
+                    determine_slot_result(
+                        conn, cur, user_id, self.bot.user.id,
+                        localize, r1, r2, r3, amount
+                    )
+                )
