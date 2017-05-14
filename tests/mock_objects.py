@@ -55,7 +55,7 @@ class MockUser(MagicMock):
 MockBot = MagicMock()
 MockBot.configure_mock(
     # Instance variables
-    start_time=1494000000,
+    start_time=1490000000,
     servers=[i for i in range(50)],
     voice_clients=[i for i in range(10)],
     is_logged_in=True,

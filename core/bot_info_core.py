@@ -1,11 +1,10 @@
 """
 Core fuctions for BotInfo cog
 """
-import math
 import platform
 import resource
-import time
 from os.path import join
+from time import time
 
 from discord import ChannelType, version_info
 
@@ -23,18 +22,12 @@ def time_elapsed(start_time, day_str):
     :return: time elapsed from start_time in a hh:mm:ss format
     :rtype: str
     """
-    time_elapsed_ = int(time.time() - start_time)
-    days = math.floor(time_elapsed_ / (60 * 60 * 24))
-    time_elapsed_ -= days * 60 * 60 * 24
-    hours = math.floor(time_elapsed_ / (60 * 60))
-    time_elapsed_ -= hours * 3600
-    minutes = math.floor(time_elapsed_ / 60)
-    time_elapsed_ -= minutes * 60
-    minutes_str = str(minutes) if minutes >= 10 else '0' + str(minutes)
-    seconds_str = str(time_elapsed_) if time_elapsed_ >= 10 \
-        else '0' + str(time_elapsed_)
-    days = ' ({} {})'.format(days, day_str)
-    return '{}:{}:{}'.format(str(hours), minutes_str, seconds_str) + days
+    days, seconds = divmod(round(time() - start_time), 86400)
+    hours, seconds = divmod(seconds, 3600)
+    minutes, seconds = divmod(seconds, 60)
+    return '{:02d}:{:02d}:{:02d} {}'.format(
+        hours, minutes, seconds, '({} {})'.format(days, day_str)
+    )
 
 
 def generate_shard_info(*, servers, members, channels, voice, logged_in):
