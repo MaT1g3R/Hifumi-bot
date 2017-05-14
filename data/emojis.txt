@@ -204,11 +204,6 @@
 :computer:
 :tv:
 :iphone:
-
-
---------------------
-
-
 :gun:
 :hocho:
 :pill:
