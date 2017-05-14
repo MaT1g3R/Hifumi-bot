@@ -2,7 +2,7 @@ from os.path import join
 from time import time
 from unittest import TestCase, main
 
-from core.bot_info_core import time_elapsed, generate_shard_info, \
+from core.bot_info_core import get_uptime, generate_shard_info, \
     get_all_shard_info, build_info_embed
 from core.helpers import strip_letters, dict_has_empty
 from tests.mock_objects import MockBot, MockContext
@@ -22,11 +22,11 @@ class TestBotInfoCore(TestCase):
 
     def test_time_elapsed(self):
         """
-        Test case for time_elapsed
+        Test case for get_uptime
         """
         res_str = [
             int(i) for i in strip_letters(
-                time_elapsed(
+                get_uptime(
                     self.bot.start_time,
                     self.bot.get_language_dict(self.ctx)['days']
                 )

@@ -167,7 +167,7 @@ blacklist           ✕
 
 11. Currency
 ```
-daily               ✕
+daily               ✔
 balance             ✕
 transfer            ✕
 market              ✕

@@ -102,5 +102,8 @@
   "avatar_fail": ":no_entry_sign: Please enter a hotlink to the avatar image with JPG or PNG format and try again.",
   "avatar_error": ":x: Setting avatar failed, retrying... (retry count: {})",
   "eval_success": ":white_check_mark: Evaluation success!\nOutput:\n",
-  "eval_fail": ":no_entry_sign: Evaluation failed!\nOutput:\n"
+  "eval_fail": ":no_entry_sign: Evaluation failed!\nOutput:\n",
+  "daily_first_time": ":atm: You received your daily. Since it's your first time using this command, you'll get **{}** credits. Come back tomorrow for another daily!",
+  "daily_come_back": ":atm: You already claimed your daily. Please come back again in **{} hours, {} minutes, {} seconds**.",
+  "daily_success": ":atm: You received your daily of **{}** credits!"
 }

@@ -1,5 +1,7 @@
 from discord.ext import commands
 
+from core.currency_core import daily
+
 
 class Currency:
     def __init__(self, bot):
@@ -11,4 +13,7 @@ class Currency:
         Daily command
         :param ctx: the discord context
         """
-        pass
+        await self.bot.say(daily(
+            self.bot.conn, self.bot.cur,
+            ctx.message.author.id, self.bot.get_language_dict(ctx))
+        )

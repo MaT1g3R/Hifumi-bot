@@ -139,3 +139,17 @@ def get_date(diff=0):
     """
     yesterday = date.today() - timedelta(diff)
     return yesterday.strftime('%Y/%m/%d')
+
+
+def get_time_elapsed(start, finish):
+    """
+    Get the time elapsed betwen start time and finish time
+    :param start: the start time
+    :param finish: the finish time
+    :return: (days, hours, minutes, seconds) elapsed
+    :rtype: tuple
+    """
+    days, seconds = divmod(finish - start, 86400)
+    hours, seconds = divmod(seconds, 3600)
+    minutes, seconds = divmod(seconds, 60)
+    return days, hours, minutes, seconds

@@ -336,5 +336,5 @@ def set_daily(connection, cursor, user_id: str):
     UPDATE currency SET daily = ? WHERE user = ?
     '''
     cursor.execute(sql_insert, [user_id])
-    cursor.execute(sql_update, [time(), user_id])
+    cursor.execute(sql_update, [int(time()), user_id])
     connection.commit()

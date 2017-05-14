@@ -12,19 +12,20 @@ from config.settings import COLOUR, SHARDED, NAME, HELPERS, DEVS
 from core.discord_functions import build_embed, get_prefix
 from core.file_io import read_json, read_all_files
 from core.helpers import get_system_name, comma, combine_dicts
+from core.helpers import get_time_elapsed
 
 
-def time_elapsed(start_time, day_str):
+def get_uptime(start_time, day_str):
     """
-    Get the time elapsed from start_time in a hh:mm:ss format
+    Get the uptime from start_time in a hh:mm:ss format
     :param start_time: the start time for the elapsed time calculation
     :param day_str: the localization string that says "day"
     :return: time elapsed from start_time in a hh:mm:ss format
     :rtype: str
     """
-    days, seconds = divmod(round(time() - start_time), 86400)
-    hours, seconds = divmod(seconds, 3600)
-    minutes, seconds = divmod(seconds, 60)
+    days, hours, minutes, seconds = (
+        int(t) for t in get_time_elapsed(start_time, time())
+    )
     return '{:02d}:{:02d}:{:02d} {}'.format(
         hours, minutes, seconds, '({} {})'.format(days, day_str)
     )
@@ -126,7 +127,7 @@ def build_info_embed(ctx, bot, path=join('data', 'shard_info')):
     body = [(NAME, lan['stats_order'], False)] if SHARDED else []
     body += [
         (lan['ram_used'], ram_str),
-        (lan['uptime'], time_elapsed(bot.start_time, lan['days'])),
+        (lan['uptime'], get_uptime(bot.start_time, lan['days'])),
         (lan['python_ver'], platform.python_version()),
         (lan['lib'],
          'Discord.py v{}.{}.{}'.format(
