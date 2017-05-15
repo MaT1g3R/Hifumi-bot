@@ -113,7 +113,15 @@ class Currency:
                 )
 
     @commands.command(pass_context=True)
-    async def trivia(self, ctx):
+    @commands.cooldown(rate=1, per=3, type=commands.BucketType.user)
+    async def trivia(self, ctx, category=None, amount=None):
+        """
+        Play trivia
+        :param ctx: the discord context
+        :param category: category of the question
+        :param amount: the amount of bet
+        """
+
         ans = await self.bot.wait_for_message(5, author=ctx.message.author)
         ans = 'None' if ans is None else ans.content
         await self.bot.say(ans)

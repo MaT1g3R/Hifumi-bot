@@ -9,10 +9,9 @@ from logging import WARNING, ERROR, CRITICAL
 from os.path import join
 from threading import Timer
 
-from discord import ChannelType, Message
-from discord.ext.commands import Bot, CommandOnCooldown, Context
-from discord.ext.commands.errors import MissingRequiredArgument, CommandNotFound
-from discord.game import Game
+from discord import ChannelType, Message, Game
+from discord.ext.commands import Bot, CommandOnCooldown, Context, \
+    MissingRequiredArgument, CommandNotFound
 
 from config.settings import DEFAULT_PREFIX, SHARDED, \
     ENABLE_CONSOLE_LOGGING, OWNER
