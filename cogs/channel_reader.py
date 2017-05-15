@@ -2,6 +2,7 @@
 The channel reader cog
 """
 from core.discord_functions import get_prefix, check_message
+from shell.hifumi import Hifumi
 
 
 class ChannelReader:
@@ -10,7 +11,7 @@ class ChannelReader:
     """
     __slots__ = ['bot']
 
-    def __init__(self, bot):
+    def __init__(self, bot: Hifumi):
         """
         Initialize the ChannelReader class
         :param bot: the bot object

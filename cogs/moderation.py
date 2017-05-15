@@ -4,6 +4,7 @@ from discord.ext import commands
 from core.checks import is_admin, has_manage_message, has_manage_role
 from core.moderation_core import ban_kick, clean_msg, mute_unmute, \
     generate_mod_log_list, add_mod_log, remove_mod_log, warn_pardon
+from shell.hifumi import Hifumi
 
 
 class Moderation:
@@ -12,7 +13,7 @@ class Moderation:
     """
     __slots__ = ['bot']
 
-    def __init__(self, bot):
+    def __init__(self, bot: Hifumi):
         """
         Initialize the Moderation class
         :param bot: the bot

@@ -6,6 +6,7 @@ from core.checks import is_nsfw, no_badword
 from core.data_controller import write_tag_list
 from core.nsfw_core import danbooru, gelbooru, k_or_y, random_str, e621, \
     greenteaneko
+from shell.hifumi import Hifumi
 
 
 class Nsfw:
@@ -14,7 +15,7 @@ class Nsfw:
     """
     __slots__ = ['bot', 'danbooru_api']
 
-    def __init__(self, bot):
+    def __init__(self, bot: Hifumi):
         """
         Initialize the Nsfw class
         :param bot: the discord bot object

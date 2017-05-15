@@ -17,6 +17,7 @@ from core.checks import is_owner
 from core.discord_functions import check_message_startwith, clense_prefix, \
     get_prefix
 from core.owner_only_core import handle_eval, bash_script, setavatar
+from shell.hifumi import Hifumi
 
 
 class OwnerOnly:
@@ -25,7 +26,7 @@ class OwnerOnly:
     """
     __slots__ = ['bot']
 
-    def __init__(self, bot):
+    def __init__(self, bot: Hifumi):
         """
         Initialize the OwnerOnly class
         :param bot: the bot object

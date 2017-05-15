@@ -4,10 +4,16 @@ from discord.ext import commands
 from core.currency_core import daily, transfer, slots_setup, roll_slots, \
     determine_slot_result
 from core.data_controller import get_balance, change_balance
+from shell.hifumi import Hifumi
 
 
 class Currency:
-    def __init__(self, bot):
+    """
+    Commands related to currency
+    """
+    __slots__ = ['bot']
+
+    def __init__(self, bot: Hifumi):
         self.bot = bot
 
     @commands.command(pass_context=True)
@@ -105,3 +111,9 @@ class Currency:
                         localize, r1, r2, r3, amount
                     )
                 )
+
+    @commands.command(pass_context=True)
+    async def trivia(self, ctx):
+        ans = await self.bot.wait_for_message(5, author=ctx.message.author)
+        ans = 'None' if ans is None else ans.content
+        await self.bot.say(ans)

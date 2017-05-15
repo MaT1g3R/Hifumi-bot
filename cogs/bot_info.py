@@ -9,6 +9,7 @@ from core.data_controller import set_prefix, delete_prefix
 from core.discord_functions import get_prefix
 from core.language_support import generate_language_entry, \
     generate_language_list, set_language
+from shell.hifumi import Hifumi
 
 
 class BotInfo:
@@ -17,7 +18,7 @@ class BotInfo:
     """
     __slots__ = ['bot']
 
-    def __init__(self, bot):
+    def __init__(self, bot: Hifumi):
         """
         Initialized the BotInfo class
         :param bot: the bot object
