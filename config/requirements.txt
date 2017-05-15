@@ -17,3 +17,4 @@ python-editor
 requests
 colorama
 colorlog
+Python-Trivia-API
