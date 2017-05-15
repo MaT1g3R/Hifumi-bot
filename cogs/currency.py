@@ -1,8 +1,10 @@
 from discord import Member
 from discord.ext import commands
+from pytrivia import Trivia
 
 from core.currency_core import daily, transfer, slots_setup, roll_slots, \
-    determine_slot_result
+    determine_slot_result, get_trivia_question, ArgumentError, \
+    format_trivia_question
 from core.data_controller import get_balance, change_balance
 from shell.hifumi import Hifumi
 
@@ -11,10 +13,11 @@ class Currency:
     """
     Commands related to currency
     """
-    __slots__ = ['bot']
+    __slots__ = ['bot', 'trivia_api']
 
     def __init__(self, bot: Hifumi):
         self.bot = bot
+        self.trivia_api = Trivia(True)
 
     @commands.command(pass_context=True)
     async def daily(self, ctx):
@@ -73,7 +76,7 @@ class Currency:
             )
 
     @commands.command(pass_context=True)
-    @commands.cooldown(rate=1, per=6, type=commands.BucketType.server)
+    @commands.cooldown(rate=1, per=6, type=commands.BucketType.user)
     async def slots(self, ctx, amount=None):
         """
         Play slots
@@ -114,14 +117,31 @@ class Currency:
 
     @commands.command(pass_context=True)
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.user)
-    async def trivia(self, ctx, category=None, amount=None):
+    async def trivia(self, ctx, *args):
         """
         Play trivia
         :param ctx: the discord context
-        :param category: category of the question
-        :param amount: the amount of bet
+        :param args: the arguments the user passes in.
+            There can be at most 4 arguments:
+                Type, Diffculty, Category, Amount(of bet)
         """
+        localize = self.bot.get_language_dict(ctx)
+        author = ctx.message.author
+        if not args:
+            await self.bot.say(localize['trivia_no_args'])
+            res = await self.bot.wait_for_message(5, author=author)
+            if res is None or res.content.lower() != 'yes':
+                await self.bot.say(localize['trivia_help'])
+                return
+        try:
+            trivia_data = get_trivia_question(args, self.trivia_api)
+            embed, answer = format_trivia_question(trivia_data, localize)
+            await self.bot.say(embed=embed)
+            user_answer = await self.bot.wait_for_message(10, author=author)
+            if user_answer is None or user_answer.content.upper() != answer:
+                await self.bot.say('Wrong')
+            else:
+                await self.bot.say('Correct')
 
-        ans = await self.bot.wait_for_message(5, author=ctx.message.author)
-        ans = 'None' if ans is None else ans.content
-        await self.bot.say(ans)
+        except ArgumentError:
+            await self.bot.say(localize['trivia_bad_args'])

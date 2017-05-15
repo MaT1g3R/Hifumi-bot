@@ -115,5 +115,19 @@
   "slots_win": "**Congratulations!** You won and **{}** credits is added to your account.",
   "slots_draw": ":thinking: You didn't gain or loose any credits.",
   "slots_loose": "**Bad luck!** You lost and **{}** credits is deducted from your account.",
-  "new_balance": "Your new balance: **{}**"
+  "new_balance": "Your new balance: **{}**",
+  "trivia_bad_args": "trivia_bad_args",
+  "trivia_no_args": "trivia_no_args",
+  "trivia_help": "trivia_help",
+  "question": "Question",
+  "category": "Category",
+  "difficulty": "Difficulty",
+  "choices": "Choices",
+  "multiple": "Multiple Choice",
+  "boolean": "True or False",
+  "easy": "Easy",
+  "medium": "Medium",
+  "hard": "Hard",
+  "choices_str": "Please enter one of the following letters to choose your answer. You have 10 seconds to answer this.",
+  "tf_str": "Please enter T or F to choose your answer. You have 10 seconds to answer this."
 }
