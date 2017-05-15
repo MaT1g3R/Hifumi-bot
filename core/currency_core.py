@@ -215,18 +215,21 @@ def format_trivia_question(trivia_data, localize):
     body = [
         (localize['category'], category),
         (localize['difficulty'], localize[difficulty]),
+        (localize['type'], localize[type_]),
         (localize['question'], question, False),
         (localize['choices'], choice_str, False)
     ]
     if is_multiple:
         choices, answer = __generate_choices(correct, incorrect)
+        correct_str = answer + '. ' + correct
         for choice in choices:
             body += [
                 (choice[0], choice[1])
             ]
     else:
         answer = correct[:1]
-    return build_embed(body, colour), answer
+        correct_str = correct
+    return build_embed(body, colour), answer, correct_str
 
 
 def __generate_choices(correct, incorrect):

@@ -135,11 +135,17 @@ class Currency:
                 return
         try:
             trivia_data = get_trivia_question(args, self.trivia_api)
-            embed, answer = format_trivia_question(trivia_data, localize)
+            embed, answer, correct = format_trivia_question(
+                trivia_data, localize
+            )
             await self.bot.say(embed=embed)
             user_answer = await self.bot.wait_for_message(10, author=author)
-            if user_answer is None or user_answer.content.upper() != answer:
+            if user_answer is None:
+                await self.bot.say('Timeout')
+                await self.bot.say(correct)
+            elif user_answer.content.upper() != answer:
                 await self.bot.say('Wrong')
+                await self.bot.say(correct)
             else:
                 await self.bot.say('Correct')
 
