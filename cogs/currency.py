@@ -1,12 +1,12 @@
 from discord import Member
 from discord.ext import commands
-from pytrivia import Trivia, Category, Diffculty, Type
+from pytrivia import Trivia
 
 from core.currency_core import daily, transfer, slots_setup, roll_slots, \
-    determine_slot_result, trivia_no_arg_response, parse_trivia_arguments, \
-    ArgumentError, trivia_bet, format_trivia_question, get_trivia_data, \
-    trivia_handle_bet
-from core.data_controller import get_balance, change_balance, TransferError
+    determine_slot_result, format_trivia_question, trivia_handle_bet, \
+    trivia_args_proceed, trivia_kwargs_proceed, trivia_bet_proceed, \
+    handle_user_answer
+from core.data_controller import get_balance, change_balance
 from core.discord_functions import get_prefix
 from shell.hifumi import Hifumi
 
@@ -118,7 +118,7 @@ class Currency:
                 )
 
     @commands.command(pass_context=True)
-    @commands.cooldown(rate=1, per=30, type=commands.BucketType.user)
+    @commands.cooldown(rate=1, per=5, type=commands.BucketType.user)
     async def trivia(self, ctx, *args):
         """
         Play trivia
@@ -127,59 +127,27 @@ class Currency:
             There can be at most 4 arguments:
                 Type, Diffculty, Category, Amount(of bet)
         """
-        localize = self.bot.get_language_dict(ctx)
+        bot = self.bot
+        localize = bot.get_language_dict(ctx)
         author = ctx.message.author
-        proceed = True
-        prefix = get_prefix(
-            self.bot.cur, ctx.message.server, self.bot.default_prefix
+        prefix = get_prefix(bot.cur, ctx.message.server, bot.default_prefix)
+        if not await trivia_args_proceed(args, localize, author, prefix, bot):
+            return
+        trivia_data, kwargs = await trivia_kwargs_proceed(
+            args, bot, localize, self.trivia_api, prefix
         )
-        if not args:
-            await self.bot.say(localize['trivia_no_args'])
-            resp = await self.bot.wait_for_message(5, author=author)
-            prompt, proceed = trivia_no_arg_response(resp)
-            if prompt is not None:
-                out = localize[prompt]
-                if prompt == 'trivia_help':
-                    def f(x): return '\n'.join(list(x.__members__))
-
-                    out = out.format(f(Category), f(Diffculty), f(Type), prefix)
-                await self.bot.say(out)
-        if not proceed:
+        if trivia_data is None or kwargs is None:
             return
-        try:
-            kwargs = parse_trivia_arguments(args)
-        except ArgumentError:
-            await self.bot.say(localize['trivia_bad_args'].format(prefix))
-            return
-        trivia_data = get_trivia_data(kwargs, self.trivia_api)
-        if trivia_data is None:
-            await self.bot.say('trivia_error')
-            return
-        try:
-            bet = trivia_bet(
-                kwargs, self.bot.conn, self.bot.cur, author.id, self.bot.user.id
-            )
-        except TransferError:
-            await self.bot.say(
-                localize['low_balance'].format(
-                    get_balance(self.bot.cur, author.id)
-                )
-            )
+        bet = await trivia_bet_proceed(bot, kwargs, localize, author.id)
+        if bet is None:
             return
         embed, answer, answer_str, difficulty = format_trivia_question(
             trivia_data, localize
         )
         await self.bot.say(embed=embed)
         user_answer = await self.bot.wait_for_message(10, author=author)
-        if user_answer is None:
-            await self.bot.say(localize['trivia_timeount'].format(answer_str))
-            correct = False
-        elif user_answer.content.upper() != answer:
-            await self.bot.say(localize['trivia_wrong'].format(answer_str))
-            correct = False
-        else:
-            await self.bot.say(localize['trivia_correct'])
-            correct = True
+        correct = await handle_user_answer(
+            localize, bot, user_answer, answer, answer_str)
         if bet > 0:
             await self.bot.say(
                 trivia_handle_bet(

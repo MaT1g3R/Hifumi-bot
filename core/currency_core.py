@@ -315,3 +315,93 @@ def __generate_choices(correct, incorrect):
         if choice == correct:
             res_letter = letter
     return choices, res_letter
+
+
+async def trivia_args_proceed(args, localize, author, prefix, bot):
+    """
+    Check for empty user arguments for the irivia command
+    :param args: the arguments the user passed in
+    :param localize: the localization strings
+    :param author: the message author
+    :param prefix: the bot prefix
+    :param bot: the bot
+    :return: True if the command can proceed,
+    False if the command should terminate
+    """
+    proceed = True
+    if not args:
+        await bot.say(localize['trivia_no_args'])
+        resp = await bot.wait_for_message(5, author=author)
+        prompt, proceed = trivia_no_arg_response(resp)
+        if prompt is not None:
+            out = localize[prompt]
+            if prompt == 'trivia_help':
+                def f(x):
+                    return '\n'.join(list(x.__members__))
+
+                out = out.format(f(Category), f(Diffculty), f(Type), prefix)
+                await bot.say(localize['help_sent'])
+                await bot.whisper(out)
+            else:
+                await bot.say(out)
+    return proceed
+
+
+async def trivia_kwargs_proceed(args, bot, localize, trivia_api, prefix):
+    """
+    Generates trivia data and kwargs from the args the user passed in
+    :param args: the args the user passed in
+    :param bot: the bot
+    :param localize: the localization strings
+    :param trivia_api: the trovoa api
+    :param prefix: the bot prefix
+    :return: (trivia_data, kwargs)
+    """
+    try:
+        kwargs = parse_trivia_arguments(args)
+    except ArgumentError:
+        await bot.say(localize['trivia_bad_args'].format(prefix))
+        return None, None
+    trivia_data = get_trivia_data(kwargs, trivia_api)
+    if trivia_data is None:
+        await bot.say(localize['trivia_error'])
+    return trivia_data, kwargs
+
+
+async def trivia_bet_proceed(bot, kwargs, localize, user_id):
+    """
+    Find the amount of bet the user placed
+    :param bot: the bot
+    :param kwargs: the kwargs parsed from args user passed in
+    :param localize: the localization strings
+    :param user_id: the user id
+    :return: the amount of bet the user placed
+    """
+    try:
+        bet = trivia_bet(kwargs, bot.conn, bot.cur, user_id, bot.user.id)
+    except TransferError:
+        await bot.say(localize['low_balance'].format(
+            get_balance(bot.cur, user_id)))
+        bet = None
+    return bet
+
+
+async def handle_user_answer(localize, bot, user_answer, answer, answer_str):
+    """
+    Handle the user answer
+    :param localize: the localization strings
+    :param bot: the bot
+    :param user_answer: the user answer
+    :param answer: the correct answer
+    :param answer_str: the string representation of the correct answer
+    :return: True if the user answer is correct else False
+    """
+    if user_answer is None:
+        await bot.say(localize['trivia_timeount'].format(answer_str))
+        return False
+    elif user_answer.content.upper() != answer:
+        await bot.say(localize['trivia_wrong'].format(answer_str))
+        return False
+    else:
+        await bot.say(localize['trivia_correct'])
+        return True
