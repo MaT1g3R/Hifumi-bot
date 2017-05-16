@@ -154,18 +154,18 @@ def parse_trivia_arguments(args):
         raise ArgumentError
     res = {}
     for arg in args:
-        if arg in Category.__members__:
+        if arg.title() in Category.__members__:
             if 'category' in res:
                 raise ArgumentError
-            res['category'] = Category[arg]
-        elif arg in Type.__members__:
+            res['category'] = Category[arg.title()]
+        elif arg.title() in Type.__members__:
             if 'type' in res:
                 raise ArgumentError
-            res['type'] = Type[arg]
-        elif arg in Diffculty.__members__:
+            res['type'] = Type[arg.title()]
+        elif arg.title() in Diffculty.__members__:
             if 'diffculty' in res:
                 raise ArgumentError
-            res['diffculty'] = Diffculty[arg]
+            res['diffculty'] = Diffculty[arg.title()]
         else:
             try:
                 amount = round((float(arg)))
@@ -177,18 +177,18 @@ def parse_trivia_arguments(args):
     return res
 
 
-def get_trivia_question(args, api):
+def get_trivia_data(kwargs, api):
     """
     Get trivia question based on the user input
-    :param args: the arguments passed in by the user
+    :param kwargs: the parsed arguments passed in by the user
     :param api: an instance of Trivia
     :return: the trivia question
     """
-    kwargs = parse_trivia_arguments(args)
     category = kwargs['category'] if 'category' in kwargs else None
     type_ = kwargs['type'] if 'type' in kwargs else None
     diffculty = kwargs['diffculty'] if 'diffculty' in kwargs else None
-    return api.request(1, category, diffculty, type_)
+    res = api.request(1, category, diffculty, type_)
+    return res if res['response_code'] == 0 else None
 
 
 def format_trivia_question(trivia_data, localize):
@@ -229,7 +229,72 @@ def format_trivia_question(trivia_data, localize):
     else:
         answer = correct[:1]
         correct_str = correct
-    return build_embed(body, colour), answer, correct_str
+    return build_embed(body, colour), answer, correct_str, difficulty
+
+
+def trivia_no_arg_response(message):
+    """
+    Handles the case where trivia command didnt get any arguments
+    :param message: the discord message the user responded with
+    :return: (the response string for the bot, proceed)
+    """
+    if message is None:
+        return 'trivia_abort', False
+    else:
+        s = message.content.strip('"').lower()
+        if s == 'yes':
+            return None, True
+        elif s == 'help':
+            return 'trivia_help', False
+        else:
+            return 'trivia_abort', False
+
+
+def trivia_bet(kwargs, conn, cur, user_id, bot_id):
+    """
+    Handles the case where the user placed a bet on the trivia game
+    :param kwargs: the kwargs parsed from the user input
+    :param conn: the db connection
+    :param cur: the db cursor
+    :param user_id: the user id
+    :param bot_id: the bot id
+    :return: the amount of bet
+    :raises: TransferError if the user doesnt have enough money
+    """
+    amount = kwargs['amount'] if 'amount' in kwargs else 0
+    if amount > 0:
+        transfer_balance(conn, cur, user_id, bot_id, amount)
+    return amount
+
+
+def trivia_handle_bet(conn, cur, correct, difficulty,
+                      amount, user_id, bot_id, localize):
+    """
+    Handles the case where the user placed a bet on the trivia game and the
+    result has been determined.
+    :param conn: the db connection
+    :param cur: the db cursor
+    :param correct: if the user got the answer correct
+    :param difficulty: the game difficulty
+    :param amount: the amount of bet the user placed
+    :param user_id: the user id
+    :param bot_id: the bot id
+    :param localize: the localization strings
+    :return: the bot response string
+    """
+    if correct:
+        multiplier = {
+            "easy": 0.5,
+            "medium": 1,
+            "hard": 2
+        }[difficulty]
+        price = round(amount * multiplier)
+        delta = price
+        transfer_balance(conn, cur, bot_id, user_id, amount + price, False)
+    else:
+        delta = amount
+    key = 'trivia_correct_balance' if correct else 'trivia_wrong_balance'
+    return localize[key].format(delta, get_balance(cur, user_id))
 
 
 def __generate_choices(correct, incorrect):

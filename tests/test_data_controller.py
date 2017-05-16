@@ -339,6 +339,21 @@ class TestDataController(TestCase):
             self.assertEqual(amount, get_balance(self.cur, root))
             self.assertEqual(0, get_balance(self.cur, target))
 
+    def test_transfer_negative(self):
+        """
+        Test transfer_balance when the root goes in to debt(lol)
+        """
+        root = 'foo'
+        target = 'bar'
+        amount = choice(range(100, 300))
+        transfer_amonut = choice(range(500, 1000))
+        change_balance(self.conn, self.cur, root, amount)
+        transfer_balance(
+            self.conn, self.cur, root, target, transfer_amonut, False
+        )
+        self.assertEqual(amount - transfer_amonut, get_balance(self.cur, root))
+        self.assertEqual(transfer_amonut, get_balance(self.cur, target))
+
     def __insert_balance(self):
         """
         Insert a random balance into the db

@@ -311,7 +311,8 @@ def change_balance(connection, cursor, user_id: str, delta: int):
     connection.commit()
 
 
-def transfer_balance(connection, cursor, root_id, target_id, amount: int):
+def transfer_balance(connection, cursor, root_id, target_id, amount: int,
+                     check_balance=True):
     """
     Transfer x amout of money from root to target
     :param connection: the db connection
@@ -319,6 +320,7 @@ def transfer_balance(connection, cursor, root_id, target_id, amount: int):
     :param root_id: the root user id
     :param target_id: the target user id
     :param amount: the amout of transfer
+    :param check_balance: True to check if the root has enough balance
     :raises: TransferError if the root doesnt have enough money
     """
     sql_insert = '''
@@ -328,7 +330,7 @@ def transfer_balance(connection, cursor, root_id, target_id, amount: int):
     UPDATE currency SET balance = balance + ? WHERE user = ?
     '''
     root_balance = get_balance(cursor, root_id)
-    if root_balance < amount:
+    if root_balance < amount and check_balance:
         raise TransferError(str(root_balance))
     cursor.execute(sql_insert, [target_id])
     cursor.execute(sql_change, (-amount, root_id))
