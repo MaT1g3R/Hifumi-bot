@@ -3,174 +3,340 @@ from string import ascii_uppercase
 
 from pytrivia import Diffculty, Category, Type
 
-from core.currency_core import ArgumentError
-from core.data_controller import get_balance, TransferError, transfer_balance
+from core.data_controller import get_balance, transfer_balance, TransferError
 from core.discord_functions import build_embed, get_prefix
+from shell.hifumi import Hifumi
+
+
+class ArgumentError(ValueError):
+    pass
 
 
 class TriviaGame:
     """
-    A class to handle trivia commands
+    A class to handle the trivia command
     """
+    __slots__ = ['api', 'bot', 'args', 'channel', 'author', 'conn', 'cur',
+                 'localize', 'bet', 'prefix']
 
-    def __init__(self, api, bot, args, ctx):
+    def __init__(self, ctx, bot: Hifumi, args, api):
         """
-        Initialize an instance of TriviaGame
-        :param api: the trivia api
-        :param bot: the bot
-        :param args: the args the user passed in
+        Initialize an instance of this class
         :param ctx: the discord context
+        :param bot: the bot
+        :param args: the args the user passed in from trivia command
+        :param api: the trivia api
         """
         self.api = api
         self.bot = bot
-        self.localize = bot.get_language_dict(ctx)
+        self.prefix = get_prefix(
+            bot.cur, ctx.message.server, bot.default_prefix
+        )
         self.args = args
-        self.author = ctx.message.author
         self.channel = ctx.message.channel
-        self.kwargs = {}
-        self.trivia_data = None
-        self.embed = None
-        self.answer = None
-        self.answer_str = None
-        self.difficulty = None
-        self.prefix = get_prefix(self.bot.cur, ctx.message.server, self.bot.default_prefix)
-        self.amount = 0
+        self.author = ctx.message.author
+        self.conn = bot.conn
+        self.cur = bot.cur
+        self.localize = bot.get_language_dict(ctx)
+        self.bet = 0
 
-    def __parse_trivia_arguments(self):
-        if len(self.args) > 4:
-            raise ArgumentError
-        res = {}
-        for arg in self.args:
-            if arg.title() in Category.__members__:
-                if 'category' in res:
-                    raise ArgumentError
-                res['category'] = Category[arg.title()]
-            elif arg.title() in Type.__members__:
-                if 'type' in res:
-                    raise ArgumentError
-                res['type'] = Type[arg.title()]
-            elif arg.title() in Diffculty.__members__:
-                if 'diffculty' in res:
-                    raise ArgumentError
-                res['diffculty'] = Diffculty[arg.title()]
-            else:
-                try:
-                    amount = round((float(arg)))
-                except:
-                    raise ArgumentError
-                if amount < 0 or 'amount' in res:
-                    raise ArgumentError
-                res['amount'] = amount
-        self.kwargs = res
+    async def play(self):
+        """
+        Play the trivia game
+        """
+        if not self.args and not await self.__handle_no_args():
+            return
+        kwargs = await self.__get_kwargs()
+        if kwargs is None:
+            return
+        trivia_data = await self.__get_trivia_data(kwargs)
+        if not trivia_data:
+            return
+        if not await self.__process_bet(kwargs):
+            return
+        try:
+            embed, answer, correct_str, difficulty = _format_trivia(
+                trivia_data, self.localize
+            )
+            await self.bot.send_message(self.channel, embed=embed)
+            user_answer = await self.bot.wait_for_message(
+                10, author=self.author, channel=self.channel
+            )
+            correct = await self.__handle_answer(
+                user_answer, answer, correct_str
+            )
+            if self.bet > 0:
+                await self.bot.say(
+                    _handle_bet(
+                        conn=self.conn,
+                        cur=self.cur,
+                        correct=correct,
+                        difficulty=difficulty,
+                        amount=self.bet,
+                        user_id=self.author.id,
+                        bot_id=self.bot.user.id,
+                        localize=self.localize
+                    )
+                )
+        except Exception as e:
+            if self.bet > 0:
+                transfer_balance(
+                    self.conn, self.cur, self.bot.user.id,
+                    self.author.id, self.bet, False
+                )
+            raise e
 
-    def __get_trivia_data(self):
-        category = self.kwargs['category'] if 'category' in self.kwargs else None
-        type_ = self.kwargs['type'] if 'type' in self.kwargs else None
-        diffculty = self.kwargs['diffculty'] if 'diffculty' in self.kwargs else None
-        res = self.api.request(1, category, diffculty, type_)
-        self.trivia_data = res if res['response_code'] == 0 else None
+    async def __handle_no_args(self):
+        """
+        Handle the case where the user provided no arguments
+        :return: True if the user wish to proceed, else False
+        """
+        await self.bot.send_message(
+            self.channel, self.localize['trivia_no_args']
+        )
+        message = await self.bot.wait_for_message(
+            10, author=self.author, channel=self.channel
+        )
+        key, proceed = _no_args(message)
+        if key == 'trivia_abort':
+            await self.bot.send_message(self.channel, self.localize[key])
+        elif key == 'trivia_help':
+            def f(x):
+                return '\n'.join(list(x.__members__))
 
-    def __format_trivia_question(self):
-        result = self.trivia_data['results'][0]
-        question = result['question']
-        type_ = result['type']
-        category = result['category']
-        correct = result['correct_answer']
-        incorrect = result['incorrect_answers']
-        difficulty = result['difficulty']
-        is_multiple = type_ == 'multiple'
-        choice_str = self.localize['choices_str'] if is_multiple else self.localize['tf_str']
-        colour = {
-            "easy": 0x0baa00,
-            "medium": 0xeab31c,
-            "hard": 0xd10606
-        }[difficulty]
-        body = [
-            (self.localize['category'], category),
-            (self.localize['difficulty'], self.localize[difficulty]),
-            (self.localize['type'], self.localize[type_]),
-            (self.localize['question'], question, False),
-            (self.localize['choices'], choice_str, False)
-        ]
-        if is_multiple:
-            choices, answer = self.__generate_choices(correct, incorrect)
-            correct_str = answer + '. ' + correct
-            for choice in choices:
-                body += [
-                    (choice[0], choice[1])
-                ]
+            await self.bot.send_message(
+                self.channel, self.localize['help_sent']
+            )
+            await self.bot.send_message(
+                self.author, self.localize[key].format(
+                    f(Category), f(Diffculty), f(Type), self.prefix
+                )
+            )
+        return proceed
+
+    async def __get_kwargs(self):
+        """
+        Get the kwargs from the args user passed in
+        """
+        try:
+            return _parse_args(self.args)
+        except ArgumentError:
+            await self.bot.send_message(
+                self.channel,
+                self.localize['trivia_bad_args'].format(self.prefix)
+            )
+
+    async def __get_trivia_data(self, kwargs):
+        """
+        Get the trivia data from kwargs
+        :return: the trivia data
+        """
+        trivia_data = _get_trivia_data(kwargs, self.api)
+        if trivia_data is None:
+            await self.bot.send_message(
+                self.channel, self.localize['trivia_error']
+            )
+        return trivia_data
+
+    async def __process_bet(self, kwargs):
+        """
+        Process the amount of bet the user placed
+        :param kwargs: the kwargs parsed from args
+        :return: True if the user has enough money else False
+        """
+        bet = kwargs['amount'] if 'amount' in kwargs else 0
+        if bet > 0:
+            try:
+                transfer_balance(
+                    self.conn, self.cur, self.author.id, self.bot.user.id, bet
+                )
+                self.bet = bet
+                return True
+            except TransferError:
+                await self.bot.send_message(
+                    self.channel, self.localize['low_balance'].format(
+                        get_balance(self.cur, self.author.id)
+                    )
+                )
+                return False
+        return True
+
+    async def __handle_answer(self, user_answer, answer, correct_str):
+        """
+        Handle the user answer
+        :param user_answer: the user answer
+        :param answer: the correct answer
+        :param correct_str: the correct answer string
+        :return: True if the user answer is correct else False
+        """
+        if user_answer is None:
+            await self.bot.send_message(
+                self.channel, self.localize['trivia_timeount'].format(
+                    correct_str
+                )
+            )
+            return False
+        elif user_answer.content.upper() != answer:
+            await self.bot.send_message(
+                self.channel, self.localize['trivia_wrong'].format(correct_str)
+            )
+            return False
         else:
-            answer = correct[:1]
-            correct_str = correct
-        self.embed = build_embed(body, colour)
-        self.answer = answer
-        self.answer_str = correct_str
-        self.difficulty = difficulty
-
-    @staticmethod
-    def __generate_choices(correct, incorrect):
-        """
-        Generate choices based on the correct and incorrect answers
-        :param correct: the correct answer
-        :param incorrect: the incorrects answers
-        :return: ([list of strings representing the choices], correct answer letter)
-        """
-        all_choices = [correct] + incorrect
-        shuffle(all_choices)
-        choices = []
-        res_letter = ''
-        for i in range(len(all_choices)):
-            choice = all_choices[i]
-            letter = ascii_uppercase[i]
-            choices.append((letter, choice))
-            if choice == correct:
-                res_letter = letter
-        return choices, res_letter
-
-    @staticmethod
-    def __trivia_no_arg_response(message):
-        """
-        Handles the case where trivia command didnt get any arguments
-        :param message: the discord message the user responded with
-        :return: (the response string for the bot, proceed)
-        """
-        if message is None:
-            return 'trivia_abort', False
-        else:
-            s = message.content.strip('"').lower()
-            if s == 'yes':
-                return None, True
-            elif s == 'help':
-                return 'trivia_help', False
-            else:
-                return 'trivia_abort', False
-
-    def __set__trivia_bet(self):
-        """
-        Handles the case where the user placed a bet on the trivia game
-        :raises: TransferError if the user doesnt have enough money
-        """
-        amount = self.kwargs['amount'] if 'amount' in self.kwargs else 0
-        if amount > 0:
-            transfer_balance(self.bot.conn, self.bot.cur, self.author.id, self.bot.user.id, amount)
-        self.amount = amount
+            await self.bot.send_message(
+                self.channel, self.localize['trivia_correct']
+            )
+            return True
 
 
-def trivia_handle_bet(conn, cur, correct, difficulty,
-                      amount, user_id, bot_id, localize):
+def _parse_args(args):
     """
-    Handles the case where the user placed a bet on the trivia game and the
-    result has been determined.
-    :param conn: the db connection
-    :param cur: the db cursor
-    :param correct: if the user got the answer correct
-    :param difficulty: the game difficulty
-    :param amount: the amount of bet the user placed
-    :param user_id: the user id
-    :param bot_id: the bot id
+    Parse the user input arguments into kwargs
+    :param args: the user input args
+    :return: the parsed kwargs
+    :raises: ArgumentError if there are bad args
+    """
+    if len(args) > 4:
+        raise ArgumentError
+    res = {}
+    for arg in args:
+        if arg.title() in Category.__members__:
+            if 'category' in res:
+                raise ArgumentError
+            res['category'] = Category[arg.title()]
+        elif arg.title() in Type.__members__:
+            if 'type' in res:
+                raise ArgumentError
+            res['type'] = Type[arg.title()]
+        elif arg.title() in Diffculty.__members__:
+            if 'diffculty' in res:
+                raise ArgumentError
+            res['diffculty'] = Diffculty[arg.title()]
+        else:
+            try:
+                amount = round((float(arg)))
+            except:
+                raise ArgumentError
+            if amount < 0 or 'amount' in res:
+                raise ArgumentError
+            res['amount'] = amount
+    return res
+
+
+def _no_args(message):
+    """
+    Handle the case where the user input no arguments
+    :param message: the user message after the prompt
+    :return: (key, proceed)
+    """
+    if message is None:
+        return 'trivia_abort', False
+    else:
+        s = message.content.strip('"').lower()
+        if s == 'yes':
+            return None, True
+        elif s == 'help':
+            return 'trivia_help', False
+        else:
+            return 'trivia_abort', False
+
+
+def _get_trivia_data(kwargs, api):
+    """
+    Get the trivia data from the api
+    :param kwargs: the kwargs parsed from user input args
+    :param api: the trivia api
+    :return: the api response
+    """
+    category = kwargs['category'] if 'category' in kwargs else None
+    type_ = kwargs['type'] if 'type' in kwargs else None
+    diffculty = kwargs['diffculty'] if 'diffculty' in kwargs else None
+    res = api.request(1, category, diffculty, type_)
+    return res if res['response_code'] == 0 else None
+
+
+def __generate_choices(correct, incorrect):
+    """
+    Generate choices from correct and incorrect answers
+    :param correct: the correct answer
+    :param incorrect: the incorrect answers
+    :return: a list of shuffled answers
+    """
+    all_choices = [correct] + incorrect
+    shuffle(all_choices)
+    choices = []
+    res_letter = ''
+    for i in range(len(all_choices)):
+        choice = all_choices[i]
+        letter = ascii_uppercase[i]
+        choices.append((letter, choice))
+        if choice == correct:
+            res_letter = letter
+    return choices, res_letter
+
+
+def _format_trivia(trivia_data, localize):
+    """
+    Format trivia data in an discord embed object
+    :param trivia_data: the trivia data
     :param localize: the localization strings
+    :return: (embed, answer, correct_str, difficulty)
+    """
+    result = trivia_data['results'][0]
+    question = result['question']
+    type_ = result['type']
+    category = result['category']
+    correct = result['correct_answer']
+    incorrect = result['incorrect_answers']
+    difficulty = result['difficulty']
+    is_multiple = type_ == 'multiple'
+    choice_str = localize['choices_str'] if is_multiple else localize['tf_str']
+    colour = {
+        "easy": 0x0baa00,
+        "medium": 0xeab31c,
+        "hard": 0xd10606
+    }[difficulty]
+    body = [
+        (localize['category'], category),
+        (localize['difficulty'], localize[difficulty]),
+        (localize['type'], localize[type_]),
+        (localize['question'], question, False),
+        (localize['choices'], choice_str, False)
+    ]
+    if is_multiple:
+        choices, answer = __generate_choices(correct, incorrect)
+        correct_str = answer + '. ' + correct
+        for choice in choices:
+            body += [
+                (choice[0], choice[1])
+            ]
+    else:
+        answer = correct[:1]
+        correct_str = correct
+    return build_embed(body, colour), answer, correct_str, difficulty
+
+
+def _handle_bet(**kwargs):
+    """
+    Handle the trivia outcome if the user placed a bet
+    :param kwargs: see below for details
+    :key conn: the db connection
+    :key cur:  the db cursor
+    :key correct: if the answer was correct or not
+    :key difficulty: the difficulty of the answer
+    :key amount: the amount of bet
+    :key user_id: the user id
+    :key bot_id: the bot id
+    :key localize: the localization strings
     :return: the bot response string
     """
+    conn = kwargs['conn']
+    cur = kwargs['cur']
+    correct = kwargs['correct']
+    difficulty = kwargs['difficulty']
+    amount = kwargs['amount']
+    user_id = kwargs['user_id']
+    bot_id = kwargs['bot_id']
+    localize = kwargs['localize']
     if correct:
         multiplier = {
             "easy": 0.5,
@@ -184,109 +350,3 @@ def trivia_handle_bet(conn, cur, correct, difficulty,
         delta = amount
     key = 'trivia_correct_balance' if correct else 'trivia_wrong_balance'
     return localize[key].format(delta, get_balance(cur, user_id))
-
-
-async def trivia_args_proceed(ctx, args, bot, trivia_api):
-    """
-    Check for empty user arguments for the irivia command
-    :param ctx: the discord context
-    :param args: the arguments the user passed in
-    :param bot: the bot
-    :return: True if the command can proceed,
-    False if the command should terminate
-    """
-    localize = bot.get_language_dict(ctx)
-    author = ctx.message.author
-    prefix = get_prefix(bot.cur, ctx.message.server, bot.default_prefix)
-    proceed = True
-    if not args:
-        await bot.say(localize['trivia_no_args'])
-        resp = await bot.wait_for_message(5, author=author)
-        prompt, proceed = trivia_no_arg_response(resp)
-        if prompt is not None:
-            out = localize[prompt]
-            if prompt == 'trivia_help':
-                def f(x):
-                    return '\n'.join(list(x.__members__))
-
-                out = out.format(f(Category), f(Diffculty), f(Type), prefix)
-                await bot.say(localize['help_sent'])
-                await bot.whisper(out)
-            else:
-                await bot.say(out)
-    if proceed:
-        await trivia_kwargs_proceed(ctx, args, bot, localize, prefix,
-                                    trivia_api)
-
-
-async def trivia_kwargs_proceed(ctx, args, bot, localize, prefix, trivia_api):
-    """
-    Generates trivia data and kwargs from the args the user passed in
-    :param args: the args the user passed in
-    :param bot: the bot
-    :param localize: the localization strings
-    :param trivia_api: the trovoa api
-    :param prefix: the bot prefix
-    :return: (trivia_data, kwargs)
-    """
-    try:
-        kwargs = parse_trivia_arguments(args)
-    except ArgumentError:
-        await bot.say(localize['trivia_bad_args'].format(prefix))
-        return None
-    trivia_data = get_trivia_data(kwargs, trivia_api)
-    if trivia_data is None:
-        await bot.say(localize['trivia_error'])
-        return None
-    await trivia_bet_proceed(ctx, bot, kwargs, localize, trivia_data)
-
-
-async def trivia_bet_proceed(ctx, bot, kwargs, localize, trivia_data):
-    """
-    Find the amount of bet the user placed
-    :param bot: the bot
-    :param kwargs: the kwargs parsed from args user passed in
-    :param localize: the localization strings
-    :return: the amount of bet the user placed
-    """
-    author = ctx.message.author
-    try:
-        bet = trivia_bet(kwargs, bot.conn, bot.cur, author.id, bot.user.id)
-        await handle_user_answer(bot, bet, localize, author, trivia_data)
-    except TransferError:
-        await bot.say(localize['low_balance'].format(
-            get_balance(bot.cur, author.id)))
-        return None
-
-
-async def handle_user_answer(bot, bet, localize, author, trivia_data):
-    """
-    Handle the user answer
-    :param localize: the localization strings
-    :param bot: the bot
-    :param bet: the amount of bet the user placed
-    :param trivia_data: the trivia data
-    :param author: the message author
-    :return: True if the user answer is correct else False
-    """
-    embed, answer, answer_str, difficulty = format_trivia_question(
-        trivia_data, localize
-    )
-    await bot.say(embed=embed)
-    user_answer = await bot.wait_for_message(10, author=author)
-    if user_answer is None:
-        await bot.say(localize['trivia_timeount'].format(answer_str))
-        correct = False
-    elif user_answer.content.upper() != answer:
-        await bot.say(localize['trivia_wrong'].format(answer_str))
-        correct = False
-    else:
-        await bot.say(localize['trivia_correct'])
-        correct = True
-    if bet > 0:
-        await bot.say(
-            trivia_handle_bet(
-                bot.conn, bot.cur, correct,
-                difficulty, bet, author.id, bot.user.id, localize
-            )
-        )

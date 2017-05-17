@@ -3,8 +3,9 @@ from discord.ext import commands
 from pytrivia import Trivia
 
 from core.currency_core import daily, transfer, slots_setup, roll_slots, \
-    determine_slot_result, trivia_args_proceed
+    determine_slot_result
 from core.data_controller import get_balance, change_balance
+from core.trivia_core import TriviaGame
 from shell.hifumi import Hifumi
 
 
@@ -124,4 +125,8 @@ class Currency:
             There can be at most 4 arguments:
                 Type, Diffculty, Category, Amount(of bet)
         """
-        await trivia_args_proceed(ctx, args, self.bot, self.trivia_api)
+        try:
+            await TriviaGame(ctx, self.bot, args, self.trivia_api).play()
+        except:
+            from traceback import print_exc
+            print_exc()
