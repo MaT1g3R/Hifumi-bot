@@ -3,11 +3,9 @@ from discord.ext import commands
 from pytrivia import Trivia
 
 from core.currency_core import daily, transfer, slots_setup, roll_slots, \
-    determine_slot_result, format_trivia_question, trivia_handle_bet, \
-    trivia_args_proceed, trivia_kwargs_proceed, trivia_bet_proceed, \
-    handle_user_answer
+    determine_slot_result
 from core.data_controller import get_balance, change_balance
-from core.discord_functions import get_prefix
+from core.trivia_core import TriviaGame
 from shell.hifumi import Hifumi
 
 
@@ -127,32 +125,8 @@ class Currency:
             There can be at most 4 arguments:
                 Type, Diffculty, Category, Amount(of bet)
         """
-        localize = self.bot.get_language_dict(ctx)
-        author = ctx.message.author
-        prefix = get_prefix(self.bot.cur, ctx.message.server,
-                            self.bot.default_prefix)
-        if not await trivia_args_proceed(args, localize, author,
-                                         prefix, self.bot):
-            return
-        trivia_data, kwargs = await trivia_kwargs_proceed(
-            args, self.bot, localize, self.trivia_api, prefix
-        )
-        if trivia_data is None or kwargs is None:
-            return
-        bet = await trivia_bet_proceed(self.bot, kwargs, localize, author.id)
-        if bet is None:
-            return
-        embed, answer, answer_str, difficulty = format_trivia_question(
-            trivia_data, localize
-        )
-        await self.bot.say(embed=embed)
-        user_answer = await self.bot.wait_for_message(10, author=author)
-        correct = await handle_user_answer(
-            localize, self.bot, user_answer, answer, answer_str)
-        if bet > 0:
-            await self.bot.say(
-                trivia_handle_bet(
-                    self.bot.conn, self.bot.cur, correct, difficulty,
-                    bet, author.id, self.bot.user.id, localize
-                )
-            )
+        try:
+            await TriviaGame(ctx, self.bot, args, self.trivia_api).play()
+        except:
+            from traceback import print_exc
+            print_exc()
