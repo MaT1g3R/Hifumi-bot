@@ -125,8 +125,4 @@ class Currency:
             There can be at most 4 arguments:
                 Type, Diffculty, Category, Amount(of bet)
         """
-        try:
-            await TriviaGame(ctx, self.bot, args, self.trivia_api).play()
-        except:
-            from traceback import print_exc
-            print_exc()
+        await TriviaGame(ctx, self.bot, args, self.trivia_api).play()
