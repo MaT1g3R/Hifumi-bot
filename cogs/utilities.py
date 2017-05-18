@@ -31,32 +31,20 @@ class Utilities:
             )
         )
 
-    @commands.command()
-    async def anime(self):
-        pass
-
-    @commands.command()
-    async def avatar(self):
-        pass
-
-    @commands.command()
-    async def birthday(self):
-        pass
-
-    @commands.command()
+    @commands.group()
     async def fact(self):
         pass
 
-    @commands.command()
-    async def catfact(self):
+    @fact.command()
+    async def cat(self):
         pass
 
-    @commands.command()
-    async def dogfact(self):
+    @fact.command()
+    async def dog(self):
         pass
 
-    @commands.command()
-    async def numberfact(self):
+    @fact.command()
+    async def number(self):
         pass
 
     @commands.command()
@@ -64,19 +52,7 @@ class Utilities:
         pass
 
     @commands.command()
-    async def manga(self):
-        pass
-
-    @commands.command()
-    async def nicknames(self):
-        pass
-
-    @commands.command()
     async def remindme(self):
-        pass
-
-    @commands.command()
-    async def serverinfo(self):
         pass
 
     @commands.command()
@@ -89,10 +65,6 @@ class Utilities:
 
     @commands.command()
     async def twitch(self):
-        pass
-
-    @commands.command()
-    async def userinfo(self):
         pass
 
     @commands.command()

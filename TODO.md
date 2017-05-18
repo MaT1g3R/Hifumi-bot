@@ -53,15 +53,15 @@ tickle              ✕
 * osu/setosu moved to its own category
 * shorten removed cuz I said so
 * anime/manga moved to its own category
-* serverinfo/userinfo/avatar/birthday moved to its own category
+* serverinfo/userinfo/avatar/birthday/nicknames moved to its own category
+* fact commands made into command group
 ```
 advice              ✔
 fact                ✕
-catfact             ✕
-dogfact             ✕
-numberfact *new     ✕
+fact cat            ✕
+fact dog            ✕
+fact number *new    ✕
 imdb                ✕
-nicknames           ✕
 remindme            ✕
 strawpoll           ✕
 time                ✕
@@ -80,7 +80,7 @@ selfrole remove	    ✔
 ```
 5. Moderation :white_check_mark:
 * setlevel removed in favour of role based permissions
-* Mod log function is ~~planned~~ finished
+* Mod log function is finished
 ```
 ban                 ✔
 kick                ✔
@@ -186,6 +186,7 @@ manga               ✕
 ```
 avatar              ✕
 birthday            ✕
+nicknames           ✕
 serverinfo          ✕
 userinfo            ✕
 ```
