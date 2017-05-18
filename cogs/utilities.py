@@ -3,6 +3,7 @@ from json import loads
 from discord.ext import commands
 from requests import get
 
+from core.discord_functions import get_prefix
 from shell.hifumi import Hifumi
 
 
@@ -31,8 +32,27 @@ class Utilities:
             )
         )
 
-    @commands.group()
-    async def fact(self):
+    @commands.group(pass_context=True)
+    async def fact(self, ctx):
+        """
+        Command group for all the facts commands. If no subcommand is invoked
+        the bot will say the list of subcommands.
+
+        :param ctx: the discord context
+        """
+        if ctx.invoked_subcommand is None:
+            await self.bot.say(
+                self.bot.get_language_dict(ctx)['fact_list'].format(
+                    get_prefix(
+                        self.bot.cur, ctx.message.server,
+                        self.bot.default_prefix
+                    ),
+                    '\n'.join(tuple(self.fact.commands.keys()))
+                )
+            )
+
+    @fact.command()
+    async def fun(self):
         pass
 
     @fact.command()
@@ -45,6 +65,8 @@ class Utilities:
 
     @fact.command()
     async def number(self):
+        # http://numbersapi.com/foo?json=true
+        # http://numbersapi.com/random?json=true
         pass
 
     @commands.command()

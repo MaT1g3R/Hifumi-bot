@@ -176,7 +176,7 @@ osu                 ✕
 setosu              ✕
 ```
 
-13. Anime
+13. Weeb
 ```
 anime               ✕
 manga               ✕
