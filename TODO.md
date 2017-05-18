@@ -31,7 +31,6 @@ roll                ✕
 rps                 ✕
 say                 ✕
 smug                ✕
-slots               ✕
 triggered           ✕  
 xkcd                ✕
 yomomma             ✕
@@ -51,26 +50,22 @@ stare               ✕
 tickle              ✕
 ```
 3. Utilities/Search
+* osu/setosu moved to its own category
+* shorten removed cuz I said so
+* anime/manga moved to its own category
+* serverinfo/userinfo/avatar/birthday moved to its own category
 ```
-advice              ✕
-anime               ✕
-avatar              ✕
-birthday            ✕
+advice              ✔
 fact                ✕
 catfact             ✕
 dogfact             ✕
+numberfact *new     ✕
 imdb                ✕
-osu                 ✕
-setosu              ✕
-manga               ✕
 nicknames           ✕
 remindme            ✕
-serverinfo          ✕
-shorten             ✕
 strawpoll           ✕
 time                ✕
 twitch              ✕
-userinfo            ✕
 urban               ✕
 weather             ✕
 yesno               ✕
@@ -173,6 +168,26 @@ transfer            ✔
 market              ✕
 slots               ✔
 trivia              ✔
+```
+
+12. Osu
+```
+osu                 ✕
+setosu              ✕
+```
+
+13. Anime
+```
+anime               ✕
+manga               ✕
+```
+
+14. User/Server Info
+```
+avatar              ✕
+birthday            ✕
+serverinfo          ✕
+userinfo            ✕
 ```
 
 ## 4. New features
