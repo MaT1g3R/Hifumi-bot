@@ -171,8 +171,8 @@ daily               ✔
 balance             ✔
 transfer            ✔
 market              ✕
-slots               ✕
-trivia              ✕
+slots               ✔
+trivia              ✔
 ```
 
 ## 4. New features

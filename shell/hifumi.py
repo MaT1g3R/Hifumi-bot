@@ -145,6 +145,20 @@ class Hifumi(Bot):
             for dev in [await self.get_user_info(i) for i in OWNER]:
                 await self.send_message(dev, msg)
 
+    @coroutine
+    async def process_commands(self, message):
+        """
+        Overwrites the process_commands method
+        to provide command black list support.
+        Check :func:`Bot.process_commands` for more details.
+        """
+        if message.author.bot:
+            return
+        prefix = get_prefix(self.cur, message.server, self.default_prefix)
+        name = message.content.split(' ')[0][len(prefix):]
+        # TODO Implement command black list
+        await super().process_commands(message)
+
     def start_bot(self, cogs: list, token):
         """
         Start the bot
