@@ -11,7 +11,7 @@ class Utilities:
     """
     Class for Utilities/Search commands
     """
-    __slots__ = ['bot']
+    __slots__ = ['bot', 'cat_count']
 
     def __init__(self, bot: Hifumi):
         """
@@ -19,6 +19,7 @@ class Utilities:
         :param bot: the bot object
         """
         self.bot = bot
+        self.cat_count = None
 
     @commands.command()
     async def advice(self):
@@ -52,15 +53,13 @@ class Utilities:
             )
 
     @fact.command()
-    async def fun(self):
-        pass
-
-    @fact.command()
     async def cat(self):
+        # http://www.catfact.info/api/v1/facts.json?page=583&per_page=1
         pass
 
     @fact.command()
     async def dog(self):
+        # https://dog-api.kinduff.com/api/facts
         pass
 
     @fact.command()

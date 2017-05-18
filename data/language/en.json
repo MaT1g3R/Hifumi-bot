@@ -138,5 +138,6 @@
   "trivia_correct_balance": "You gained **{}** credits. Your new balance is **{}** credits.",
   "trivia_wrong_balance": "You lost **{}** credits. Your new balance is **{}** credits.",
   "help_sent": ":white_check_mark: Help has been sent to you via DM.",
-  "fact_list": "To get a fact, please use `{}fact factname`. The current list of available facts are:```\n{}\n```"
+  "fact_list": "To get a fact, please use `{}fact factname`. The current list of available facts are:```\n{}\n```",
+  "": ""
 }
