@@ -16,7 +16,7 @@ def get_prefix(cursor, server_id: str):
     :return: the server prefix if found else none
     """
     sql = '''SELECT prefix FROM prefix WHERE server=?'''
-    res = cursor.execute(sql, [server_id]).fetchone()
+    res = cursor.execute(sql, (server_id,)).fetchone()
     return res[0] if res is not None else None
 
 
@@ -43,7 +43,7 @@ def delete_prefix(connection, cursor, server_id: str):
     sql_delete = '''
     DELETE FROM prefix WHERE server=?
     '''
-    cursor.execute(sql_delete, [server_id])
+    cursor.execute(sql_delete, (server_id,))
     connection.commit()
 
 
@@ -100,7 +100,7 @@ def fuzzy_match_tag(cursor, site, tag):
     WHERE (tag LIKE '{0}%' OR tag LIKE '%{0}%' OR tag LIKE '%{0}') 
     AND site=?
     """.format(tag)
-    res = cursor.execute(sql, [site]).fetchone()
+    res = cursor.execute(sql, (site,)).fetchone()
     return res[0] if res is not None else None
 
 
@@ -112,7 +112,7 @@ def get_language(cursor, server_id: str):
     :return: the server language if found else none
     """
     sql = '''SELECT lan FROM language WHERE server=?'''
-    res = cursor.execute(sql, [server_id]).fetchone()
+    res = cursor.execute(sql, (server_id,)).fetchone()
     return res[0] if res is not None else None
 
 
@@ -139,7 +139,7 @@ def delete_language(connection, cursor, server_id: str):
     sql_delete = '''
     DELETE FROM language WHERE server=?
     '''
-    cursor.execute(sql_delete, [server_id])
+    cursor.execute(sql_delete, (server_id,))
     connection.commit()
 
 
@@ -167,7 +167,7 @@ def remove_role(connection, cursor, server_id: str, role: str):
     sql = '''
     DELETE FROM roles WHERE server=? AND role=?
     '''
-    cursor.execute(sql, [server_id, role])
+    cursor.execute(sql, (server_id, role))
     connection.commit()
 
 
@@ -181,7 +181,7 @@ def get_role_list(cursor, server_id: str):
     sql = '''
     SELECT role FROM roles WHERE server=?
     '''
-    cursor.execute(sql, [server_id])
+    cursor.execute(sql, (server_id,))
     return [i[0] for i in cursor.fetchall()]
 
 
@@ -209,7 +209,7 @@ def get_mod_log(cursor, server_id: str):
     sql = '''
     SELECT channel FROM mod_log WHERE server=?
     '''
-    cursor.execute(sql, [server_id])
+    cursor.execute(sql, (server_id,))
     return [i[0] for i in cursor.fetchall()]
 
 
@@ -224,7 +224,7 @@ def remove_mod_log(connection, cursor, server_id: str, channel_id: str):
     sql = '''
     DELETE FROM mod_log WHERE server=? AND channel=?
     '''
-    cursor.execute(sql, [server_id, channel_id])
+    cursor.execute(sql, (server_id, channel_id))
     connection.commit()
 
 
@@ -240,7 +240,7 @@ def add_warn(connection, cursor, server_id: str, user_id: str):
     sql = '''
     UPDATE warns SET number = number + 1 WHERE server = ? AND user = ?
     '''
-    cursor.execute(sql_insert, [server_id, user_id])
+    cursor.execute(sql_insert, (server_id, user_id))
     cursor.execute(sql, [server_id, user_id])
     connection.commit()
 
@@ -257,7 +257,7 @@ def remove_warn(connection, cursor, server_id: str, user_id: str):
     UPDATE warns SET number = number - 1 
     WHERE server = ? AND user = ? AND number > 0
     '''
-    cursor.execute(sql, [server_id, user_id])
+    cursor.execute(sql, (server_id, user_id))
     connection.commit()
 
 
@@ -272,7 +272,7 @@ def get_warn(cursor, server_id: str, user_id: str):
     sql = '''
     SELECT number FROM warns WHERE server = ? AND user = ?
     '''
-    cursor.execute(sql, [server_id, user_id])
+    cursor.execute(sql, (server_id, user_id))
     result = cursor.fetchone()
     return result[0] if result is not None else 0
 
@@ -287,7 +287,7 @@ def get_balance(cursor, user_id: str):
     sql = '''
     SELECT balance FROM currency WHERE user = ?
     '''
-    cursor.execute(sql, [user_id])
+    cursor.execute(sql, (user_id,))
     res = cursor.fetchone()
     return res[0] if res is not None else 0
 
@@ -306,8 +306,8 @@ def change_balance(connection, cursor, user_id: str, delta: int):
     sql_change = '''
     UPDATE currency SET balance = balance + ? WHERE user = ?
     '''
-    cursor.execute(sql_insert, [user_id])
-    cursor.execute(sql_change, [delta, user_id])
+    cursor.execute(sql_insert, (user_id,))
+    cursor.execute(sql_change, (delta, user_id))
     connection.commit()
 
 
@@ -332,7 +332,7 @@ def transfer_balance(connection, cursor, root_id, target_id, amount: int,
     root_balance = get_balance(cursor, root_id)
     if root_balance < amount and check_balance:
         raise TransferError(str(root_balance))
-    cursor.execute(sql_insert, [target_id])
+    cursor.execute(sql_insert, (target_id,))
     cursor.execute(sql_change, (-amount, root_id))
     cursor.execute(sql_change, (amount, target_id))
     connection.commit()
@@ -348,7 +348,7 @@ def get_daily(cursor, user_id: str):
     sql = '''
     SELECT daily FROM currency WHERE user = ?
     '''
-    cursor.execute(sql, [user_id])
+    cursor.execute(sql, (user_id,))
     res = cursor.fetchone()
     return res[0] if res is not None else None
 
@@ -366,6 +366,6 @@ def set_daily(connection, cursor, user_id: str):
     sql_update = '''
     UPDATE currency SET daily = ? WHERE user = ?
     '''
-    cursor.execute(sql_insert, [user_id])
-    cursor.execute(sql_update, [int(time()), user_id])
+    cursor.execute(sql_insert, (user_id,))
+    cursor.execute(sql_update, (int(time()), user_id))
     connection.commit()
