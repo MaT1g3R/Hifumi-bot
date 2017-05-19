@@ -66,17 +66,26 @@ def get_prefix(cur, server, default_prefix):
 def build_embed(content: list, colour, **kwargs):
     """
     Build a discord embed object 
+
     :param content: list of tuples with as such:
         (name, value, *optional: Inline)
         If inline is not provided it defaults to true
+
     :param colour: the colour of the embed
+
     :param kwargs: extra options
-        author: a dictionary to supply author info as such:
-            {
-                'name': author name,
-                'icon_url': icon url, optional
-            }
-        footer: the info_footer for the embed, optional
+
+    :key author: a dictionary to supply author info as such:
+        {
+            'name': author name,
+            'icon_url': icon url, optional
+        }
+    :key footer: the footer for the embed as a string for pure text
+                 or a dict as such:
+        {
+            'text': the footer text,
+            'icon_url': the footer icon url, optional
+        }
     :return: a discord embed object
     """
     res = Embed(colour=colour)
@@ -103,7 +112,6 @@ def build_embed(content: list, colour, **kwargs):
             )
         else:
             res.set_footer(text=kwargs['footer']['text'])
-
     return res
 
 

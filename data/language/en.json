@@ -113,7 +113,7 @@
   "currency_bad_num": ":no_entry_sign: Please enter a number greater than 0.",
   "slots_header": ":game_die: You pulled the lever, the slot machine starts to spin...",
   "slots_win": "**Congratulations!** You won and **{}** credits is added to your account.",
-  "slots_draw": ":thinking: You didn't gain or loose any credits.",
+  "slots_draw": ":thinking: You didn't gain or lose any credits.",
   "slots_loose": "**Bad luck!** You lost and **{}** credits is deducted from your account.",
   "new_balance": "Your new balance: **{}**",
   "trivia_bad_args": ":no_entry_sign: Sorry! You provided invalid arguments for this command. Please consult **{}help trivia**",
@@ -137,5 +137,7 @@
   "trivia_correct": ":white_check_mark: Congratulations! Your answer is correct.",
   "trivia_correct_balance": "You gained **{}** credits. Your new balance is **{}** credits.",
   "trivia_wrong_balance": "You lost **{}** credits. Your new balance is **{}** credits.",
-  "help_sent": ":white_check_mark: Help has been sent to you via DM."
+  "help_sent": ":white_check_mark: Help has been sent to you via DM.",
+  "fact_list": "To get a fact, please use `{}fact factname`. The current list of available facts are:```\n{}\n```",
+  "": ""
 }

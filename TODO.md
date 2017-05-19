@@ -31,7 +31,6 @@ roll                ✕
 rps                 ✕
 say                 ✕
 smug                ✕
-slots               ✕
 triggered           ✕  
 xkcd                ✕
 yomomma             ✕
@@ -51,26 +50,22 @@ stare               ✕
 tickle              ✕
 ```
 3. Utilities/Search
+* osu/setosu moved to its own category
+* shorten removed cuz I said so
+* anime/manga moved to its own category
+* serverinfo/userinfo/avatar/birthday/nicknames moved to its own category
+* fact commands made into command group
 ```
-advice              ✕
-anime               ✕
-avatar              ✕
-birthday            ✕
+advice              ✔
 fact                ✕
-catfact             ✕
-dogfact             ✕
+fact cat            ✕
+fact dog            ✕
+fact number *new    ✕
 imdb                ✕
-osu                 ✕
-setosu              ✕
-manga               ✕
-nicknames           ✕
 remindme            ✕
-serverinfo          ✕
-shorten             ✕
 strawpoll           ✕
 time                ✕
 twitch              ✕
-userinfo            ✕
 urban               ✕
 weather             ✕
 yesno               ✕
@@ -85,7 +80,7 @@ selfrole remove	    ✔
 ```
 5. Moderation :white_check_mark:
 * setlevel removed in favour of role based permissions
-* Mod log function is ~~planned~~ finished
+* Mod log function is finished
 ```
 ban                 ✔
 kick                ✔
@@ -173,6 +168,27 @@ transfer            ✔
 market              ✕
 slots               ✔
 trivia              ✔
+```
+
+12. Osu
+```
+osu                 ✕
+setosu              ✕
+```
+
+13. Weeb
+```
+anime               ✕
+manga               ✕
+```
+
+14. User/Server Info
+```
+avatar              ✕
+birthday            ✕
+nicknames           ✕
+serverinfo          ✕
+userinfo            ✕
 ```
 
 ## 4. New features
