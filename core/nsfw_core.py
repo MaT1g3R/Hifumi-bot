@@ -8,7 +8,7 @@ from random import choice
 from pybooru import Danbooru, PybooruAPIError
 from requests import get, ConnectionError, HTTPError
 
-from core.data_controller import write_tag, fuzzy_match_tag, tag_in_db
+from .data_controller import write_tag_, fuzzy_match_tag_, tag_in_db_
 
 SEARCH = '//post.json?tags={}'
 
@@ -32,10 +32,10 @@ def tag_finder(cur, site, tag):
     :return: (tag, is_fuzzy)
     :rtype: tuple
     """
-    if tag_in_db(cur, site, tag):
+    if tag_in_db_(cur, site, tag):
         return tag, False
     else:
-        return fuzzy_match_tag(cur, site, tag), True
+        return fuzzy_match_tag_(cur, site, tag), True
 
 
 def tag_list_gen(all_results, site_name):
@@ -178,7 +178,7 @@ def gelbooru(conn, cur, search, localize, limit=0, is_fuzzy=False):
     if len(res) > 0:
         res = choice(res)
         for tag in search:
-            write_tag(conn, cur, 'gelbooru', tag)
+            write_tag_(conn, cur, 'gelbooru', tag)
         if is_fuzzy:
             res = localize['nsfw_fuzzy'].format('Gelbooru',
                                                 ', '.join(search)) + res

@@ -5,9 +5,9 @@ from collections import deque
 from random import sample, randint
 from time import time
 
-from core.data_controller import get_daily, set_daily, change_balance, \
-    transfer_balance, TransferError, get_balance
-from core.helpers import get_time_elapsed
+from .data_controller import get_daily_, set_daily_, change_balance_, \
+    transfer_balance_, TransferError, get_balance_
+from .helpers import get_time_elapsed
 
 
 class ArgumentError(ValueError):
@@ -23,7 +23,7 @@ def daily(conn, cur, user_id, localize):
     :param localize: the localization strings
     :return: the daily command message
     """
-    current_daily = get_daily(cur, user_id)
+    current_daily = get_daily_(cur, user_id)
     first_time = current_daily is None
     delta = 500 if first_time else 200
     if not first_time:
@@ -31,8 +31,8 @@ def daily(conn, cur, user_id, localize):
         if time_delta < 86400:
             hours, minutes, seconds = get_time_elapsed(time_delta, 86400)[1:]
             return localize['daily_come_back'].format(hours, minutes, seconds)
-    set_daily(conn, cur, user_id)
-    change_balance(conn, cur, user_id, delta)
+    set_daily_(conn, cur, user_id)
+    change_balance_(conn, cur, user_id, delta)
     res_str = localize['daily_first_time'] if first_time \
         else localize['daily_success']
     return res_str.format(delta)
@@ -50,9 +50,9 @@ def transfer(conn, cur, root, target, amount, localize):
     :return: the result message
     """
     try:
-        transfer_balance(conn, cur, root.id, target.id, amount)
-        root_balance = get_balance(cur, root.id)
-        target_balance = get_balance(cur, target.id)
+        transfer_balance_(conn, cur, root.id, target.id, amount)
+        root_balance = get_balance_(cur, root.id)
+        target_balance = get_balance_(cur, target.id)
         return localize['transfer_success'].format(
             amount, target.display_name, root_balance, target_balance
         )
@@ -123,7 +123,7 @@ def determine_slot_result(conn, cur, user_id, bot_id, localize, r1, r2, r3,
     """
     if r1 == r2 == r3:
         delta = amount * 3
-        change_balance(conn, cur, user_id, delta)
+        change_balance_(conn, cur, user_id, delta)
         res = localize['slots_win'].format(delta - amount)
     elif r1 != r2 and r1 != r3 and r2 != r3:
         delta = 0
@@ -131,8 +131,8 @@ def determine_slot_result(conn, cur, user_id, bot_id, localize, r1, r2, r3,
     else:
         delta = amount
         res = localize['slots_draw']
-        change_balance(conn, cur, user_id, delta)
-    change_balance(conn, cur, bot_id, amount - delta)
+        change_balance_(conn, cur, user_id, delta)
+    change_balance_(conn, cur, bot_id, amount - delta)
     return res + '\n' + localize['new_balance'].format(
-        get_balance(cur, user_id)
+        get_balance_(cur, user_id)
     )

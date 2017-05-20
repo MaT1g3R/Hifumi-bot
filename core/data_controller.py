@@ -8,7 +8,7 @@ class TransferError(ValueError):
     pass
 
 
-def get_prefix(cursor, server_id: str):
+def get_prefix_(cursor, server_id: str):
     """
     Get the server prefix from databse
     :param cursor: the database cursor
@@ -20,7 +20,7 @@ def get_prefix(cursor, server_id: str):
     return res[0] if res is not None else None
 
 
-def set_prefix(connection, cursor, server_id: str, prefix: str):
+def set_prefix_(connection, cursor, server_id: str, prefix: str):
     """
     Set the prefix for a server
     :param connection: the sqlite db connection
@@ -33,7 +33,7 @@ def set_prefix(connection, cursor, server_id: str, prefix: str):
     connection.commit()
 
 
-def delete_prefix(connection, cursor, server_id: str):
+def delete_prefix_(connection, cursor, server_id: str):
     """
     Delete the prefix for a server
     :param connection: the db connection
@@ -47,7 +47,7 @@ def delete_prefix(connection, cursor, server_id: str):
     connection.commit()
 
 
-def write_tag(connection, cursor, site, tag):
+def write_tag_(connection, cursor, site, tag):
     """
     Write a tag entry into the database
     :param connection: the sqlite db connection
@@ -60,7 +60,7 @@ def write_tag(connection, cursor, site, tag):
     connection.commit()
 
 
-def write_tag_list(connection, cursor, site, tags):
+def write_tag_list_(connection, cursor, site, tags):
     """
     Writes a list of tags into the db
     :param connection: the sqlite db connection
@@ -69,10 +69,10 @@ def write_tag_list(connection, cursor, site, tags):
     :param tags: the list of tags
     """
     for tag in tags:
-        write_tag(connection, cursor, site, tag)
+        write_tag_(connection, cursor, site, tag)
 
 
-def tag_in_db(cursor, site, tag):
+def tag_in_db_(cursor, site, tag):
     """
     Returns if the tag is in the db or not
     :param cursor: the database cursor
@@ -87,7 +87,7 @@ def tag_in_db(cursor, site, tag):
     return cursor.fetchone() == (1,)
 
 
-def fuzzy_match_tag(cursor, site, tag):
+def fuzzy_match_tag_(cursor, site, tag):
     """
     Try to fuzzy match a tag with one in the db
     :param cursor: the database cursor
@@ -104,7 +104,7 @@ def fuzzy_match_tag(cursor, site, tag):
     return res[0] if res is not None else None
 
 
-def get_language(cursor, server_id: str):
+def get_language_(cursor, server_id: str):
     """
     Get the server language from databse
     :param cursor: the database cursor
@@ -116,7 +116,7 @@ def get_language(cursor, server_id: str):
     return res[0] if res is not None else None
 
 
-def set_language(connection, cursor, server_id: str, language: str):
+def set_language_(connection, cursor, server_id: str, language: str):
     """
     Set the language for a server
     :param connection: the sqlite db connection
@@ -129,7 +129,7 @@ def set_language(connection, cursor, server_id: str, language: str):
     connection.commit()
 
 
-def delete_language(connection, cursor, server_id: str):
+def delete_language_(connection, cursor, server_id: str):
     """
     Delete the language info for a server
     :param connection: the db connection
@@ -143,7 +143,7 @@ def delete_language(connection, cursor, server_id: str):
     connection.commit()
 
 
-def add_role(connection, cursor, server_id: str, role: str):
+def add_role_(connection, cursor, server_id: str, role: str):
     """
     Add a role to the db
     :param connection: the sqlite db connection
@@ -156,7 +156,7 @@ def add_role(connection, cursor, server_id: str, role: str):
     connection.commit()
 
 
-def remove_role(connection, cursor, server_id: str, role: str):
+def remove_role_(connection, cursor, server_id: str, role: str):
     """
     Remove a role from the db
     :param connection: the sqlite db connection
@@ -171,7 +171,7 @@ def remove_role(connection, cursor, server_id: str, role: str):
     connection.commit()
 
 
-def get_role_list(cursor, server_id: str):
+def get_role_list_(cursor, server_id: str):
     """
     Get the list of roles under the server with id == server_id
     :param cursor: the database cursor
@@ -185,7 +185,7 @@ def get_role_list(cursor, server_id: str):
     return [i[0] for i in cursor.fetchall()]
 
 
-def set_mod_log(connection, cursor, server_id: str, channel_id: str):
+def set_mod_log_(connection, cursor, server_id: str, channel_id: str):
     """
     Set the mod log channel id for a given server
     :param connection: the sqlite db connection
@@ -198,7 +198,7 @@ def set_mod_log(connection, cursor, server_id: str, channel_id: str):
     connection.commit()
 
 
-def get_mod_log(cursor, server_id: str):
+def get_mod_log_(cursor, server_id: str):
     """
     Get a list of all mod logs from a given server
     :param cursor: the database cursor
@@ -213,7 +213,7 @@ def get_mod_log(cursor, server_id: str):
     return [i[0] for i in cursor.fetchall()]
 
 
-def remove_mod_log(connection, cursor, server_id: str, channel_id: str):
+def remove_mod_log_(connection, cursor, server_id: str, channel_id: str):
     """
     Delete a modlog from the db
     :param connection: the sqlite db connection
@@ -228,7 +228,7 @@ def remove_mod_log(connection, cursor, server_id: str, channel_id: str):
     connection.commit()
 
 
-def add_warn(connection, cursor, server_id: str, user_id: str):
+def add_warn_(connection, cursor, server_id: str, user_id: str):
     """
     Add 1 to the warning count of the user
     :param connection: the sqlite db connection
@@ -245,7 +245,7 @@ def add_warn(connection, cursor, server_id: str, user_id: str):
     connection.commit()
 
 
-def remove_warn(connection, cursor, server_id: str, user_id: str):
+def remove_warn_(connection, cursor, server_id: str, user_id: str):
     """
     Subtract 1 from the warning count of the user
     :param connection: the sqlite db connection
@@ -261,7 +261,7 @@ def remove_warn(connection, cursor, server_id: str, user_id: str):
     connection.commit()
 
 
-def get_warn(cursor, server_id: str, user_id: str):
+def get_warn_(cursor, server_id: str, user_id: str):
     """
     Get the warning count of a user
     :param cursor: the database cursor
@@ -277,7 +277,7 @@ def get_warn(cursor, server_id: str, user_id: str):
     return result[0] if result is not None else 0
 
 
-def get_balance(cursor, user_id: str):
+def get_balance_(cursor, user_id: str):
     """
     Get the balance of a user
     :param cursor: the db cursor
@@ -292,7 +292,7 @@ def get_balance(cursor, user_id: str):
     return res[0] if res is not None else 0
 
 
-def change_balance(connection, cursor, user_id: str, delta: int):
+def change_balance_(connection, cursor, user_id: str, delta: int):
     """
     Set the balance of a user
     :param connection: the db connection
@@ -311,8 +311,8 @@ def change_balance(connection, cursor, user_id: str, delta: int):
     connection.commit()
 
 
-def transfer_balance(connection, cursor, root_id, target_id, amount: int,
-                     check_balance=True):
+def transfer_balance_(connection, cursor, root_id, target_id, amount: int,
+                      check_balance=True):
     """
     Transfer x amout of money from root to target
     :param connection: the db connection
@@ -329,7 +329,7 @@ def transfer_balance(connection, cursor, root_id, target_id, amount: int,
     sql_change = '''
     UPDATE currency SET balance = balance + ? WHERE user = ?
     '''
-    root_balance = get_balance(cursor, root_id)
+    root_balance = get_balance_(cursor, root_id)
     if root_balance < amount and check_balance:
         raise TransferError(str(root_balance))
     cursor.execute(sql_insert, (target_id,))
@@ -338,7 +338,7 @@ def transfer_balance(connection, cursor, root_id, target_id, amount: int,
     connection.commit()
 
 
-def get_daily(cursor, user_id: str):
+def get_daily_(cursor, user_id: str):
     """
     Get the daily time stamp of a user
     :param cursor: the db cursor
@@ -353,7 +353,7 @@ def get_daily(cursor, user_id: str):
     return res[0] if res is not None else None
 
 
-def set_daily(connection, cursor, user_id: str):
+def set_daily_(connection, cursor, user_id: str):
     """
     Set the daily time stamp for a user
     :param connection: the db connection

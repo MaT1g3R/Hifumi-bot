@@ -4,8 +4,8 @@ Functions to deal with the Roles class
 
 from discord.utils import get
 
-from core import data_controller as db
-from core.discord_functions import handle_forbidden_http
+from .data_controller import get_role_list_, remove_role_, add_role_
+from .discord_functions import handle_forbidden_http
 
 
 def get_server_role(role, server):
@@ -35,12 +35,12 @@ def get_role_list(*, server, conn, cur, localize):
 
     :return: the string representation of the server role list
     """
-    lst = db.get_role_list(cur, server.id)
+    lst = get_role_list_(cur, server.id)
     # Check for any non-existing roles and remove them from the db
     for i in range(len(lst)):
         role = lst[i]
         if get_server_role(role, server) is None:
-            db.remove_role(conn, cur, server.id, role)
+            remove_role_(conn, cur, server.id, role)
             lst.remove(role)
     if lst:
         lst = ['* ' + r for r in lst]
@@ -68,7 +68,7 @@ def add_role(*, conn, cur, server, localize, role):
     if get_server_role(role, server) is None:
         return localize['role_no_exist']
     else:
-        db.add_role(conn, cur, server.id, role)
+        add_role_(conn, cur, server.id, role)
         return localize['role_add_success'].format(role)
 
 
@@ -90,7 +90,7 @@ def remove_role(*, localize, server, conn, cur, role):
     """
     res = localize['role_no_exist'] if get_server_role(role, server) is None \
         else localize['role_remove_success'].format(role)
-    db.remove_role(conn, cur, server.id, role)
+    remove_role_(conn, cur, server.id, role)
     return res
 
 

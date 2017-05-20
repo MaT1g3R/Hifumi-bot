@@ -4,7 +4,7 @@ from discord.ext import commands
 from requests import get
 
 from core.discord_functions import get_prefix
-from shell.hifumi import Hifumi
+from shell import Hifumi
 
 
 class Utilities:

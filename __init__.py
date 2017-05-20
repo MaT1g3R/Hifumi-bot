@@ -11,6 +11,8 @@ Hifumi, a multifunctional Discord bot.
 from collections import namedtuple
 from pathlib import Path
 
+from autoclean import autoclean
+
 __title__ = 'Hifumi'
 __author__ = ['Underforest#1284', 'InternalLight#9391', 'ラブアローシュート#6728']
 __author_plain__ = ['Underforest', 'InternalLight', 'MaT1g3R']
@@ -29,3 +31,7 @@ version_info = VersionInfo(
 with open(Path('./config/simple_license')) as f:
     LICENSE = f.read()
     f.close()
+
+__all__ = ['__title__', '__author__', '__author_plain__', '__helper__',
+           '__helper_plain__', '__license__', '__copyright__', '__version__',
+           'version_info', 'LICENSE', 'autoclean']

@@ -8,11 +8,10 @@ from time import time
 
 from discord import ChannelType, version_info
 
-from config.settings import COLOUR, SHARDED, NAME, HELPERS, DEVS
-from core.discord_functions import build_embed, get_prefix
-from core.file_io import read_json, read_all_files
-from core.helpers import get_system_name, comma, combine_dicts
-from core.helpers import get_time_elapsed
+from config import *
+from .discord_functions import build_embed, get_prefix
+from .file_io import read_json, read_all_files
+from .helpers import get_system_name, comma, combine_dicts, get_time_elapsed
 
 
 def get_uptime(start_time, day_str):

@@ -1,29 +1,20 @@
 """
 The main run file.
 """
-from os import name
-from sys import platform, version_info
+from platform import python_version
 
 from colorama import init
 
-import core.logger as logger
-from cogs import bot_info, owner_only, channel_reader, nsfw, roles, \
-    moderation, currency, utilities
-from config.settings import TOKEN, SHARD_COUNT, SHARD_ID, SHARDED, SAFE_SHUTDOWN
+from cogs import *
+from config import *
+from core import logger
 from launcher import is_internet_on
-from shell.hifumi import Hifumi
+from shell import Hifumi
 
 try:
     import pip  # It will not be used here but still needed
 except ImportError:
     pip = None
-
-IS_WINDOWS = name == "nt"
-IS_MAC = platform == "darwin"
-IS_LINUX = platform.startswith("linux") or name == "posix"
-SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX
-
-PYTHON_OK = version_info >= (3, 6)
 
 if __name__ == '__main__':
     if not is_internet_on():
@@ -50,8 +41,8 @@ if __name__ == '__main__':
         logger.error(
             "Sorry! This Python version is not compatible. Hifumi needs "
             "Python 3.6 or higher. You have Python version {}.\n"
-            .format(platform.python_version()) + " Install the required "
-                                                 "version and try again.\n")
+            .format(python_version()) +
+            " Install the required version and try again.\n")
         exit(1)
     elif not pip:
         logger.error(
@@ -68,12 +59,8 @@ if __name__ == '__main__':
                 )
             else:
                 bot = Hifumi()
-            cogs = [
-                bot_info.BotInfo(bot), owner_only.OwnerOnly(bot),
-                channel_reader.ChannelReader(bot), nsfw.Nsfw(bot),
-                roles.Roles(bot), moderation.Moderation(bot),
-                currency.Currency(bot), utilities.Utilities(bot)
-            ]
+            cogs = [BotInfo(bot), OwnerOnly(bot), ChannelReader(bot), Nsfw(bot),
+                    Roles(bot), Moderation(bot), Currency(bot), Utilities(bot)]
 
             bot.start_bot(cogs, TOKEN)
         except (UnicodeEncodeError, UnicodeDecodeError):

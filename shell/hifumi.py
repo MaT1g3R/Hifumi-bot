@@ -18,7 +18,7 @@ from config.settings import DEFAULT_PREFIX, SHARDED, \
 from core.bot_info_core import generate_shard_info
 from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
     ManageMessageError, OwnerError
-from core.data_controller import get_language
+from core.data_controller import get_language_
 from core.discord_functions import command_error_handler, get_prefix
 from core.file_io import write_json
 from core.language_support import read_language
@@ -194,7 +194,7 @@ class Hifumi(Bot):
             raise TypeError
         channel = message.channel
         if channel.type == ChannelType.text:
-            lan = get_language(self.cur, message.server.id)
+            lan = get_language_(self.cur, message.server.id)
             return lan if lan is not None else self.default_language
         else:
             return self.default_language

@@ -36,11 +36,11 @@ class TestDataController(TestCase):
 
     def test_write_tag(self):
         """
-        Test case for write_tag
+        Test case for write_tag_
         """
         site = 'foo'
         tag = 'bar'
-        write_tag(self.conn, self.cur, site, tag)
+        write_tag_(self.conn, self.cur, site, tag)
         sql = '''
         SELECT tag FROM main.nsfw_tags WHERE site='{}'
         '''.format(site)
@@ -50,11 +50,11 @@ class TestDataController(TestCase):
 
     def test_write_tag_list(self):
         """
-        Test case for write_tag_list
+        Test case for write_tag_list_
         """
         site = 'foo'
         lst = ['bar', 'baz']
-        write_tag_list(self.conn, self.cur, site, lst)
+        write_tag_list_(self.conn, self.cur, site, lst)
         sql = '''
         SELECT tag FROM main.nsfw_tags WHERE site='{}'
         '''.format(site)
@@ -64,52 +64,52 @@ class TestDataController(TestCase):
 
     def test_tag_in_db_true(self):
         """
-        Test for tag_in_db when it returns true
+        Test for tag_in_db_ when it returns true
         """
         tag = 'foo'
         site = 'bar'
-        write_tag(self.conn, self.cur, site, tag)
-        self.assertTrue(tag_in_db(self.cur, site, tag))
+        write_tag_(self.conn, self.cur, site, tag)
+        self.assertTrue(tag_in_db_(self.cur, site, tag))
 
     def test_tag_in_db_no_site(self):
         """
-        Test for tag_in_db when it returns False because site is not found
+        Test for tag_in_db_ when it returns False because site is not found
         """
         tag = 'foo'
         site = 'bar'
         wrong_site = 'baz'
-        write_tag(self.conn, self.cur, site, tag)
-        self.assertFalse(tag_in_db(self.cur, wrong_site, tag))
+        write_tag_(self.conn, self.cur, site, tag)
+        self.assertFalse(tag_in_db_(self.cur, wrong_site, tag))
 
     def test_tag_in_db_no_tag(self):
         """
-        Test for tag_in_db when it returns False because tag is not found
+        Test for tag_in_db_ when it returns False because tag is not found
         """
         tag = 'foo'
         site = 'bar'
         wrong_tag = 'baz'
-        write_tag(self.conn, self.cur, site, tag)
-        self.assertFalse(tag_in_db(self.cur, site, wrong_tag))
+        write_tag_(self.conn, self.cur, site, tag)
+        self.assertFalse(tag_in_db_(self.cur, site, wrong_tag))
 
     def test_fuzzy_match_tag_fail_site(self):
         """
-        Test for fuzzy_match_tag when site is not found
+        Test for fuzzy_match_tag_ when site is not found
         """
         site = 'foo'
         wrong_site = 'bar'
         tag = 'baz'
-        write_tag(self.conn, self.cur, site, tag)
-        self.assertIsNone(fuzzy_match_tag(self.cur, wrong_site, tag))
+        write_tag_(self.conn, self.cur, site, tag)
+        self.assertIsNone(fuzzy_match_tag_(self.cur, wrong_site, tag))
 
     def test_fuzzy_match_tag_fail_tag(self):
         """
-        Test for fuzzy_match_tag when tag is not found
+        Test for fuzzy_match_tag_ when tag is not found
         """
         site = 'foo'
         tag = 'bar'
         wrong_tag = 'baz'
-        write_tag(self.conn, self.cur, site, tag)
-        self.assertIsNone(fuzzy_match_tag(self.cur, site, wrong_tag))
+        write_tag_(self.conn, self.cur, site, tag)
+        self.assertIsNone(fuzzy_match_tag_(self.cur, site, wrong_tag))
 
     def test_fuzzy_match_tag_front(self):
         """
@@ -119,8 +119,8 @@ class TestDataController(TestCase):
         tag = 'foo'
         tag_to_match = 'f'
         site = 'bar'
-        write_tag(self.conn, self.cur, site, tag)
-        self.assertEqual(tag, fuzzy_match_tag(self.cur, site, tag_to_match))
+        write_tag_(self.conn, self.cur, site, tag)
+        self.assertEqual(tag, fuzzy_match_tag_(self.cur, site, tag_to_match))
 
     def test_fuzzy_match_tag_middle(self):
         """
@@ -130,8 +130,8 @@ class TestDataController(TestCase):
         site = 'foo'
         tag = 'bar'
         tag_to_match = 'a'
-        write_tag(self.conn, self.cur, site, tag)
-        self.assertEqual(tag, fuzzy_match_tag(self.cur, site, tag_to_match))
+        write_tag_(self.conn, self.cur, site, tag)
+        self.assertEqual(tag, fuzzy_match_tag_(self.cur, site, tag_to_match))
 
     def test_fuzzy_match_tag_end(self):
         """
@@ -141,8 +141,8 @@ class TestDataController(TestCase):
         site = 'foo'
         tag = 'bar'
         tag_to_match = 'ar'
-        write_tag(self.conn, self.cur, site, tag)
-        self.assertEqual(tag, fuzzy_match_tag(self.cur, site, tag_to_match))
+        write_tag_(self.conn, self.cur, site, tag)
+        self.assertEqual(tag, fuzzy_match_tag_(self.cur, site, tag_to_match))
 
     def test_fuzzy_match_tag_full(self):
         """
@@ -152,81 +152,81 @@ class TestDataController(TestCase):
         site = 'foo'
         tag = 'bar'
         tag_to_match = 'bar'
-        write_tag(self.conn, self.cur, site, tag)
-        self.assertEqual(tag, fuzzy_match_tag(self.cur, site, tag_to_match))
+        write_tag_(self.conn, self.cur, site, tag)
+        self.assertEqual(tag, fuzzy_match_tag_(self.cur, site, tag_to_match))
 
     def test_get_set(self):
         """
         Test for get/set an entry, for cases where the server is a unique key
         """
-        self.__get_set(set_prefix, get_prefix)
-        self.__get_set(set_language, get_language)
+        self.__get_set(set_prefix_, _get_prefix)
+        self.__get_set(set_language_, get_language_)
 
     def test_get_fail(self):
         """
         Test case for failed to get an entry from the db
         """
-        self.__get_fail(set_language, get_language)
-        self.__get_fail(set_prefix, get_prefix)
+        self.__get_fail(set_language_, get_language_)
+        self.__get_fail(set_prefix_, _get_prefix)
 
     def test_add_entry(self):
         """
         Test for adding an entry
         """
-        self.__add_with_list(add_role, get_role_list)
-        self.__add_with_list(set_mod_log, get_mod_log)
+        self.__add_with_list(add_role_, get_role_list_)
+        self.__add_with_list(set_mod_log_, get_mod_log_)
 
     def test_add_entry_overwrite(self):
         """
         Test for adding an entry when it overrides the value
         """
-        self.__add_overwrite_with_list(add_role, get_role_list)
-        self.__add_overwrite_with_list(set_mod_log, get_mod_log)
-        self.__set_overwrite(set_language, get_language)
-        self.__set_overwrite(set_prefix, get_prefix)
+        self.__add_overwrite_with_list(add_role_, get_role_list_)
+        self.__add_overwrite_with_list(set_mod_log_, get_mod_log_)
+        self.__set_overwrite(set_language_, get_language_)
+        self.__set_overwrite(set_prefix_, _get_prefix)
 
     def test_remove_entry(self):
         """
         Test for remove entry
         """
-        self.__remove_with_list(add_role, remove_role, get_role_list)
-        self.__remove_with_list(set_mod_log, remove_mod_log, get_mod_log)
-        self.__delete(set_language, delete_language, get_language)
-        self.__delete(set_prefix, delete_prefix, get_prefix)
+        self.__remove_with_list(add_role_, remove_role_, get_role_list_)
+        self.__remove_with_list(set_mod_log_, remove_mod_log_, get_mod_log_)
+        self.__delete(set_language_, delete_language_, get_language_)
+        self.__delete(set_prefix_, delete_prefix_, _get_prefix)
 
     def test_remove_entry_no_server(self):
         """
         Test for remove entry for a non-existing server
         """
-        self.__remove_no_server_with_list(add_role, remove_role, get_role_list)
+        self.__remove_no_server_with_list(add_role_, remove_role_, get_role_list_)
         self.__remove_no_server_with_list(
-            set_mod_log, remove_mod_log, get_mod_log
+            set_mod_log_, remove_mod_log_, get_mod_log_
         )
-        self.__delete(set_language, delete_language, get_language)
-        self.__delete(set_prefix, delete_prefix, get_prefix)
+        self.__delete(set_language_, delete_language_, get_language_)
+        self.__delete(set_prefix_, delete_prefix_, _get_prefix)
 
     def test_remove_entry_no_entry(self):
         """
         Test for removeentry for a non-existing entry
         """
-        self.__remove_no_entry_with_list(add_role, remove_role, get_role_list)
+        self.__remove_no_entry_with_list(add_role_, remove_role_, get_role_list_)
         self.__remove_no_entry_with_list(
-            set_mod_log, remove_mod_log, get_mod_log
+            set_mod_log_, remove_mod_log_, get_mod_log_
         )
 
     def test_get_entry_list(self):
         """
         Test for get a list of entry
         """
-        self.__get_list(add_role, get_role_list)
-        self.__get_list(set_mod_log, get_mod_log)
+        self.__get_list(add_role_, get_role_list_)
+        self.__get_list(set_mod_log_, get_mod_log_)
 
     def test_get_entry_list_empty(self):
         """
         Test for get a list of entry when it is empty
         """
-        self.__get_list_empty(add_role, get_role_list)
-        self.__get_list_empty(set_mod_log, get_mod_log)
+        self.__get_list_empty(add_role_, get_role_list_)
+        self.__get_list_empty(set_mod_log_, get_mod_log_)
 
     def test_warning(self):
         """
@@ -236,14 +236,14 @@ class TestDataController(TestCase):
         user = 'bar'
         other_server = 'baz'
         other_user = 'qux'
-        self.assertEqual(0, get_warn(self.cur, server, user))
-        add_warn(self.conn, self.cur, server, user)
-        self.assertEqual(1, get_warn(self.cur, server, user))
-        add_warn(self.conn, self.cur, server, user)
-        self.assertEqual(2, get_warn(self.cur, server, user))
+        self.assertEqual(0, get_warn_(self.cur, server, user))
+        add_warn_(self.conn, self.cur, server, user)
+        self.assertEqual(1, get_warn_(self.cur, server, user))
+        add_warn_(self.conn, self.cur, server, user)
+        self.assertEqual(2, get_warn_(self.cur, server, user))
         self.assertTrue(
-            0 == get_warn(self.cur, other_server, user) ==
-            get_warn(self.cur, server, other_user)
+            0 == get_warn_(self.cur, other_server, user) ==
+            get_warn_(self.cur, server, other_user)
         )
 
     def test_remove_warning(self):
@@ -254,25 +254,25 @@ class TestDataController(TestCase):
         user = 'bar'
         other_server = 'baz'
         other_user = 'qux'
-        add_warn(self.conn, self.cur, server, other_user)
-        add_warn(self.conn, self.cur, other_server, user)
-        remove_warn(self.conn, self.cur, server, user)
-        add_warn(self.conn, self.cur, server, user)
-        add_warn(self.conn, self.cur, server, user)
-        remove_warn(self.conn, self.cur, server, user)
-        self.assertEqual(1, get_warn(self.cur, server, user))
+        add_warn_(self.conn, self.cur, server, other_user)
+        add_warn_(self.conn, self.cur, other_server, user)
+        remove_warn_(self.conn, self.cur, server, user)
+        add_warn_(self.conn, self.cur, server, user)
+        add_warn_(self.conn, self.cur, server, user)
+        remove_warn_(self.conn, self.cur, server, user)
+        self.assertEqual(1, get_warn_(self.cur, server, user))
         self.assertTrue(
-            1 == get_warn(self.cur, other_server, user) ==
-            get_warn(self.cur, server, other_user)
+            1 == get_warn_(self.cur, other_server, user) ==
+            get_warn_(self.cur, server, other_user)
         )
 
     def test_get_balance(self):
         """
-        Test get_balance
+        Test get_balance_
         """
         user, balance = self.__insert_balance()
-        self.assertEqual(balance, get_balance(self.cur, user))
-        self.assertEqual(0, get_balance(self.cur, 'bar'))
+        self.assertEqual(balance, get_balance_(self.cur, user))
+        self.assertEqual(0, get_balance_(self.cur, 'bar'))
 
     def test_change_balance(self):
         """
@@ -282,77 +282,77 @@ class TestDataController(TestCase):
         other_user = 'bar'
         delta_positive = choice(range(1, 50))
         delta_negative = choice(range(-50, -1))
-        change_balance(self.conn, self.cur, user, delta_negative)
-        change_balance(self.conn, self.cur, other_user, delta_positive)
-        self.assertEqual(balance + delta_negative, get_balance(self.cur, user))
-        self.assertEqual(delta_positive, get_balance(self.cur, other_user))
+        change_balance_(self.conn, self.cur, user, delta_negative)
+        change_balance_(self.conn, self.cur, other_user, delta_positive)
+        self.assertEqual(balance + delta_negative, get_balance_(self.cur, user))
+        self.assertEqual(delta_positive, get_balance_(self.cur, other_user))
 
     def test_get_set_daily(self):
         """
-        Test get_daily and set_daily
+        Test get_daily_ and set_daily_
         """
         user = 'foo'
-        self.assertIsNone(get_daily(self.cur, user))
-        set_daily(self.conn, self.cur, user)
-        self.assertAlmostEqual(time(), get_daily(self.cur, user), delta=10)
+        self.assertIsNone(get_daily_(self.cur, user))
+        set_daily_(self.conn, self.cur, user)
+        self.assertAlmostEqual(time(), get_daily_(self.cur, user), delta=10)
 
     def test_transfer(self):
         """
-        Test transfer_balance
+        Test transfer_balance_
         """
         root = 'foo'
         target = 'bar'
         amout = choice(range(500, 1000))
         transfer_amount = choice(range(100, 300))
-        change_balance(self.conn, self.cur, root, amout)
-        change_balance(self.conn, self.cur, target, amout)
-        transfer_balance(self.conn, self.cur, root, target, transfer_amount)
-        self.assertEqual(amout - transfer_amount, get_balance(self.cur, root))
-        self.assertEqual(amout + transfer_amount, get_balance(self.cur, target))
+        change_balance_(self.conn, self.cur, root, amout)
+        change_balance_(self.conn, self.cur, target, amout)
+        transfer_balance_(self.conn, self.cur, root, target, transfer_amount)
+        self.assertEqual(amout - transfer_amount, get_balance_(self.cur, root))
+        self.assertEqual(amout + transfer_amount, get_balance_(self.cur, target))
 
     def test_transfer_new(self):
         """
-        Test transfer_balance to a new user
+        Test transfer_balance_ to a new user
         """
         root = 'foo'
         target = 'bar'
         amount = choice(range(500, 1000))
         transfer_amount = choice(range(100, 300))
-        change_balance(self.conn, self.cur, root, amount)
-        transfer_balance(self.conn, self.cur, root, target, transfer_amount)
-        self.assertEqual(amount - transfer_amount, get_balance(self.cur, root))
-        self.assertEqual(transfer_amount, get_balance(self.cur, target))
+        change_balance_(self.conn, self.cur, root, amount)
+        transfer_balance_(self.conn, self.cur, root, target, transfer_amount)
+        self.assertEqual(amount - transfer_amount, get_balance_(self.cur, root))
+        self.assertEqual(transfer_amount, get_balance_(self.cur, target))
 
     def test_transfer_fail(self):
         """
-        Test transfer_balance fail
+        Test transfer_balance_ fail
         """
         root = 'foo'
         target = 'bar'
         amount = choice(range(100, 300))
         transfer_amonut = choice(range(500, 1000))
-        change_balance(self.conn, self.cur, root, amount)
+        change_balance_(self.conn, self.cur, root, amount)
         try:
-            transfer_balance(self.conn, self.cur, root, target, transfer_amonut)
+            transfer_balance_(self.conn, self.cur, root, target, transfer_amonut)
             self.fail()
         except TransferError:
-            self.assertEqual(amount, get_balance(self.cur, root))
-            self.assertEqual(0, get_balance(self.cur, target))
+            self.assertEqual(amount, get_balance_(self.cur, root))
+            self.assertEqual(0, get_balance_(self.cur, target))
 
     def test_transfer_negative(self):
         """
-        Test transfer_balance when the root goes in to debt(lol)
+        Test transfer_balance_ when the root goes in to debt(lol)
         """
         root = 'foo'
         target = 'bar'
         amount = choice(range(100, 300))
         transfer_amonut = choice(range(500, 1000))
-        change_balance(self.conn, self.cur, root, amount)
-        transfer_balance(
+        change_balance_(self.conn, self.cur, root, amount)
+        transfer_balance_(
             self.conn, self.cur, root, target, transfer_amonut, False
         )
-        self.assertEqual(amount - transfer_amonut, get_balance(self.cur, root))
-        self.assertEqual(transfer_amonut, get_balance(self.cur, target))
+        self.assertEqual(amount - transfer_amonut, get_balance_(self.cur, root))
+        self.assertEqual(transfer_amonut, get_balance_(self.cur, target))
 
     def __insert_balance(self):
         """

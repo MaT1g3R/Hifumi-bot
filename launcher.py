@@ -11,12 +11,9 @@ import time
 import webbrowser
 from pathlib import Path
 
-from __init__ import version_info, __author__, __helper__, __author_plain__, \
-    __helper_plain__, __title__, LICENSE
-from autoclean import autoclean
+from __init__ import *
+from config import *
 from tests.suite import run_tests
-
-logger_success = True
 
 try:
     import colorama
@@ -27,6 +24,8 @@ try:
     # Recycling lines
 
     colorama.init()
+    logger_success = True
+
 except ImportError:
     logger_success = False
 
@@ -50,13 +49,6 @@ REQS_DIR = "lib"
 sys.path.insert(0, REQS_DIR)
 REQS_TXT = "./config/requirements.txt"
 FFMPEG_BUILDS_URL = "https://ffmpeg.zeranoe.com/builds/"
-IS_WINDOWS = os.name == "nt"
-IS_MAC = sys.platform == "darwin"
-IS_LINUX = platform.platform().lower().startswith("linux") or os.name == "posix"
-SYSTEM_OK = IS_WINDOWS or IS_MAC or IS_LINUX
-IS_64BIT = platform.machine().endswith("64")
-
-PYTHON_OK = sys.version_info >= (3, 6)
 
 BOT_VERSION = '{} {}.{}.{}'.format(
     version_info.releaselevel, version_info.major,

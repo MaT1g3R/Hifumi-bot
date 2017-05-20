@@ -4,9 +4,9 @@ from pytrivia import Trivia
 
 from core.currency_core import daily, transfer, slots_setup, roll_slots, \
     determine_slot_result
-from core.data_controller import get_balance, change_balance
+from core.data_controller import get_balance_, change_balance_
 from core.trivia_core import TriviaGame
-from shell.hifumi import Hifumi
+from shell import Hifumi
 
 
 class Currency:
@@ -48,7 +48,7 @@ class Currency:
             name = member.display_name
         await self.bot.say(
             self.bot.get_language_dict(ctx)[localize_key].format(
-                name, get_balance(self.bot.cur, member_id)
+                name, get_balance_(self.bot.cur, member_id)
             )
         )
 
@@ -95,11 +95,11 @@ class Currency:
             conn = self.bot.conn
             cur = self.bot.cur
             user_id = ctx.message.author.id
-            balance = get_balance(cur, user_id)
+            balance = get_balance_(cur, user_id)
             if balance < amount:
                 await self.bot.say(localize['low_balance'].format(balance))
             else:
-                change_balance(conn, cur, user_id, -amount)
+                change_balance_(conn, cur, user_id, -amount)
                 q1, q2, q3, n1, n2, n3 = slots_setup(self.bot.all_emojis, 2, 5)
                 await self.bot.say(localize['slots_header'])
                 msg = await self.bot.say(
