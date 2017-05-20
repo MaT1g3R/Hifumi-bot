@@ -159,7 +159,7 @@ class TestDataController(TestCase):
         """
         Test for get/set an entry, for cases where the server is a unique key
         """
-        self.__get_set(set_prefix_, _get_prefix)
+        self.__get_set(set_prefix_, get_prefix_)
         self.__get_set(set_language_, get_language_)
 
     def test_get_fail(self):
@@ -167,7 +167,7 @@ class TestDataController(TestCase):
         Test case for failed to get an entry from the db
         """
         self.__get_fail(set_language_, get_language_)
-        self.__get_fail(set_prefix_, _get_prefix)
+        self.__get_fail(set_prefix_, get_prefix_)
 
     def test_add_entry(self):
         """
@@ -183,7 +183,7 @@ class TestDataController(TestCase):
         self.__add_overwrite_with_list(add_role_, get_role_list_)
         self.__add_overwrite_with_list(set_mod_log_, get_mod_log_)
         self.__set_overwrite(set_language_, get_language_)
-        self.__set_overwrite(set_prefix_, _get_prefix)
+        self.__set_overwrite(set_prefix_, get_prefix_)
 
     def test_remove_entry(self):
         """
@@ -192,24 +192,26 @@ class TestDataController(TestCase):
         self.__remove_with_list(add_role_, remove_role_, get_role_list_)
         self.__remove_with_list(set_mod_log_, remove_mod_log_, get_mod_log_)
         self.__delete(set_language_, delete_language_, get_language_)
-        self.__delete(set_prefix_, delete_prefix_, _get_prefix)
+        self.__delete(set_prefix_, delete_prefix_, get_prefix_)
 
     def test_remove_entry_no_server(self):
         """
         Test for remove entry for a non-existing server
         """
-        self.__remove_no_server_with_list(add_role_, remove_role_, get_role_list_)
+        self.__remove_no_server_with_list(add_role_, remove_role_,
+                                          get_role_list_)
         self.__remove_no_server_with_list(
             set_mod_log_, remove_mod_log_, get_mod_log_
         )
         self.__delete(set_language_, delete_language_, get_language_)
-        self.__delete(set_prefix_, delete_prefix_, _get_prefix)
+        self.__delete(set_prefix_, delete_prefix_, get_prefix_)
 
     def test_remove_entry_no_entry(self):
         """
         Test for removeentry for a non-existing entry
         """
-        self.__remove_no_entry_with_list(add_role_, remove_role_, get_role_list_)
+        self.__remove_no_entry_with_list(add_role_, remove_role_,
+                                         get_role_list_)
         self.__remove_no_entry_with_list(
             set_mod_log_, remove_mod_log_, get_mod_log_
         )
@@ -308,7 +310,8 @@ class TestDataController(TestCase):
         change_balance_(self.conn, self.cur, target, amout)
         transfer_balance_(self.conn, self.cur, root, target, transfer_amount)
         self.assertEqual(amout - transfer_amount, get_balance_(self.cur, root))
-        self.assertEqual(amout + transfer_amount, get_balance_(self.cur, target))
+        self.assertEqual(amout + transfer_amount,
+                         get_balance_(self.cur, target))
 
     def test_transfer_new(self):
         """
@@ -333,7 +336,8 @@ class TestDataController(TestCase):
         transfer_amonut = choice(range(500, 1000))
         change_balance_(self.conn, self.cur, root, amount)
         try:
-            transfer_balance_(self.conn, self.cur, root, target, transfer_amonut)
+            transfer_balance_(self.conn, self.cur, root, target,
+                              transfer_amonut)
             self.fail()
         except TransferError:
             self.assertEqual(amount, get_balance_(self.cur, root))
