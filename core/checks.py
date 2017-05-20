@@ -4,7 +4,7 @@ Checks for commands
 from discord import ChannelType
 from discord.ext.commands import CommandError
 
-from config.settings import BAD_WORD, OWNER
+from config import *
 
 
 class NsfwError(CommandError):

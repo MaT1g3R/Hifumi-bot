@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 A collection of functions to deal with language support
 """
@@ -7,9 +5,9 @@ A collection of functions to deal with language support
 import codecs
 from ntpath import basename
 
-from core.data_controller import set_language as sl, delete_language
-from core.file_io import read_all_files, read_json
-from core.helpers import suplement_dict
+from .data_controller import set_language_, delete_language_
+from .file_io import read_all_files, read_json
+from .helpers import suplement_dict
 
 
 def read_language(path):
@@ -71,9 +69,9 @@ def set_language(bot, ctx, language, delete=False):
     cur = bot.cur
     server_id = ctx.message.server.id
     if delete:
-        delete_language(conn, cur, server_id)
+        delete_language_(conn, cur, server_id)
     else:
-        sl(conn, cur, server_id, language)
+        set_language_(conn, cur, server_id, language)
     localize = bot.get_language_dict(ctx)
     language_data = localize['language_data']
     translators = language_data['translators']

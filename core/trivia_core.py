@@ -3,9 +3,9 @@ from string import ascii_uppercase
 
 from pytrivia import Diffculty, Category, Type
 
-from core.data_controller import get_balance, transfer_balance, TransferError
-from core.discord_functions import build_embed, get_prefix
-from shell.hifumi import Hifumi
+from shell import Hifumi
+from .data_controller import get_balance_, transfer_balance_, TransferError
+from .discord_functions import build_embed, get_prefix
 
 
 class ArgumentError(ValueError):
@@ -80,7 +80,7 @@ class TriviaGame:
                 )
         except Exception as e:
             if self.bet > 0:
-                transfer_balance(
+                transfer_balance_(
                     self.conn, self.cur, self.bot.user.id,
                     self.author.id, self.bet, False
                 )
@@ -147,7 +147,7 @@ class TriviaGame:
         bet = kwargs['amount'] if 'amount' in kwargs else 0
         if bet > 0:
             try:
-                transfer_balance(
+                transfer_balance_(
                     self.conn, self.cur, self.author.id, self.bot.user.id, bet
                 )
                 self.bet = bet
@@ -155,7 +155,7 @@ class TriviaGame:
             except TransferError:
                 await self.bot.send_message(
                     self.channel, self.localize['low_balance'].format(
-                        get_balance(self.cur, self.author.id)
+                        get_balance_(self.cur, self.author.id)
                     )
                 )
                 return False
@@ -345,8 +345,8 @@ def _handle_bet(**kwargs):
         }[difficulty]
         price = round(amount * multiplier)
         delta = price
-        transfer_balance(conn, cur, bot_id, user_id, amount + price, False)
+        transfer_balance_(conn, cur, bot_id, user_id, amount + price, False)
     else:
         delta = amount
     key = 'trivia_correct_balance' if correct else 'trivia_wrong_balance'
-    return localize[key].format(delta, get_balance(cur, user_id))
+    return localize[key].format(delta, get_balance_(cur, user_id))

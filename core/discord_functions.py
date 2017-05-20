@@ -8,10 +8,10 @@ from discord.embeds import Embed
 from discord.ext.commands import CommandOnCooldown
 from discord.ext.commands.errors import MissingRequiredArgument
 
-from core import data_controller as db
-from core.checks import ManageMessageError, AdminError, ManageRoleError, \
+from .checks import ManageMessageError, AdminError, ManageRoleError, \
     BadWordError, NsfwError, OwnerError
-from core.helpers import strip_letters
+from .data_controller import get_prefix_
+from .helpers import strip_letters
 
 
 def command_error_handler(localize, exception):
@@ -59,7 +59,7 @@ def get_prefix(cur, server, default_prefix):
     """
     if server is None:
         return default_prefix
-    res = db.get_prefix(cur, server.id)
+    res = get_prefix_(cur, server.id)
     return res if res is not None else default_prefix
 
 

@@ -20,7 +20,6 @@ gif                 ✕
 hifumi              ✕
 @Hifumi             ✕
 lewd                ✕
-leetspeak           ✕  
 love                ✕
 meme                ✕
 meme list           ✕      
@@ -62,6 +61,7 @@ fact cat            ✕
 fact dog            ✕
 fact number *new    ✕
 imdb                ✕
+recipe              ✕
 remindme            ✕
 strawpoll           ✕
 time                ✕
@@ -100,7 +100,6 @@ request             ✕
 song pause          ✕
 song play           ✕
 repeat              ✕
-checkrestriction    ✕
 volume              ✕
 np                  ✕
 queue               ✕

@@ -2,14 +2,14 @@ import time
 
 from discord.ext import commands
 
-from config.settings import INVITE, SUPPORT, WEBSITE, TWITTER
+from config import *
 from core.bot_info_core import build_info_embed
 from core.checks import is_admin
-from core.data_controller import set_prefix, delete_prefix
+from core.data_controller import set_prefix_, delete_prefix_
 from core.discord_functions import get_prefix
 from core.language_support import generate_language_entry, \
     generate_language_list, set_language
-from shell.hifumi import Hifumi
+from shell import Hifumi
 
 
 class BotInfo:
@@ -176,9 +176,9 @@ class BotInfo:
         :param ctx: the discord context object
         :param prefix: the prefix to set to
         """
-        set_prefix(self.bot.conn, self.bot.cur, ctx.message.server.id, prefix)
+        set_prefix_(self.bot.conn, self.bot.cur, ctx.message.server.id, prefix)
         await self.bot.say(
-            self.bot.get_language_dict(ctx)['set_prefix'].format(prefix)
+            self.bot.get_language_dict(ctx)['set_prefix_'].format(prefix)
         )
 
     @prefix.command(pass_context=True, no_pm=True, name='reset')
@@ -188,9 +188,9 @@ class BotInfo:
         Reset the prefix of the server
         :param ctx: the discord context
         """
-        delete_prefix(self.bot.conn, self.bot.cur, ctx.message.server.id)
+        delete_prefix_(self.bot.conn, self.bot.cur, ctx.message.server.id)
         await self.bot.say(
-            self.bot.get_language_dict(ctx)['set_prefix'].format(
+            self.bot.get_language_dict(ctx)['set_prefix_'].format(
                 self.bot.default_prefix
             )
         )

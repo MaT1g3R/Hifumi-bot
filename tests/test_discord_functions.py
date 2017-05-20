@@ -84,7 +84,7 @@ class TestDiscordFunctons(TestCase):
 
     def test_get_prefix(self):
         """
-        Test get_prefix when the server is in the db
+        Test get_prefix_ when the server is in the db
         """
         db = sqlite3.connect(join('test_data', 'mock_db'))
         cursor = db.cursor()
@@ -109,7 +109,7 @@ class TestDiscordFunctons(TestCase):
 
     def test_get_prefix_not_found(self):
         """
-        Test for get_prefix when the server is not found in the db
+        Test for get_prefix_ when the server is not found in the db
         """
         db = sqlite3.connect(join('test_data', 'mock_db'))
         cursor = db.cursor()
@@ -123,7 +123,7 @@ class TestDiscordFunctons(TestCase):
 
     def test_get_prefix_none(self):
         """
-        Test for get_prefix when server is None
+        Test for get_prefix_ when server is None
         """
         self.assertEqual(
             self.bot.default_prefix,

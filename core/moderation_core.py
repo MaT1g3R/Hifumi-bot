@@ -6,10 +6,11 @@ from asyncio import sleep
 from discord import Member
 from discord.utils import get
 
-import core.data_controller as db
-from core.discord_functions import get_name_with_discriminator, build_embed, \
+from .data_controller import get_mod_log_, set_mod_log_, remove_mod_log_, \
+    add_warn_, remove_warn_, get_warn_
+from .discord_functions import get_name_with_discriminator, build_embed, \
     get_avatar_url, handle_forbidden_http, get_prefix
-from core.helpers import get_date
+from .helpers import get_date
 
 
 async def ban_kick(bot, ctx, member: Member, delete_message_days, reason):
@@ -110,7 +111,7 @@ def get_mod_log_channels(cur, server):
     :param server: the discord server
     :return: A list of discord.Channel objects for the mod logs
     """
-    ids = db.get_mod_log(cur, server.id)
+    ids = get_mod_log_(cur, server.id)
     res = []
     for id_ in ids:
         channel = get(server.channels, id=id_)
@@ -130,7 +131,7 @@ def add_mod_log(*, conn, cur, server_id, channel_id, channel_name, localize):
     :param localize: the localizationn strings
     :return: a message to inform mod log has been added
     """
-    db.set_mod_log(
+    set_mod_log_(
         conn, cur, server_id, channel_id
     )
     return localize['mod_log_add'].format(channel_name)
@@ -147,7 +148,7 @@ def remove_mod_log(*, conn, cur, server_id, channel_id, channel_name, localize):
     :param localize: the localizationn strings
     :return: a message to inform the mod log has been removed
     """
-    db.remove_mod_log(
+    remove_mod_log_(
         conn, cur, server_id, channel_id
     )
     return localize['mod_log_rm'].format(channel_name)
@@ -161,14 +162,14 @@ def get_mod_log_name_list(conn, cur, server):
     :param server: the discord server
     :return: a list of mod log channel names
     """
-    id_lst = db.get_mod_log(cur, server.id)
+    id_lst = get_mod_log_(cur, server.id)
     res = []
     for id_ in id_lst:
         channel = get(server.channels, id=id_)
         if channel is not None:
             res.append(channel.name)
         else:
-            db.remove_mod_log(
+            remove_mod_log_(
                 connection=conn,
                 cursor=cur,
                 server_id=server.id,
@@ -272,16 +273,16 @@ async def warn_pardon(bot, ctx, reason, member, is_warn):
     server_id = ctx.message.server.id
     user_id = ctx.message.author.id
     if is_warn:
-        db.add_warn(
+        add_warn_(
             bot.conn, bot.cur, server_id, user_id
         )
         actions = 'warn', 'warn_success'
     else:
-        db.remove_warn(
+        remove_warn_(
             bot.conn, bot.cur, server_id, user_id
         )
         actions = 'pardon', 'pardon_success'
-    warn_count = db.get_warn(bot.cur, server_id, user_id)
+    warn_count = get_warn_(bot.cur, server_id, user_id)
     await bot.say(
         localize[actions[1]].format(member, reason, author) +
         str(warn_count)
