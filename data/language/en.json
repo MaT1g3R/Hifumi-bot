@@ -139,5 +139,8 @@
   "trivia_wrong_balance": "You lost **{}** credits. Your new balance is **{}** credits.",
   "help_sent": ":white_check_mark: Help has been sent to you via DM.",
   "fact_list": "To get a fact, please use `{}fact factname`. The current list of available facts are:```\n{}\n```",
-  "": ""
+  "num_fact_not_found": ":information_source: Sorry! I could not find a fact about the number you provided.",
+  "num_fact_str": ":no_entry_sign: Please enter a valid integer.",
+  "num_fact_random": ":information_source: You didn't enter a number, so here's a random fact about **{}**:\n",
+  "num_fact_found": ":information_source: Fact about number **{}**:\n"
 }

@@ -54,12 +54,12 @@ tickle              ✕
 * anime/manga moved to its own category
 * serverinfo/userinfo/avatar/birthday/nicknames moved to its own category
 * fact commands made into command group
+* dog facts removed due to no good api
 ```
 advice              ✔
-fact                ✕
-fact cat            ✕
-fact dog            ✕
-fact number *new    ✕
+fact                ✔
+fact cat            ✔
+fact number *new    ✔
 imdb                ✕
 recipe              ✕
 remindme            ✕
