@@ -231,7 +231,7 @@ userinfo            ✕
 - Wikipedia searching
 - Actual polls via Discord instead of Strawpoll
 - Voteban! (yes, really)
-- Format erros when bot DMs
+- Format errors when bot DMs
 - And finally... fix the bug for shard ID argument instead of settings - Planned
    
 That's all!
