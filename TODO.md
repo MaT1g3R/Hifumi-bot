@@ -215,6 +215,22 @@ userinfo            ✕
    - Hackban (ban users outside the server via user ID)
    - Translation command return
    - Cleverbot return
+   - Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
+- Stream notification available too for Hitbox and Beam
+- Welcome and farewall system
+- Add ban and kick notifications for modlog - Planned!
+- Calculator for math, if possible scientific
+- Automatic hentai posting if set
+- Softban function (also with modlog, ban someone and then unban him)
+- Google searching, as well as images
+- Make a waifu command (search Google pictures for the bot character, in the public version the command should be "~hifumi")
+- osu! score tracker
+- Make an easy installer for Windows (graphic mode, planned)
+- Lookup a Pokemon with number
+- Autorole function (assign a role to new members)
+- Wikipedia searching
+- Actual polls via Discord instead of Strawpoll
+- Voteban! (yes, really)
    
    I'll stop here for the moment. There's too many.
    
