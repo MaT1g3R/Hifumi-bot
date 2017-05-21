@@ -205,17 +205,20 @@ userinfo            ✕
 - [ ] Cleverbot return
 - [x] Danbooru, Gelbooru and Safebooru addition
 - [ ] Display a list for 10 latest results if music is requested via search query, user can choose by typing the option number and then bot queues for play (Refer to Rem's !w.qa)
+- [ ] Feedback (with cooldown to avoid abuse)
 - [ ] Fix the bug for shard ID argument instead of settings 
 - [ ] Format errors when bot DMs
 - [ ] Google searching, as well as images
-- [ ] Hackban (ban users outside the server via user ID)
+- [ ] Hackban (ban users outside the server via user ID) and individual unban as well
 - [ ] Invite blocker and mention spam protection
 - [ ] Lookup a Pokemon with number
+- [ ] Marriage function
 - [ ] Make a waifu command (search random Google pictures for the bot character, this can be specified in settings.py; in the public version the command should be "~hifumi")
-- [ ] Make another meme command but with user avatar (For example spoo.py commands or t!beautiful from Tatsumaki)
+- [ ] Make another meme command but with user avatar (For example spoo.py "Fun" category commands or t!beautiful from Tatsumaki)
 - [ ] Make an easy installer for Windows (graphic mode, planned)
 - [ ] Make possible a triggered command with the picture of a user (with filters, like blargbot)
-- [ ] Merge cute(x) commands to a new cuteanimal command
+- [ ] Merge cute(x) commands to a new animal command
+- [ ] Message to general channel of bot introduction when bot joins to a new guild, DM to a mod if bot is kicked (promote feedback) 
 - [x] Modlog
 - [ ] Profile for currency 
 - [ ] Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
@@ -229,8 +232,8 @@ userinfo            ✕
 - [ ] Translation command return
 - [ ] Truth or dare
 - [ ] Twitch stream notification 
-- [ ] Voteban! (yes, really)
-- [ ] Welcome and farewall system
+- [ ] Voteban! (yes, really; ask the vote of people to ban a person. Admin command to avoid abuse.)
+- [ ] Welcome and farewell system
 - [ ] Wikipedia searching
 - [ ] Word filter (compatible with words and regex as well)
 - [ ] osu! pp calculating for beatmaps
