@@ -26,7 +26,7 @@ def command_error_handler(localize, exception):
     elif isinstance(exception, NsfwError):
         return localize['nsfw_str']
     elif isinstance(exception, BadWordError):
-        return localize['bad_word'].format(str(exception))
+        return localize['bad_word'].format(str(exception)) + '\nhttps://imgur.com/8Noy9TH.png'
     elif isinstance(exception, ManageRoleError):
         return localize['not_manage_role']
     elif isinstance(exception, AdminError):
