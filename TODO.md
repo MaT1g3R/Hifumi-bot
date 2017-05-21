@@ -231,8 +231,10 @@ userinfo            ✕
 - Wikipedia searching
 - Actual polls via Discord instead of Strawpoll
 - Voteban! (yes, really)
+- Format erros when bot DMs
+- And finally... fix the bug for shard ID argument instead of settings - Planned
    
-   I'll stop here for the moment. There's too many.
+That's all!
    
 ## 5. Translation support
    - Done! Locals are actually WIP
