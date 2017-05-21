@@ -191,7 +191,33 @@ userinfo            ✕
 ```
 
 ## 4. New features
-- coming soon!
+   Made by users, listed in random order:
+   - Modlog - Done!
+   - Twitch stream notification - Planned
+   - Merge cute(x) commands to a new cuteanimal command
+   - Addition of Chuck Norris jokes (name customizable) - Planned
+   - Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
+   - Danbooru, Gelbooru and Safebooru addition - Planned/Done
+   - Announce when there's the birthday for someone - Planned
+   - Word filter (compatible with words and regex as well)
+   - Invite blocker and mention spam protection
+   - Toggle DM sending for Hifumi
+   - Cleaning filters (clean bot messages, all bots messages, specific user messages)
+   - AFK function (if a user that has AFK activated is mentioned, make Hifumi send a message with the reason if specified)
+   - Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
+   - Stream Listen.moe via command
+   - A command to switch bot status (setstatus)
+   - osu! pp calculating for beatmaps
+   - Recipe finder
+   - Battle command to defeat from other users - Planned
+   - Profile for currency - Planned
+   - Make possible a triggered command with the picture of a user (with filters, like blargbot)
+   - Hackban (ban users outside the server via user ID)
+   - Translation command return
+   - Cleverbot return
+   
+   I'll stop here for the moment. There's too many.
+   
 ## 5. Translation support
    - Done! Locals are actually WIP
 ## 6. Documentation
