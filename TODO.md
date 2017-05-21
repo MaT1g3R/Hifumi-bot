@@ -204,13 +204,15 @@ userinfo            ✕
 - [ ] Cleaning filters (clean bot messages, all bots messages, specific user messages)
 - [ ] Cleverbot return
 - [x] Danbooru, Gelbooru and Safebooru addition
+- [ ] Display a list for 10 latest results if music is requested via search query, user can choose by typing the option number and then bot queues for play (Refer to Rem's !w.qa)
 - [ ] Fix the bug for shard ID argument instead of settings 
 - [ ] Format errors when bot DMs
 - [ ] Google searching, as well as images
 - [ ] Hackban (ban users outside the server via user ID)
 - [ ] Invite blocker and mention spam protection
 - [ ] Lookup a Pokemon with number
-- [ ] Make a waifu command (search Google pictures for the bot character, in the public version the command should be "~hifumi")
+- [ ] Make a waifu command (search random Google pictures for the bot character, this can be specified in settings.py; in the public version the command should be "~hifumi")
+- [ ] Make another meme command but with user avatar (For example spoo.py commands or t!beautiful from Tatsumaki)
 - [ ] Make an easy installer for Windows (graphic mode, planned)
 - [ ] Make possible a triggered command with the picture of a user (with filters, like blargbot)
 - [ ] Merge cute(x) commands to a new cuteanimal command
@@ -225,6 +227,7 @@ userinfo            ✕
 - [ ] Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
 - [ ] Toggle DM sending for Hifumi
 - [ ] Translation command return
+- [ ] Truth or dare
 - [ ] Twitch stream notification 
 - [ ] Voteban! (yes, really)
 - [ ] Welcome and farewall system
