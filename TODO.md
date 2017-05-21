@@ -191,50 +191,47 @@ userinfo            ✕
 ```
 
 ## 4. New features
-   Made by users, listed in random order:
-   - Modlog - Done!
-   - Twitch stream notification - Planned
-   - Merge cute(x) commands to a new cuteanimal command
-   - Addition of Chuck Norris jokes (name customizable) - Planned
-   - Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
-   - Danbooru, Gelbooru and Safebooru addition - Planned/Done
-   - Announce when there's the birthday for someone - Planned
-   - Word filter (compatible with words and regex as well)
-   - Invite blocker and mention spam protection
-   - Toggle DM sending for Hifumi
-   - Cleaning filters (clean bot messages, all bots messages, specific user messages)
-   - AFK function (if a user that has AFK activated is mentioned, make Hifumi send a message with the reason if specified)
-   - Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
-   - Stream Listen.moe via command
-   - A command to switch bot status (setstatus)
-   - osu! pp calculating for beatmaps
-   - Recipe finder
-   - Battle command to defeat from other users - Planned
-   - Profile for currency - Planned
-   - Make possible a triggered command with the picture of a user (with filters, like blargbot)
-   - Hackban (ban users outside the server via user ID)
-   - Translation command return
-   - Cleverbot return
-   - Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
-- Stream notification available too for Hitbox and Beam
-- Welcome and farewall system
-- Add ban and kick notifications for modlog - Planned!
-- Calculator for math, if possible scientific
-- Automatic hentai posting if set
-- Softban function (also with modlog, ban someone and then unban him)
-- Google searching, as well as images
-- Make a waifu command (search Google pictures for the bot character, in the public version the command should be "~hifumi")
-- osu! score tracker
-- Make an easy installer for Windows (graphic mode, planned)
-- Lookup a Pokemon with number
-- Autorole function (assign a role to new members)
-- Wikipedia searching
-- Actual polls via Discord instead of Strawpoll
-- Voteban! (yes, really)
-- Format errors when bot DMs
-- And finally... fix the bug for shard ID argument instead of settings - Planned
-   
-That's all!
+- [ ] A command to switch bot status (setstatus)
+- [ ] AFK function (if a user that has AFK activated is mentioned, make Hifumi send a message with the reason if specified)
+- [ ] Actual polls via Discord instead of Strawpoll
+- [ ] Add ban and kick notifications for modlog !
+- [ ] Addition of Chuck Norris jokes (name customizable) 
+- [ ] Announce when there's the birthday for someone 
+- [ ] Automatic hentai posting if set
+- [ ] Autorole function (assign a role to new members)
+- [ ] Battle command to defeat from other users 
+- [ ] Calculator for math, if possible scientific
+- [ ] Cleaning filters (clean bot messages, all bots messages, specific user messages)
+- [ ] Cleverbot return
+- [x] Danbooru, Gelbooru and Safebooru addition
+- [ ] Fix the bug for shard ID argument instead of settings 
+- [ ] Format errors when bot DMs
+- [ ] Google searching, as well as images
+- [ ] Hackban (ban users outside the server via user ID)
+- [ ] Invite blocker and mention spam protection
+- [ ] Lookup a Pokemon with number
+- [ ] Make a waifu command (search Google pictures for the bot character, in the public version the command should be "~hifumi")
+- [ ] Make an easy installer for Windows (graphic mode, planned)
+- [ ] Make possible a triggered command with the picture of a user (with filters, like blargbot)
+- [ ] Merge cute(x) commands to a new cuteanimal command
+- [x] Modlog
+- [ ] Profile for currency 
+- [ ] Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
+- [ ] Recipe finder
+- [ ] Softban function (also with modlog, ban someone and then unban him)
+- [ ] Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
+- [ ] Stream Listen.moe via command
+- [ ] Stream notification available too for Hitbox and Beam
+- [ ] Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
+- [ ] Toggle DM sending for Hifumi
+- [ ] Translation command return
+- [ ] Twitch stream notification 
+- [ ] Voteban! (yes, really)
+- [ ] Welcome and farewall system
+- [ ] Wikipedia searching
+- [ ] Word filter (compatible with words and regex as well)
+- [ ] osu! pp calculating for beatmaps
+- [ ] osu! score tracker
    
 ## 5. Translation support
    - Done! Locals are actually WIP
