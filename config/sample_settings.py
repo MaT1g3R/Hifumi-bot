@@ -49,6 +49,13 @@ BAD_WORD = ['loli', 'l0l1', 'lol1', 'l0li', '7071', 'lolii', 'looli', 'lolli',
             'g0r3', 'g0re', 'ch1ld', 'kid', 'k1d', 'kiddo', 'ロリ', 'ロリコン',
             'pico', 'ショタコン', 'ショタ']
 
+# If your bot has a character illustrating her/him, write him/her name here
+# If the character comes from a series/movie/any audiovisual media, you may
+# type the series name here too. For example:
+# pacman -> pacman and the ghostly adventures pacman | or this one:
+# sonoda umi -> love live sonoda umi
+WAIFU_NAME = 'BOT_CHARACTER_NAME_HERE'
+
 # Setting for sharding, defualts to not sharded
 # Please read "Sharding" page in the documentation for more information
 SHARDED = False
