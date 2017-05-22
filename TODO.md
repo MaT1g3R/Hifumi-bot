@@ -239,6 +239,9 @@ userinfo            ✕
 - [ ] Word filter (compatible with words and regex as well)
 - [ ] osu! pp calculating for beatmaps
 - [ ] osu! beatmap status announce (for example: http://puu.sh/vXBKc.jpg)
+- [ ] Modding queue activity for osu! (for example: http://puu.sh/vXDhg.jpg)
+
+NOTE: This is the best ideas we pick. Until we're done with them, we're not accepting feature requests anymore.
    
 ## 5. Translation support
    - Done! Locals are actually WIP
