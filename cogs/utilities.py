@@ -1,6 +1,8 @@
+from asyncio import sleep
 from json import loads
 
 from discord.ext import commands
+from imdbpie import Imdb
 from requests import get
 
 from core.discord_functions import get_prefix
@@ -12,7 +14,7 @@ class Utilities:
     """
     Class for Utilities/Search commands
     """
-    __slots__ = ['bot']
+    __slots__ = ['bot', 'imdb_api']
 
     def __init__(self, bot: Hifumi):
         """
@@ -20,6 +22,7 @@ class Utilities:
         :param bot: the bot object
         """
         self.bot = bot
+        self.imdb_api = Imdb()
 
     @commands.command()
     async def advice(self):
@@ -82,11 +85,20 @@ class Utilities:
 
     @commands.command()
     async def imdb(self):
+        """
+        Search imdb for a movie
+        """
         pass
 
-    @commands.command()
-    async def remindme(self):
-        pass
+    @commands.command(pass_context=True)
+    async def remindme(self, ctx, t):
+        """
+        Set a reminder and notify the user when time is up
+        """
+        t = int(t)
+        await sleep(t)
+        await self.bot.say(ctx)
+        await self.bot.say(t)
 
     @commands.command()
     async def strawpoll(self):
