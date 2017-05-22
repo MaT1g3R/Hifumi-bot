@@ -213,7 +213,6 @@ userinfo            ✕
 - [ ] Hackban (ban users outside the server via user ID) and individual unban as well
 - [ ] Invite blocker and mention spam protection
 - [ ] Lookup a Pokemon with number
-- [ ] Marriage function
 - [ ] Make a waifu command (search random Google pictures for the bot character, this can be specified in settings.py; in the public version the command should be "~hifumi")
 - [ ] Make another meme command but with user avatar (For example spoo.py "Fun" category commands or t!beautiful from Tatsumaki)
 - [ ] Make an easy installer for Windows (graphic mode, planned)
@@ -224,6 +223,7 @@ userinfo            ✕
 - [ ] Profile for currency 
 - [ ] Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
 - [ ] Recipe finder
+- [ ] RSS subscriptions and announcements
 - [ ] Softban function (also with modlog, ban someone and then unban him)
 - [ ] Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
 - [ ] Stream Listen.moe via command
@@ -238,7 +238,7 @@ userinfo            ✕
 - [ ] Wikipedia searching
 - [ ] Word filter (compatible with words and regex as well)
 - [ ] osu! pp calculating for beatmaps
-- [ ] osu! score tracker
+- [ ] osu! beatmap status announce (for example: http://puu.sh/vXBKc.jpg)
    
 ## 5. Translation support
    - Done! Locals are actually WIP
