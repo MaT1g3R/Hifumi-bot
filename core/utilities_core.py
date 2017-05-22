@@ -27,6 +27,5 @@ def number_fact(num, not_found_msg, bad_num_msg, header):
             break
         except JSONDecodeError:
             continue
-    found = res['found']
-    return header.format(res['number']) + res['text'] if found \
+    return header.format(res['number']) + res['text'] if res['found'] \
         else not_found_msg

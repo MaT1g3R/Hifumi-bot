@@ -55,12 +55,13 @@ tickle              ✕
 * serverinfo/userinfo/avatar/birthday/nicknames moved to its own category
 * fact commands made into command group
 * dog facts removed due to no good api
+* imdb/movie search is put on hold until we find a suitable API
 ```
 advice              ✔
 fact                ✔
 fact cat            ✔
 fact number *new    ✔
-imdb                ✕
+imdb *on hold       ✕
 recipe              ✕
 remindme            ✕
 strawpoll           ✕
