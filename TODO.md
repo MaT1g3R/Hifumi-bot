@@ -241,7 +241,7 @@ userinfo            ✕
 - [ ] osu! beatmap status announce (for example: http://puu.sh/vXBKc.jpg)
 - [ ] Modding queue activity for osu! (for example: http://puu.sh/vXDhg.jpg)
 
-NOTE: This is the best ideas we pick. Until we're done with them, we're not accepting feature requests anymore.
+**NOTE:** Those are the best ideas we picked. Until we're done with them, we're not accepting feature requests anymore.
    
 ## 5. Translation support
    - Done! Locals are actually WIP
