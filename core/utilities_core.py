@@ -82,7 +82,7 @@ def imdb(query, api: Imdb, localize):
             (localize['score'], score),
             (localize['plot_outline'], plot, False)
         ]
-        res = build_embed(body, 0xE5BC26, author=title)
+        res = build_embed(body, 0xE5BC26, author={'name': title})
         if poster:
             res.set_image(url=poster)
         return res
