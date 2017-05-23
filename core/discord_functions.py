@@ -26,7 +26,8 @@ def command_error_handler(localize, exception):
     elif isinstance(exception, NsfwError):
         return localize['nsfw_str']
     elif isinstance(exception, BadWordError):
-        return localize['bad_word'].format(str(exception)) + '\nhttps://imgur.com/8Noy9TH.png'
+        return localize['bad_word'].format(
+            str(exception)) + '\nhttps://imgur.com/8Noy9TH.png'
     elif isinstance(exception, ManageRoleError):
         return localize['not_manage_role']
     elif isinstance(exception, AdminError):
@@ -86,6 +87,7 @@ def build_embed(content: list, colour, **kwargs):
             'text': the footer text,
             'icon_url': the footer icon url, optional
         }
+    :key image: the image url
     :return: a discord embed object
     """
     res = Embed(colour=colour)
@@ -112,6 +114,8 @@ def build_embed(content: list, colour, **kwargs):
             )
         else:
             res.set_footer(text=kwargs['footer']['text'])
+    if 'image' in kwargs:
+        res.set_image(url=kwargs['image'])
     return res
 
 

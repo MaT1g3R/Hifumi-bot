@@ -6,8 +6,9 @@ from imdbpie import Imdb
 from requests import get
 
 from core.discord_functions import get_prefix
-from core.utilities_core import number_fact
+from core.utilities_core import number_fact, imdb
 from shell import Hifumi
+from discord.embeds import Embed
 
 
 class Utilities:
@@ -83,12 +84,20 @@ class Utilities:
             )
         )
 
-    @commands.command()
-    async def imdb(self):
+    @commands.command(pass_context=True)
+    async def imdb(self, ctx, *query):
         """
         Search imdb for a movie
+        :param ctx: the discord context
+        :param query: the search query
         """
-        pass
+        res = imdb(
+            ' '.join(query), self.imdb_api, self.bot.get_language_dict(ctx)
+        )
+        if isinstance(res, Embed):
+            await self.bot.say(embed=res)
+        else:
+            await self.bot.say(res)
 
     @commands.command(pass_context=True)
     async def remindme(self, ctx, t):
