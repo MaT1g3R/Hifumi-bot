@@ -155,5 +155,7 @@
   "writer": "Writer",
   "cast": "Important Cast",
   "plot_outline": "Plot Outline",
-  "score": "Score"
+  "score": "Score",
+  "hours": "hours",
+  "minutes": "minutes"
 }

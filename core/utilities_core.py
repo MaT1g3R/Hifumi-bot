@@ -6,7 +6,7 @@ from json import JSONDecodeError
 from imdbpie import Imdb
 from requests import get
 
-from .discord_functions import build_embed
+from core.discord_functions import build_embed
 
 
 def number_fact(num, not_found_msg, bad_num_msg, header):
@@ -43,23 +43,42 @@ def imdb(query, api: Imdb, localize):
     :return: the result
     """
     try:
+        names = lambda x: ', '.join((p.name for p in x)) if x else 'N/A'
+        null_check = lambda x: x if x and not isinstance(x, int) else 'N/A'
+
         id_ = api.search_for_title(query)[0]['imdb_id']
         res = api.get_title_by_id(id_)
         eps = api.get_episodes(id_) if res.type == 'tv_series' else None
         ep_count = len(eps) if eps is not None else None
         season_count = eps[-1].season if eps is not None else None
-        title = res.title
-        release = res.release_date
-        runtime = res.runtime
-        rated = res.certification
-        genre = res.genres
-        director = res.directors_summary
-        writer = res.writers_summary
-        cast = res.cast_summary
-        plot = res.plot_outline
-        poster = res.poster_url
-        score = res.rating
-        return build_embed([], 0xE5BC26)
+
+        title = null_check(res.title)
+        release = null_check(res.release_date)
+        runtime_minutes = res.runtime
+        runtime_str = '{}{} {}{}'.format(
+            runtime_minutes//60, localize['hours'], runtime_minutes % 60, localize['minutes']
+        ) if runtime_minutes is not None else 'N/A'
+        rated = null_check(res.certification)
+        genre = null_check(', '.join(res.genres))
+        director = names(res.directors_summary)
+        writer = names(res.writers_summary)
+        cast = names(res.cast_summary)
+        plot = null_check(res.plot_outline)
+        poster = null_check(res.poster_url)
+        score = null_check(res.rating)
+        body = [
+
+        ]
+        if ep_count is not None:
+            body.append('')
+        if season_count is not None:
+            body.append('')
+        body += []
+
+
+
+        # return build_embed([], 0xE5BC26)
+        return res.__dict__
     except (JSONDecodeError, IndexError):
         return localize['title_not_found']
 
@@ -83,4 +102,5 @@ def imdb(query, api: Imdb, localize):
 if __name__ == '__main__':
     from pprint import pprint
     a = Imdb()
-    pprint(imdb('breaking bad', a, {'title_not_found': ''}))
+    r = imdb('breaking bad', a, {'title_not_found': ''})
+    pprint(r)
