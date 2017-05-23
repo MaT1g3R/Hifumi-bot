@@ -58,7 +58,6 @@ def imdb(query, api: Imdb, localize):
                 round(hours), localize['hours'],
                 round(minutes), localize['minutes']
             )
-            return runtime_str
         else:
             runtime_str = 'N/A'
         rated = null_check(res.certification)
