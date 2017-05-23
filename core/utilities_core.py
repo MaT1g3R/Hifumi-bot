@@ -5,7 +5,6 @@ from json import JSONDecodeError
 
 from imdbpie import Imdb
 from requests import get
-
 from .discord_functions import build_embed
 
 
@@ -50,14 +49,17 @@ def imdb(query, api: Imdb, localize):
         eps = api.get_episodes(id_) if res.type == 'tv_series' else None
         ep_count = len(eps) if eps is not None else None
         season_count = eps[-1].season if eps is not None else None
-
         title = null_check(res.title)
         release = null_check(res.release_date)
         runtime_minutes = res.runtime
-        runtime_str = '{}{} {}{}'.format(
-            runtime_minutes // 60, localize['hours'],
-            runtime_minutes % 60, localize['minutes']
-        ) if runtime_minutes is not None else 'N/A'
+        if runtime_minutes is not None:
+            hours, minutes = divmod(runtime_minutes, 60)
+            runtime_str = '{}{} {}{}'.format(
+                hours, localize['hours'],
+                minutes % 60, localize['minutes']
+            )
+        else:
+            runtime_str = 'N/A'
         rated = null_check(res.certification)
         genre = null_check(', '.join(res.genres))
         director = names(res.directors_summary)
