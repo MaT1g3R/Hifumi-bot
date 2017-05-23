@@ -143,7 +143,7 @@ def get_date(diff=0):
 
 def get_time_elapsed(start, finish):
     """
-    Get the time elapsed betwen start time and finish time
+    Get the time elapsed between start time and finish time
     :param start: the start time
     :param finish: the finish time
     :return: (days, hours, minutes, seconds) elapsed

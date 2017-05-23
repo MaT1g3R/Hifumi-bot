@@ -61,7 +61,7 @@ def imdb(query, api: Imdb, localize):
         else:
             runtime_str = 'N/A'
         rated = null_check(res.certification)
-        genre = null_check(', '.join(res.genres))
+        genre = ', '.join(res.genres) if res.genres else 'N/A'
         director = names(res.directors_summary)
         writer = names(res.writers_summary)
         cast = names(res.cast_summary)
