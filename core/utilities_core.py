@@ -53,7 +53,8 @@ def imdb(query, api: Imdb, localize):
         release = null_check(res.release_date)
         runtime = res.runtime
         if runtime is not None:
-            hours, minutes = divmod(runtime / 100, 60)
+            hours, seconds = divmod(runtime, 3600)
+            minutes = seconds/60
             runtime_str = '{} {} {} {}'.format(
                 round(hours), localize['hours'],
                 round(minutes), localize['minutes']
