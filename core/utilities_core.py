@@ -51,13 +51,14 @@ def imdb(query, api: Imdb, localize):
         season_count = eps[-1].season if eps is not None else None
         title = null_check(res.title)
         release = null_check(res.release_date)
-        runtime_minutes = res.runtime
-        if runtime_minutes is not None:
-            hours, minutes = divmod(runtime_minutes, 60)
-            runtime_str = '{}{} {}{}'.format(
-                hours, localize['hours'],
-                minutes % 60, localize['minutes']
+        runtime = res.runtime
+        if runtime is not None:
+            hours, minutes = divmod(runtime / 100, 60)
+            runtime_str = '{} {} {} {}'.format(
+                round(hours), localize['hours'],
+                round(minutes), localize['minutes']
             )
+            return runtime_str
         else:
             runtime_str = 'N/A'
         rated = null_check(res.certification)

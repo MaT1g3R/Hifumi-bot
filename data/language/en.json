@@ -156,6 +156,6 @@
   "cast": "Important Cast",
   "plot_outline": "Plot Outline",
   "score": "Score",
-  "hours": "hours",
-  "minutes": "minutes"
+  "hours": "hour(s)",
+  "minutes": "minute(s)"
 }
