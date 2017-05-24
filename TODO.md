@@ -194,7 +194,7 @@ userinfo            ✕
 - [ ] A command to switch bot status (setstatus)
 - [ ] AFK function (if a user that has AFK activated is mentioned, make Hifumi send a message with the reason if specified)
 - [ ] Actual polls via Discord instead of Strawpoll
-- [ ] Add ban and kick notifications for modlog !
+- [ ] Add ban, softban and kick notifications for modlog! If possible, also include server general actions, like audit log
 - [ ] Addition of Chuck Norris jokes (name customizable) 
 - [ ] Announce when there's the birthday for someone 
 - [ ] Automatic hentai posting if set
@@ -207,11 +207,11 @@ userinfo            ✕
 - [ ] Display a list for 10 latest results if music is requested via search query, user can choose by typing the option number and then bot queues for play (Refer to Rem's !w.qa)
 - [ ] Feedback (with cooldown to avoid abuse)
 - [ ] Fix the bug for shard ID argument instead of settings 
-- [ ] Format errors when bot DMs
+- [x] Format errors when bot DMs
 - [ ] Google searching, as well as images
 - [ ] Hackban (ban users outside the server via user ID) and individual unban as well
 - [ ] Invite blocker and mention spam protection
-- [ ] Lookup a Pokemon with number
+- [ ] Lookup a Pokemon with number or name
 - [ ] Make a waifu command (search random Google pictures for the bot character, this can be specified in settings.py; in the public version the command should be "~hifumi")
 - [ ] Make another meme command but with user avatar (For example spoo.py "Fun" category commands or t!beautiful from Tatsumaki)
 - [ ] Make an easy installer for Windows (graphic mode, planned)
@@ -230,15 +230,12 @@ userinfo            ✕
 - [ ] Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
 - [ ] Toggle DM sending for Hifumi
 - [ ] Translation command return
-- [ ] Truth or dare
 - [ ] Twitch stream notification 
 - [ ] Voteban! (yes, really; ask the vote of people to ban a person. Admin command to avoid abuse.)
-- [ ] Welcome and farewell system
+- [ ] Welcome and farewell system, able for DM or channel
 - [ ] Wikipedia searching
-- [ ] Word filter (compatible with words and regex as well)
+- [ ] Word filter (mod tool, compatible with words and regex as well)
 - [ ] osu! pp calculating for beatmaps
-- [ ] osu! beatmap status announce (for example: http://puu.sh/vXBKc.jpg)
-- [ ] Modding queue activity for osu! (for example: http://puu.sh/vXDhg.jpg)
 
 **NOTE:** Those are the best ideas we picked. Until we're done with them, we're not accepting feature requests anymore.
    
