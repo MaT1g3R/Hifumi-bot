@@ -7,7 +7,7 @@ from imdbpie import Imdb
 from requests import get
 
 from core.discord_functions import get_prefix
-from core.utilities_core import number_fact, imdb, recipie_search
+from core.utilities_core import number_fact, imdb, recipe_search
 from shell import Hifumi
 
 
@@ -100,13 +100,13 @@ class Utilities:
             await self.bot.say(res)
 
     @commands.command(pass_context=True)
-    async def recipie(self, ctx, *query):
+    async def recipe(self, ctx, *query):
         """
-        Search for a recipie
+        Search for a recipe
         :param ctx: the discord context
         :param query: the search query
         """
-        res = recipie_search(' '.join(query), self.bot.get_language_dict(ctx))
+        res = recipe_search(' '.join(query), self.bot.get_language_dict(ctx))
         if isinstance(res, Embed):
             await self.bot.say(embed=res)
         else:
