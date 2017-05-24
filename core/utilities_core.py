@@ -121,7 +121,8 @@ def recipe_search(query, localize):
     if 'image' in res and res['image']:
         kwargs['thumbnail'] = res['image']
     if 'source' in res and res['source']:
-        kwargs['footer'] = localize['recipe_source'] + res['source']
+        kwargs['footer'] = localize['recipe_source'] + res['source'] + \
+                           " | " + localize['recipe_open']
     if author:
         kwargs['author'] = author
     servings = res.get('yield', None)
