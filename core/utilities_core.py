@@ -97,12 +97,12 @@ def imdb(query, api: Imdb, localize):
         return localize['title_not_found']
 
 
-def recipie_search(query, localize):
+def recipe_search(query, localize):
     """
-    Search for a food recipie
+    Search for a food recipe
     :param query: the search query
     :param localize: the localization strings
-    :return: a discord embed object of the recipie
+    :return: a discord embed object of the recipe
     """
     url = f'https://api.edamam.com/search?' \
           f'app_id={EDAMAM_API[0]}&app_key={EDAMAM_API[1]}&q={query}&to=1&' \
@@ -110,7 +110,7 @@ def recipie_search(query, localize):
     try:
         res = get(url).json()['hits'][0]['recipe']
     except IndexError:
-        return localize['recipie_not_found']
+        return localize['recipe_not_found']
 
     kwargs = {}
     author = {}
@@ -121,7 +121,7 @@ def recipie_search(query, localize):
     if 'image' in res and res['image']:
         kwargs['thumbnail'] = res['image']
     if 'source' in res and res['source']:
-        kwargs['footer'] = localize['recipie_source'] + res['source']
+        kwargs['footer'] = localize['recipe_source'] + res['source']
     if author:
         kwargs['author'] = author
     servings = res.get('yield', None)
