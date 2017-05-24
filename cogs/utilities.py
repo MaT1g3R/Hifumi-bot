@@ -1,14 +1,14 @@
 from asyncio import sleep
 from json import loads
 
+from discord.embeds import Embed
 from discord.ext import commands
 from imdbpie import Imdb
 from requests import get
 
 from core.discord_functions import get_prefix
-from core.utilities_core import number_fact, imdb
+from core.utilities_core import number_fact, imdb, recipie_search
 from shell import Hifumi
-from discord.embeds import Embed
 
 
 class Utilities:
@@ -94,6 +94,19 @@ class Utilities:
         res = imdb(
             ' '.join(query), self.imdb_api, self.bot.get_language_dict(ctx)
         )
+        if isinstance(res, Embed):
+            await self.bot.say(embed=res)
+        else:
+            await self.bot.say(res)
+
+    @commands.command(pass_context=True)
+    async def recipie(self, ctx, *query):
+        """
+        Search for a recipie
+        :param ctx: the discord context
+        :param query: the search query
+        """
+        res = recipie_search(' '.join(query), self.bot.get_language_dict(ctx))
         if isinstance(res, Embed):
             await self.bot.say(embed=res)
         else:

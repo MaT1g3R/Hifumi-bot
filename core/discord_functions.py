@@ -4,7 +4,7 @@ A collection of functions that's related to discord
 import re
 
 from discord import HTTPException, Forbidden
-from discord.embeds import Embed
+from discord.embeds import Embed, EmptyEmbed
 from discord.ext.commands import CommandOnCooldown
 from discord.ext.commands.errors import MissingRequiredArgument
 
@@ -64,7 +64,7 @@ def get_prefix(cur, server, default_prefix):
     return res if res is not None else default_prefix
 
 
-def build_embed(content: list, colour, **kwargs):
+def build_embed(content: list, colour, description=EmptyEmbed, **kwargs):
     """
     Build a discord embed object 
 
@@ -74,6 +74,8 @@ def build_embed(content: list, colour, **kwargs):
 
     :param colour: the colour of the embed
 
+    :param description: the description of the embed, optional
+
     :param kwargs: extra options
 
     :key author: a dictionary to supply author info as such:
@@ -81,24 +83,27 @@ def build_embed(content: list, colour, **kwargs):
             'name': author name,
             'icon_url': icon url, optional
         }
+
     :key footer: the footer for the embed as a string for pure text
                  or a dict as such:
         {
             'text': the footer text,
             'icon_url': the footer icon url, optional
         }
+
     :key image: the image url
+
+    :key thumbnail: the thumbnail image url
+
     :return: a discord embed object
     """
-    res = Embed(colour=colour)
+    res = Embed(colour=colour, description=description)
     if 'author' in kwargs:
         author = kwargs['author']
-        name = author['name'] if 'name' in author else None
-        url = author['icon_url'] if 'icon_url' in author else None
-        if url is not None:
-            res.set_author(name=name, icon_url=url)
-        else:
-            res.set_author(name=name)
+        name = author.get('name', None)
+        icon_url = author.get('icon_url', EmptyEmbed)
+        author_url = author.get('url', EmptyEmbed)
+        res.set_author(name=name, icon_url=icon_url, url=author_url)
     for c in content:
         name = c[0]
         value = c[1]
@@ -116,6 +121,8 @@ def build_embed(content: list, colour, **kwargs):
             res.set_footer(text=kwargs['footer']['text'])
     if 'image' in kwargs:
         res.set_image(url=kwargs['image'])
+    if 'thumbnail' in kwargs:
+        res.set_thumbnail(url=kwargs['thumbnail'])
     return res
 
 

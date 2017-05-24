@@ -120,14 +120,18 @@ class Hifumi(Bot):
             # Ignore this case
             return
         else:
+            try:
+                raise exception
+            except:
+                tb = traceback.format_exc()
             triggered = context.message.content
             ex_type = type(exception).__name__
             four_space = ' ' * 4
             str_ex = str(exception)
             msg = '\n{0}Triggered message: {1}\n' \
                   '{0}Type: {2}\n' \
-                  '{0}Exception: {3}' \
-                .format(four_space, triggered, ex_type, str_ex)
+                  '{0}Exception: {3}\n\n{4}' \
+                .format(four_space, triggered, ex_type, str_ex, tb)
             self.logger.log(WARNING, msg)
             await self.send_message(
                 context.message.channel,

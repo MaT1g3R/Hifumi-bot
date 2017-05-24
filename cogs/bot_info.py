@@ -176,10 +176,16 @@ class BotInfo:
         :param ctx: the discord context object
         :param prefix: the prefix to set to
         """
+        localize = self.bot.get_language_dict(ctx)
+        if '/' in prefix or '\\' in prefix:
+            await self.bot.say(localize['prefix_bad'])
+            return
+        if prefix.startswith('@') or prefix.startswith('#') \
+                or prefix.startswith('<@'):
+            await self.bot.say(localize['prefix_bad_start'])
+            return
         set_prefix_(self.bot.conn, self.bot.cur, ctx.message.server.id, prefix)
-        await self.bot.say(
-            self.bot.get_language_dict(ctx)['set_prefix_'].format(prefix)
-        )
+        await self.bot.say(localize['set_prefix_'].format(prefix))
 
     @prefix.command(pass_context=True, no_pm=True, name='reset')
     @commands.check(is_admin)
