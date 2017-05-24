@@ -158,7 +158,7 @@
   "score": "Score",
   "hours": "hour(s)",
   "minutes": "minute(s)",
-  "recipie_not_found": ":information_source: Sorry, the requested recipie was not found.",
+  "recipe_not_found": ":information_source: Sorry, the requested recipe was not found.",
   "kcal": "kcal",
   "per_serving":"per serving",
   "servings": "Servings",
@@ -170,5 +170,5 @@
   "recipe_en": "Recipe only available in English",
   "prefix_bad": "`/` and `\\` is not allowed.",
   "prefix_bad_start": "Prefix starting with `@` or `#` is not allowed.",
-  "recipie_source": "Recipie provided by: "
+  "recipe_source": "Recipe provided by: "
 }
