@@ -60,7 +60,7 @@ advice              ✔
 fact                ✔
 fact cat            ✔
 fact number *new    ✔
-imdb                ✕
+imdb                ✔
 recipe              ✕
 remindme            ✕
 strawpoll           ✕
