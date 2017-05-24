@@ -171,4 +171,5 @@
   "prefix_bad": "`/` and `\\` is not allowed.",
   "prefix_bad_start": "Prefix starting with `@` or `#` is not allowed.",
   "recipe_source": "Recipe provided by: "
+  "recipe_open": "For the entipe recipe, click the title above."
 }
