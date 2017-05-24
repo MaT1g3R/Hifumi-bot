@@ -12,6 +12,7 @@ from threading import Timer
 from discord import ChannelType, Message, Game
 from discord.ext.commands import Bot, CommandOnCooldown, Context, \
     MissingRequiredArgument, CommandNotFound
+from websockets.exceptions import ConnectionClosed
 
 from config.settings import DEFAULT_PREFIX, SHARDED, \
     ENABLE_CONSOLE_LOGGING, OWNER
@@ -79,7 +80,14 @@ class Hifumi(Bot):
         info('Bot ID: ' + self.user.id)
         self.mention_normal = '<@{}>'.format(self.user.id)
         self.mention_nick = '<@!{}>'.format(self.user.id)
-        await self.change_presence(game=Game(name=g))
+
+        async def __change_presence():
+            try:
+                await self.change_presence(game=Game(name=g))
+            except ConnectionClosed:
+                __change_presence()
+
+        await __change_presence()
         if SHARDED:
             self.update_shard_info()
         if ENABLE_CONSOLE_LOGGING:
