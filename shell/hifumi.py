@@ -83,12 +83,12 @@ class Hifumi(Bot):
 
         async def __change_presence():
             try:
+                await self.wait_until_ready()
                 await self.change_presence(game=Game(name=g))
             except ConnectionClosed as e:
                 self.logger.warning(str(e))
                 await self.logout()
                 await self.login()
-                await self.wait_until_ready()
                 __change_presence()
 
         await __change_presence()
