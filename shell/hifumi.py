@@ -159,7 +159,12 @@ class Hifumi(Bot):
             msg = str(e) + '\n' + str(tb)
             self.logger.log(CRITICAL, msg)
             for dev in [await self.get_user_info(i) for i in OWNER]:
-                await self.send_message(dev, msg)
+                await self.send_message(dev, 'An exception ocurred while the '
+                                        'bot was running. For help, check '
+                                        '"Troubleshooting" section in '
+                                        'documentation, come to our support '
+                                        'server or open an issue in Git repo.'
+                                        "\n```py" + msg + "```")
 
     @coroutine
     async def process_commands(self, message):
