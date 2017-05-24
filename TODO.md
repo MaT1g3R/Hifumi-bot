@@ -61,7 +61,7 @@ fact                ✔
 fact cat            ✔
 fact number *new    ✔
 imdb                ✔
-recipe              ✕
+recipe              ✔
 remindme            ✕
 strawpoll           ✕
 time                ✕
