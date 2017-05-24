@@ -43,7 +43,9 @@ DANBOORU_API = 'INSERT_YOUR_DANBOORU_API'
 
 # Your Edamam Recipe Search API key,
 # can be aquired here: https://developer.edamam.com/
-EDAMAM_API = 'INSERT_YOUR_EDAMAM_API'
+# The first element is the application ID,
+# the second element is the application Key
+EDAMAM_API = ['INSERT_YOUR_EDAMAM_API_ID', 'INSERT_YOUR_EDAMAM_API_KEY']
 
 # A list of bad words to comply with discord TOS, DON'T edit this
 BAD_WORD = ['loli', 'l0l1', 'lol1', 'l0li', '7071', 'lolii', 'looli', 'lolli',
