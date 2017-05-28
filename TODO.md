@@ -1,6 +1,8 @@
 # TODO
 ## 1. Bot manager/launcher
 - Done
+
+- [ ] Localize launcher and errors 
 ## 2. Bot base and command handler
 - mostly finished, contiune to add onto it if needed
 ## 3. Current hifumi commands transfering
