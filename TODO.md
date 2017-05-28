@@ -5,6 +5,9 @@
 - [ ] Localize launcher and errors 
 ## 2. Bot base and command handler
 - mostly finished, contiune to add onto it if needed
+- [ ] Check wether there are news about discord.py library rewrite
+- [ ] If needed, restructure the functions if that happens
+
 ## 3. Current hifumi commands transfering
 1. Fun
 ```
