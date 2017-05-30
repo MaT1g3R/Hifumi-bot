@@ -1,6 +1,6 @@
 # TODO
 # High Priority!!
-- [ ] Re-structure data base to store id's as int to prepare for library rewrite.
+- [ ] Re-structure database to store id's as int to prepare for library rewrite.
 - [ ] Write wrapper functions for getting id's to ensure type safety.
 - [ ] Refactor unittests.
 - [ ] Introduce type annotations where it's appropriate.
