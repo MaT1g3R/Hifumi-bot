@@ -63,7 +63,7 @@ def generate_shard_info(*, servers, members, channels, voice, logged_in):
     }
 
 
-def get_all_shard_info(path=Path('./data/shard_info')):
+def get_all_shard_info(path: Path = Path('./data/shard_info')):
     """
     Get the sum of all shard_info
     :param path: the path that points to the shard_info folder
@@ -81,7 +81,7 @@ def get_all_shard_info(path=Path('./data/shard_info')):
     return combine_dicts(dicts)
 
 
-def build_info_embed(ctx, bot, path=Path('./data/shard_info')):
+def build_info_embed(ctx, bot, path: Path = Path('./data/shard_info')):
     """
     build the info embed
     :param ctx: the discord context object

@@ -1,12 +1,12 @@
 import sqlite3
-from os.path import join
+from pathlib import Path
 from unittest import TestCase, main
 
-from core.discord_functions import command_error_handler, get_prefix, \
-    build_embed, clense_prefix
 from discord.ext.commands import CommandOnCooldown, MissingRequiredArgument
 
 from config.settings import COLOUR
+from scripts.discord_functions import command_error_handler, get_prefix, \
+    build_embed, clense_prefix
 from scripts.helpers import dict_has_empty
 from tests.mock_objects import MockBot, MockContext, MockExpection, MockMessage, \
     MockServer
@@ -86,7 +86,7 @@ class TestDiscordFunctons(TestCase):
         """
         Test get_prefix_ when the server is in the db
         """
-        db = sqlite3.connect(join('test_data', 'mock_db'))
+        db = sqlite3.connect(str(Path('test_data/mock_db')))
         cursor = db.cursor()
         sql_del = '''
                 DELETE FROM main.prefix WHERE server = ?
@@ -111,7 +111,7 @@ class TestDiscordFunctons(TestCase):
         """
         Test for get_prefix_ when the server is not found in the db
         """
-        db = sqlite3.connect(join('test_data', 'mock_db'))
+        db = sqlite3.connect(str(Path('test_data/mock_db')))
         cursor = db.cursor()
         self.assertEqual(
             self.bot.default_prefix,
