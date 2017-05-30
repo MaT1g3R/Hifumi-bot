@@ -1,10 +1,10 @@
-from os.path import join
+from pathlib import Path
 from time import time
 from unittest import TestCase, main
 
 from core.bot_info_core import get_uptime, generate_shard_info, \
     get_all_shard_info, build_info_embed
-from core.helpers import strip_letters, dict_has_empty
+from scripts.helpers import strip_letters, dict_has_empty
 from tests.mock_objects import MockBot, MockContext
 
 
@@ -66,7 +66,7 @@ class TestBotInfoCore(TestCase):
         """
         Test case for get_all_shard_info
         """
-        path = join('test_data', 'test_shard_info')
+        path = Path('test_data/test_shard_info')
         res = get_all_shard_info(path)
         expected = {
             "ram": 2 * 64.12,
@@ -82,7 +82,7 @@ class TestBotInfoCore(TestCase):
         Test case for build_info_embed
         """
         res = build_info_embed(
-            self.ctx, self.bot, join('test_data', 'test_shard_info')
+            self.ctx, self.bot, Path('test_data/test_shard_info')
         ).to_dict()
         self.assertFalse(dict_has_empty(res))
 

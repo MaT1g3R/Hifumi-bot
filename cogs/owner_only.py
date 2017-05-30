@@ -13,10 +13,10 @@ from discord.ext import commands
 from requests import get, RequestException, ConnectionError
 
 from config import OWNER
-from core.checks import is_owner
-from core.discord_functions import check_message_startwith, clense_prefix, \
-    get_prefix
 from core.owner_only_core import handle_eval, bash_script, setavatar
+from scripts.checks import is_owner
+from scripts.discord_functions import check_message_startwith, clense_prefix, \
+    get_prefix
 from shell import Hifumi
 
 

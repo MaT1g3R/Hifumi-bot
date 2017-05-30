@@ -1,8 +1,13 @@
 # TODO
 ## 1. Bot manager/launcher
 - Done
+
+- [ ] Localize launcher and errors 
 ## 2. Bot base and command handler
 - mostly finished, contiune to add onto it if needed
+- [ ] Check wether there are news about discord.py library rewrite
+- [ ] If needed, restructure the functions if that happens
+
 ## 3. Current hifumi commands transfering
 1. Fun
 ```
@@ -54,14 +59,14 @@ tickle              ✕
 * anime/manga moved to its own category
 * serverinfo/userinfo/avatar/birthday/nicknames moved to its own category
 * fact commands made into command group
+* dog facts removed due to no good api
 ```
 advice              ✔
-fact                ✕
-fact cat            ✕
-fact dog            ✕
-fact number *new    ✕
-imdb                ✕
-recipe              ✕
+fact                ✔
+fact cat            ✔
+fact number *new    ✔
+imdb                ✔
+recipe              ✔
 remindme            ✕
 strawpoll           ✕
 time                ✕
@@ -191,7 +196,54 @@ userinfo            ✕
 ```
 
 ## 4. New features
-- coming soon!
+- [ ] A command to switch bot status (setstatus)
+- [ ] AFK function (if a user that has AFK activated is mentioned, make Hifumi send a message with the reason if specified)
+- [ ] Actual polls via Discord instead of Strawpoll
+- [ ] Add ban, softban and kick notifications for modlog! If possible, also include server general actions, like audit log
+- [ ] Addition of Chuck Norris jokes (name customizable) 
+- [ ] Announce when there's the birthday for someone 
+- [ ] Automatic hentai posting if set
+- [ ] Autorole function (assign a role to new members)
+- [ ] Battle command to defeat from other users 
+- [ ] Calculator for math, if possible scientific
+- [ ] Cleaning filters (clean bot messages, all bots messages, specific user messages)
+- [ ] Cleverbot return
+- [x] Danbooru, Gelbooru and Safebooru addition
+- [ ] Display a list for 10 latest results if music is requested via search query, user can choose by typing the option number and then bot queues for play (Refer to Rem's !w.qa)
+- [ ] Feedback (with cooldown to avoid abuse)
+- [ ] Fix the bug for shard ID argument instead of settings 
+- [x] Format errors when bot DMs
+- [ ] Google searching, as well as images
+- [ ] Hackban (ban users outside the server via user ID) and individual unban as well
+- [ ] Invite blocker and mention spam protection
+- [ ] Lookup a Pokemon with number or name
+- [ ] Make a waifu command (search random Google pictures for the bot character, this can be specified in settings.py; in the public version the command should be "~hifumi")
+- [ ] Make another meme command but with user avatar (For example spoo.py "Fun" category commands or t!beautiful from Tatsumaki)
+- [ ] Make an easy installer for Windows (graphic mode, planned)
+- [ ] Make possible a triggered command with the picture of a user (with filters, like blargbot)
+- [ ] Merge cute(x) commands to a new animal command
+- [ ] Message to general channel of bot introduction when bot joins to a new guild, DM to a mod if bot is kicked (promote feedback) 
+- [x] Modlog
+- [ ] Profile for currency 
+- [ ] Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
+- [ ] Recipe finder
+- [ ] RSS subscriptions and announcements
+- [ ] Softban function (also with modlog, ban someone and then unban him)
+- [ ] Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
+- [ ] Stream Listen.moe via command
+- [ ] Stream notification available too for Hitbox and Beam
+- [ ] Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
+- [ ] Toggle DM sending for Hifumi
+- [ ] Translation command return
+- [ ] Twitch stream notification 
+- [ ] Voteban! (yes, really; ask the vote of people to ban a person. Admin command to avoid abuse.)
+- [ ] Welcome and farewell system, able for DM or channel
+- [ ] Wikipedia searching
+- [ ] Word filter (mod tool, compatible with words and regex as well)
+- [ ] osu! pp calculating for beatmaps
+
+**NOTE:** Those are the best ideas we picked. Until we're done with them, we're not accepting feature requests anymore.
+   
 ## 5. Translation support
    - Done! Locals are actually WIP
 ## 6. Documentation

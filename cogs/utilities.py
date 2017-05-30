@@ -1,9 +1,13 @@
+from asyncio import sleep
 from json import loads
 
+from discord.embeds import Embed
 from discord.ext import commands
+from imdbpie import Imdb
 from requests import get
 
-from core.discord_functions import get_prefix
+from core.utilities_core import number_fact, imdb, recipe_search
+from scripts.discord_functions import get_prefix
 from shell import Hifumi
 
 
@@ -11,7 +15,7 @@ class Utilities:
     """
     Class for Utilities/Search commands
     """
-    __slots__ = ['bot', 'cat_count']
+    __slots__ = ['bot', 'imdb_api']
 
     def __init__(self, bot: Hifumi):
         """
@@ -19,7 +23,7 @@ class Utilities:
         :param bot: the bot object
         """
         self.bot = bot
-        self.cat_count = None
+        self.imdb_api = Imdb()
 
     @commands.command()
     async def advice(self):
@@ -54,27 +58,69 @@ class Utilities:
 
     @fact.command()
     async def cat(self):
-        # http://www.catfact.info/api/v1/facts.json?page=583&per_page=1
-        pass
+        """
+        Say a random cat fact
+        """
+        await self.bot.say(
+            get('http://catfacts-api.appspot.com/api/facts').json()['facts'][0]
+        )
 
-    @fact.command()
-    async def dog(self):
-        # https://dog-api.kinduff.com/api/facts
-        pass
+    @fact.command(pass_context=True)
+    @commands.cooldown(rate=1, per=1)
+    async def number(self, ctx, num=None):
+        """
+        Display a fact about a number, random if number is not provided
+        :param ctx: the discord context
+        :param num: the number
+        """
+        localize = self.bot.get_language_dict(ctx)
+        header = localize['num_fact_random'] if num is None \
+            else localize['num_fact_found']
+        num = 'random' if num is None else num
+        await self.bot.say(
+            number_fact(
+                num, localize['num_fact_not_found'],
+                localize['num_fact_str'], header
+            )
+        )
 
-    @fact.command()
-    async def number(self):
-        # http://numbersapi.com/foo?json=true
-        # http://numbersapi.com/random?json=true
-        pass
+    @commands.command(pass_context=True)
+    async def imdb(self, ctx, *query):
+        """
+        Search imdb for a movie
+        :param ctx: the discord context
+        :param query: the search query
+        """
+        res = imdb(
+            ' '.join(query), self.imdb_api, self.bot.get_language_dict(ctx)
+        )
+        if isinstance(res, Embed):
+            await self.bot.say(embed=res)
+        else:
+            await self.bot.say(res)
 
-    @commands.command()
-    async def imdb(self):
-        pass
+    @commands.command(pass_context=True)
+    async def recipe(self, ctx, *query):
+        """
+        Search for a recipe
+        :param ctx: the discord context
+        :param query: the search query
+        """
+        res = recipe_search(' '.join(query), self.bot.get_language_dict(ctx))
+        if isinstance(res, Embed):
+            await self.bot.say(embed=res)
+        else:
+            await self.bot.say(res)
 
-    @commands.command()
-    async def remindme(self):
-        pass
+    @commands.command(pass_context=True)
+    async def remindme(self, ctx, t):
+        """
+        Set a reminder and notify the user when time is up
+        """
+        t = int(t)
+        await sleep(t)
+        await self.bot.say(ctx)
+        await self.bot.say(t)
 
     @commands.command()
     async def strawpoll(self):

@@ -4,10 +4,10 @@ from discord.ext import commands
 
 from config import *
 from core.bot_info_core import build_info_embed
-from core.checks import is_admin
-from core.data_controller import set_prefix_, delete_prefix_
-from core.discord_functions import get_prefix
-from core.language_support import generate_language_entry, \
+from scripts.checks import is_admin
+from scripts.data_controller import set_prefix_, delete_prefix_
+from scripts.discord_functions import get_prefix
+from scripts.language_support import generate_language_entry, \
     generate_language_list, set_language
 from shell import Hifumi
 
@@ -176,10 +176,16 @@ class BotInfo:
         :param ctx: the discord context object
         :param prefix: the prefix to set to
         """
+        localize = self.bot.get_language_dict(ctx)
+        if '/' in prefix or '\\' in prefix:
+            await self.bot.say(localize['prefix_bad'])
+            return
+        if prefix.startswith('@') or prefix.startswith('#') \
+                or prefix.startswith('<@'):
+            await self.bot.say(localize['prefix_bad_start'])
+            return
         set_prefix_(self.bot.conn, self.bot.cur, ctx.message.server.id, prefix)
-        await self.bot.say(
-            self.bot.get_language_dict(ctx)['set_prefix_'].format(prefix)
-        )
+        await self.bot.say(localize['set_prefix_'].format(prefix))
 
     @prefix.command(pass_context=True, no_pm=True, name='reset')
     @commands.check(is_admin)

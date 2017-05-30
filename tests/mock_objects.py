@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 from discord import ChannelType
 
 from config.settings import OWNER
-from core.file_io import read_json
+from scripts.file_io import read_json
 
 
 def mock_get_language_dict(*args, **kwargs):

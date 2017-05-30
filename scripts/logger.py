@@ -1,6 +1,6 @@
 import logging
 import time
-from os.path import join
+from pathlib import Path
 from sys import stdout
 
 from colorlog import ColoredFormatter
@@ -10,7 +10,7 @@ CONSOLE_FORMAT = '\n%(asctime)s:%(log_color)s%(levelname)s:%(name)s: ' \
 FILE_FORMAT = '\n%(asctime)s:%(levelname)s:%(name)s: %(message)s\n'
 
 
-def setup_logging(start_time, path):
+def setup_logging(start_time, path: Path):
     """
     Set up logging
     :param start_time: the start time of the log
@@ -18,14 +18,25 @@ def setup_logging(start_time, path):
     :return: the logger object
     """
     logger = logging.getLogger('discord')
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(get_file_handler(path, start_time))
+    return logger
+
+
+def get_file_handler(path: Path, start_time):
+    """
+    Get a file handler for logging
+    :param path: the log file path
+    :param start_time: the start time
+    :return: the file handler
+    """
     handler = logging.FileHandler(
-        filename=join(path, '{}.log'.format(start_time)),
+        filename=path.joinpath('{}.log'.format(int(start_time))),
         encoding='utf-8',
         mode='w+'
     )
     handler.setFormatter(logging.Formatter(FILE_FORMAT))
-    logger.addHandler(handler)
-    return logger
+    return handler
 
 
 def get_console_handler():
@@ -51,6 +62,7 @@ def get_console_handler():
             style='%'
         )
     )
+    console.setLevel(logging.WARNING)
     return console
 
 

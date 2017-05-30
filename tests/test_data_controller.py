@@ -1,9 +1,9 @@
 import sqlite3
-from os.path import join
+from pathlib import Path
 from random import choice
 from unittest import TestCase, main
 
-from core.data_controller import *
+from scripts.data_controller import *
 
 
 def clear_db(conn, cur):
@@ -28,7 +28,7 @@ class TestDataController(TestCase):
     """
 
     def setUp(self):
-        self.conn = sqlite3.connect(join('test_data', 'mock_db'))
+        self.conn = sqlite3.connect(str(Path('test_data/mock_db')))
         self.cur = self.conn.cursor()
 
     def tearDown(self):

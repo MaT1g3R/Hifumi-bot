@@ -17,7 +17,7 @@ from tests.suite import run_tests
 
 try:
     import colorama
-    from core.logger import warning, info, error
+    from scripts.logger import warning, info, error
     from colorlog import ColoredFormatter
     import requests
 
@@ -45,8 +45,8 @@ try:
 except ImportError:
     pip = None
 
-REQS_DIR = "lib"
-sys.path.insert(0, REQS_DIR)
+REQS_DIR = Path("lib")
+sys.path.insert(0, str(REQS_DIR))
 REQS_TXT = "./config/requirements.txt"
 FFMPEG_BUILDS_URL = "https://ffmpeg.zeranoe.com/builds/"
 
@@ -74,7 +74,7 @@ def is_internet_on():
     :return: True if Internet is present, otherwise return False.
     """
     try:
-        host = socket.gethostbyname('www.google.com')
+        host = socket.gethostbyname('www.google.ca')
         socket.create_connection((host, 80), 2)
         return True
     except socket.error:
@@ -101,35 +101,14 @@ def computer_meets_color():
     if not interpreter:
         error("Python interpreter not found.")
         return
-
-    args = [
+    base_arg = [
         interpreter, "-m",
         "pip", "install",
-        "--upgrade", REQS_DIR,
-        "colorama"
+        "--upgrade", str(REQS_DIR)
     ]
-
-    args2 = [
-        interpreter, "-m",
-        "pip", "install",
-        "--upgrade", REQS_DIR,
-        "colorlog"
-    ]
-
-    args3 = [  # Just recycling lines
-        interpreter, "-m",
-        "pip", "install",
-        "--upgrade", REQS_DIR,
-        "requests"
-    ]
-
-    code = subprocess.call(args)
-    code2 = subprocess.call(args2)
-    code3 = subprocess.call(args3)
-
-    if code == 0 and code2 == 0 and code3 == 0:
-        pass
-    else:
+    update_packages = ['colorama', 'colorlog', 'requests']
+    codes = [subprocess.call(base_arg + [p]) for p in update_packages]
+    if any(codes):
         error("\nUh oh! An error ocurred and installation is going to "
               "be aborted.\nPlease fix the error above basing in the docs.\n")
         exit(1)
@@ -154,13 +133,13 @@ def install_reqs():
         interpreter, "-m",
         "pip", "install",
         "--upgrade",
-        "--target", REQS_DIR,
+        "--target", str(REQS_DIR),
         "-r", txt
     ]
 
     if IS_MAC:
         args.remove("--target")
-        args.remove(REQS_DIR)
+        args.remove(str(REQS_DIR))
 
     code = subprocess.call(args)
 
@@ -217,10 +196,11 @@ def check_hifumi():
     url = 'https://raw.githubusercontent.com/' \
           'hifumibot/hifumibot/master/version.txt'
     r = requests.get(url)
-    if r.status_code != 200 or not os.path.isfile("./version.txt"):
+    version_file = Path('./version.txt')
+    if r.status_code != 200 or not version_file.is_file():
         raise VersionError
     online_output = r.text.strip("\n")
-    with open("version.txt") as f:
+    with version_file.open() as f:
         local_output = f.readline()
         f.close()
     if local_output > online_output:
@@ -248,8 +228,9 @@ def update_hifumi():
                 return
             if code == 0:
                 info("\nHifumi is now updated successfully!")
-                if os.path.isfile("./config/sample_settings.py"):
-                    os.remove("./config/sample_settings.py")
+                sample_file = Path('./config/sample_settings.py')
+                if sample_file.is_file():
+                    sample_file.unlink()
             else:
                 error("\nUh oh! An error ocurred and "
                       "update is going to be aborted.\n"
@@ -276,7 +257,7 @@ def reset_hifumi(reqs=False, data=False, cogs=False, git_reset=False):
     """
     if reqs:
         try:
-            shutil.rmtree(REQS_DIR, onerror=remove_readonly)
+            shutil.rmtree(str(REQS_DIR), onerror=remove_readonly)
             info("Installed local packages wiped successfully!")
         except FileNotFoundError:
             pass
@@ -342,31 +323,32 @@ def download_ffmpeg(bitness):
         webbrowser.open(FFMPEG_BUILDS_URL)
         return
 
-    for filename in FFMPEG_FILES:
-        if os.path.isfile(filename):
+    for file in FFMPEG_FILES:
+        file = Path(file)
+        if file.is_file():
             warning("{} already present. Verifying integrity... "
-                    "".format(filename), end="")
-            _hash = calculate_md5(filename)
-            if _hash == FFMPEG_FILES[filename]:
-                verified.append(filename)
+                    "".format(file.name), end="")
+            _hash = calculate_md5(file.name)
+            if _hash == FFMPEG_FILES[file.name]:
+                verified.append(file.name)
                 info("Done!")
                 continue
             else:
                 warning("Hash mismatch. Redownloading.")
-        info("Downloading {}... Please wait.".format(filename))
-        with urllib.request.urlopen(repo + filename) as data:
-            with open(filename, "wb") as f:
+        info("Downloading {}... Please wait.".format(file.name))
+        with urllib.request.urlopen(repo + file.name) as data:
+            with file.open(mode='wb') as f:
                 f.write(data.read())
         info("FFMPEG downloaded! Please follow the instructions! "
              "Open the 'bin' folder located inside the zip.\nThere should "
              "be 3 files: ffmpeg.exe, ffplay.exe, ffprobe.exe.\nPut all "
              "three of them into the bot's main folder.")
 
-    for filename, _hash in FFMPEG_FILES.items():
-        if filename in verified:
+    for file, _hash in FFMPEG_FILES.items():
+        if file in verified:
             continue
-        info("Verifying {}... ".format(filename), end="")
-        if not calculate_md5(filename) != _hash:
+        info("Verifying {}... ".format(file), end="")
+        if not calculate_md5(file) != _hash:
             info("Passed.")
         else:
             warning("Hash mismatch. Please redownload.")
@@ -579,7 +561,7 @@ def run_hifumi(autorestart):
         pause()
         main()
 
-    run_script = Path("./run.py")
+    run_script = Path('./run.py')
     # Don't worry about shard mode, that's toggleable via settings.py
     if not run_script.is_file():
         error(
@@ -720,9 +702,9 @@ def run_unittest():
             main()
         else:
             try:
-                os.chdir(Path('tests').absolute())
+                os.chdir(str(Path('tests').absolute()))
                 run_tests(os.curdir)
-                os.chdir(Path('..').absolute())
+                os.chdir(str(Path('..').absolute()))
                 pause()
             except Exception as e:
                 error("Something went wrong. Unit test interrupted!\n")
@@ -737,17 +719,15 @@ def edit_settings():
     Opens settings.py file in the notepad if present.
     :return: The action or an exception if an error ocurred.
     """
-    path = os.path.join('config', 'settings.py')
-    sample_path = os.path.join('config', 'sample_settings.py')
-    settings_exist = os.path.isfile(path)
-    sample_exist = os.path.isfile(sample_path)
-    if settings_exist:
+    path = Path('./config/settings.py')
+    sample_path = Path('./config/sample_settings.py')
+    if path.is_file():
         __edit_settings(path)
-    elif not settings_exist and sample_exist:
+    elif not path.is_file() and sample_path.is_file():
         info("It looks like it's your first time running Hifumi launcher.\n"
              "sample_settings.py is going to be renamed to settings.py.\n")
         pause()
-        os.rename(sample_path, path)
+        sample_path.rename(str(path))
         edit_settings()
     else:
         error(
@@ -757,25 +737,25 @@ def edit_settings():
         pause()
 
 
-def __edit_settings(path):
+def __edit_settings(path: Path):
     """
     :param path: the file path to edit
     :return: A helper function to edit_settings()
     """
     if IS_WINDOWS:
-        subprocess.call(['start', 'notepad', path])
+        subprocess.call(['start', 'notepad', str(path)])
     elif IS_MAC:
-        subprocess.call(['open', '-a', 'TextEdit', path])
+        subprocess.call(['open', '-a', 'TextEdit', str(path)])
     else:
         try:
             import editor
-            editor.edit(path)
+            editor.edit(str(path))
         except Exception as e:
             print('There was an error with the editor library:\n')
             print(str(e))
             print('Using nano as the editor.')
             time.sleep(3)
-            subprocess.call(['sudo', 'nano', path])
+            subprocess.call(['sudo', 'nano', str(path)])
 
 
 def clear_screen():
@@ -819,19 +799,18 @@ def remove_readonly(func, path):
     func(path)
 
 
-def remove_reqs_readonly():
+def remove_reqs_readonly(path: Path = REQS_DIR):
     """
     Removes the packages that are read-only and causes a bug in update.
+    :param path: the path to the file/directory
     :return: Read-only packages removed.
     """
-    if not os.path.isdir(REQS_DIR):
+    if not REQS_DIR.is_dir():
         return
-    os.chmod(REQS_DIR, 0o755)
-    for root, dirs, files in os.walk(REQS_DIR):
-        for d in dirs:
-            os.chmod(os.path.join(root, d), 0o755)
-        for f in files:
-            os.chmod(os.path.join(root, f), 0o755)
+    path.chmod(0o755)
+    if path.is_dir():
+        for sub in path.iterdir():
+            remove_reqs_readonly(sub)
 
 
 def calculate_md5(filename):
@@ -881,25 +860,25 @@ def faster_bash():
 
     start_hifumi = echo_disabler + call + exit_trigger + pause_str
     start_hifumi_autorestart = echo_disabler + bot_loop + call + goto_loop
-
-    files = {
-        "run_normal" + ext: start_hifumi,
-        "run_autorestart" + ext: start_hifumi_autorestart
-    }
+    files = [
+        (Path("run_normal" + ext), start_hifumi),
+        (Path("run_autorestart" + ext), start_hifumi_autorestart)
+    ]
     if not IS_WINDOWS:
-        files["start_launcher" + ext] = ccd + call
+        files.append((Path("start_launcher" + ext), ccd + call))
 
-    for filename, content in files.items():
-        if not os.path.isfile(filename):
+    for file, content in files:
+        if not file.is_file():
             info("Creating fast start scripts (.bat)")
             modified = True
-            with open(filename, "w") as f:
+            with file.open(mode='w') as f:
                 f.write(content)
+                f.close()
 
     if not IS_WINDOWS and modified:  # Let's make them executable on Unix
         for script in files:
-            st = os.stat(script)
-            os.chmod(script, st.st_mode | stat.S_IEXEC)
+            st = os.stat(str(script[0]))
+            os.chmod(str(script[0]), st.st_mode | stat.S_IEXEC)
 
 
 def admin_running():
@@ -913,17 +892,24 @@ def admin_running():
         return ctypes.windll.shell32.IsUserAnAdmin() != 0
 
 
+def is_git():
+    """
+    Check if the .git directory exists
+    :return: True if it exist
+    """
+    return Path('./.git').is_dir()
+
+
 def detect_errors():
     """
     Detect errors for the program or either warnings that can damage
     or terminate immediately the launcher or Hifumi's process.
     :return: True if errors found, plus errors stringified. Else, return False.
     """
-    has_git = is_git_installed()
-    has_ffmpeg = is_ffmpeg_installed()
-    is_git_installation = os.path.isdir(".git")  # Check if .git folder exists
-    pkg = verify_requirements()
-    return not is_git_installation or not has_git or not has_ffmpeg or not pkg
+    return not (
+        is_git() and is_git_installed()
+        and is_ffmpeg_installed() and verify_requirements()
+    )
 
 
 def string_errors():
@@ -932,13 +918,10 @@ def string_errors():
     function.
     :return: String errors
     """
-    has_git = is_git_installed()
-    has_ffmpeg = is_ffmpeg_installed()
-    is_git_installation = os.path.isdir(".git")  # Check if .git folder exists
     interpreter = sys.executable.split('/')[-1]
     if not interpreter:
         raise RuntimeError("Couldn't find Python's interpreter")
-    if not is_git_installation:
+    if not is_git():
         warning("This installation was not done via Git\n"
                 "You probably won't be able to update some things that "
                 "require this util, "
@@ -948,11 +931,11 @@ def string_errors():
                 "source, please reinstall Hifumi"
                 "as it follows in the guide. "
                 "http://www.hifumibot.xyz/docs\n\n")
-    if not has_git:
+    if not is_git_installed():
         warning("Git not found. This means that it's either not "
                 "installed or not in the PATH environment variable like "
                 "it should be.\n\n")
-    if not has_ffmpeg:
+    if not is_ffmpeg_installed():
         error(
             "FFMPEG not found. This means that it's either not "
             "installed or not in the PATH environment variable like "
@@ -1069,9 +1052,7 @@ def run():
     :return: An initialization request to the 
     program or an error if Python/pip is wrong.
     """
-    abspath = os.path.abspath(__file__)
-    dirname = os.path.dirname(abspath)
-    os.chdir(dirname)
+    os.chdir(str(Path(__file__).parent))
     if not logger_success:
         computer_meets_color()  # lol
         main()

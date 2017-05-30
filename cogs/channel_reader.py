@@ -1,7 +1,7 @@
 """
 The channel reader cog
 """
-from core.discord_functions import get_prefix, check_message
+from scripts.discord_functions import get_prefix, check_message
 from shell import Hifumi
 
 

@@ -2,23 +2,22 @@
 A collection of functions to deal with language support
 """
 
-import codecs
-from ntpath import basename
+from pathlib import Path
 
-from .data_controller import set_language_, delete_language_
-from .file_io import read_all_files, read_json
-from .helpers import suplement_dict
+from scripts.data_controller import set_language_, delete_language_
+from scripts.file_io import read_all_files, read_json
+from scripts.helpers import suplement_dict
 
 
-def read_language(path):
+def read_language(path: Path):
     """
     Read all language files and return it in a dict
     :param path: the path that points to the language folder
     :return: all language files in a dict
     """
-    language = {basename(f)[:-5]: read_json(codecs.open(f, encoding='utf-8'))
+    language = {f.name[:-5]: read_json(f.open(encoding='utf-8'))
                 for f in read_all_files(path)
-                if f.endswith('.json')}
+                if f.name.endswith('.json')}
     for key, val in language.items():
         if key != 'en':
             new_val = suplement_dict(language['en'], val)

@@ -41,6 +41,12 @@ DANBOORU_USERNAME = 'INSERT_YOUR_DANBOORU_USERNAME'
 # Your Danbooru API key
 DANBOORU_API = 'INSERT_YOUR_DANBOORU_API'
 
+# Your Edamam Recipe Search API key,
+# can be aquired here: https://developer.edamam.com/
+# The first element is the application ID,
+# the second element is the application Key
+EDAMAM_API = ['INSERT_YOUR_EDAMAM_API_ID', 'INSERT_YOUR_EDAMAM_API_KEY']
+
 # A list of bad words to comply with discord TOS, DON'T edit this
 BAD_WORD = ['loli', 'l0l1', 'lol1', 'l0li', '7071', 'lolii', 'looli', 'lolli',
             'shota', 'sh07a', 'sh0ta', 'chota', 'ch0ta', 'shot4', 'sh0t4',
@@ -48,6 +54,13 @@ BAD_WORD = ['loli', 'l0l1', 'lol1', 'l0li', '7071', 'lolii', 'looli', 'lolli',
             'takimoto', 'child', 'children', 'cp', 'preteen', 'teen', 'gore',
             'g0r3', 'g0re', 'ch1ld', 'kid', 'k1d', 'kiddo', 'ロリ', 'ロリコン',
             'pico', 'ショタコン', 'ショタ']
+
+# If your bot has a character illustrating her/him, write him/her name here
+# If the character comes from a series/movie/any audiovisual media, you may
+# type the series name here too. For example:
+# pacman -> pacman and the ghostly adventures pacman | or this one:
+# sonoda umi -> love live sonoda umi
+WAIFU_NAME = 'BOT_CHARACTER_NAME_HERE'
 
 # Setting for sharding, defualts to not sharded
 # Please read "Sharding" page in the documentation for more information

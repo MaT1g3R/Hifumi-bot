@@ -7,8 +7,8 @@ from colorama import init
 
 from cogs import *
 from config import *
-from core import logger
 from launcher import is_internet_on
+from scripts import logger
 from shell import Hifumi
 
 try:
@@ -16,7 +16,22 @@ try:
 except ImportError:
     pip = None
 
-if __name__ == '__main__':
+
+def __run():
+    init()
+    if SHARDED:
+        bot = Hifumi(
+            shard_count=SHARD_COUNT, shard_id=SHARD_ID
+        )
+    else:
+        bot = Hifumi()
+    cogs = [BotInfo(bot), OwnerOnly(bot), ChannelReader(bot), Nsfw(bot),
+            Roles(bot), Moderation(bot), Currency(bot), Utilities(bot)]
+
+    bot.start_bot(cogs, TOKEN)
+
+
+def run():
     if not is_internet_on():
         logger.error(
             "You're not connected to Internet! "
@@ -52,17 +67,7 @@ if __name__ == '__main__':
         exit(1)
     else:
         try:
-            init()
-            if SHARDED:
-                bot = Hifumi(
-                    shard_count=SHARD_COUNT, shard_id=SHARD_ID
-                )
-            else:
-                bot = Hifumi()
-            cogs = [BotInfo(bot), OwnerOnly(bot), ChannelReader(bot), Nsfw(bot),
-                    Roles(bot), Moderation(bot), Currency(bot), Utilities(bot)]
-
-            bot.start_bot(cogs, TOKEN)
+            __run()
         except (UnicodeEncodeError, UnicodeDecodeError):
             # If locales are not returned
             logger.warning(
@@ -85,3 +90,7 @@ if __name__ == '__main__':
                 "in Discord."
             )
             exit(1)
+
+
+if __name__ == '__main__':
+    __run()

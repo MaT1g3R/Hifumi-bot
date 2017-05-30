@@ -1,6 +1,6 @@
 from unittest import TestCase, main
 
-from core.helpers import combine_dicts, strip_letters, suplement_dict, \
+from scripts.helpers import combine_dicts, strip_letters, suplement_dict, \
     dict_has_empty, get_system_name
 
 

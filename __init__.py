@@ -11,7 +11,7 @@ Hifumi, a multifunctional Discord bot.
 from collections import namedtuple
 from pathlib import Path
 
-from autoclean import autoclean
+from scripts.autoclean import autoclean
 
 __title__ = 'Hifumi'
 __author__ = ['Underforest#1284', 'InternalLight#9391', 'ラブアローシュート#6728']
