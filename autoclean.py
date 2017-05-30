@@ -43,9 +43,8 @@ def autoclean():
     dumps = os.path.join('data', 'dumps')
     shard_info = os.path.join('data', 'shard_info')
     logs = os.path.join('data', 'logs')
-    dummy = 'dummy.txt'
     for path in [dumps, shard_info, logs]:
-        __autoclean(path, dummy)
+        __autoclean(path, '.gitkeep')
 
 
 if __name__ == '__main__':
