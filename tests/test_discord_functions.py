@@ -2,12 +2,12 @@ import sqlite3
 from os.path import join
 from unittest import TestCase, main
 
+from core.discord_functions import command_error_handler, get_prefix, \
+    build_embed, clense_prefix
 from discord.ext.commands import CommandOnCooldown, MissingRequiredArgument
 
 from config.settings import COLOUR
-from core.discord_functions import command_error_handler, get_prefix, \
-    build_embed, clense_prefix
-from core.helpers import dict_has_empty
+from scripts.helpers import dict_has_empty
 from tests.mock_objects import MockBot, MockContext, MockExpection, MockMessage, \
     MockServer
 

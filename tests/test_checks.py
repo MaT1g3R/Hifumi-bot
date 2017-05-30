@@ -1,6 +1,6 @@
 from unittest import TestCase, main
 
-from core.checks import *
+from scripts.checks import *
 from tests.mock_objects import *
 
 

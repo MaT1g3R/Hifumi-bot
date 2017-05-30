@@ -6,11 +6,11 @@ from asyncio import sleep
 from discord import Member
 from discord.utils import get
 
-from .data_controller import get_mod_log_, set_mod_log_, remove_mod_log_, \
-    add_warn_, remove_warn_, get_warn_
-from .discord_functions import get_name_with_discriminator, build_embed, \
-    get_avatar_url, handle_forbidden_http, get_prefix
-from .helpers import get_date
+from scripts.data_controller import get_mod_log_, set_mod_log_, \
+    remove_mod_log_, add_warn_, remove_warn_, get_warn_
+from scripts.discord_functions import get_name_with_discriminator, \
+    build_embed, get_avatar_url, handle_forbidden_http, get_prefix
+from scripts.helpers import get_date
 
 
 async def ban_kick(bot, ctx, member: Member, delete_message_days, reason):

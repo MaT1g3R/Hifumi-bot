@@ -3,7 +3,7 @@ from os.path import join
 from random import choice
 from unittest import TestCase, main
 
-from core.data_controller import *
+from scripts.data_controller import *
 
 
 def clear_db(conn, cur):

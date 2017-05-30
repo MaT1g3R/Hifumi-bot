@@ -5,9 +5,9 @@ from collections import deque
 from random import sample, randint
 from time import time
 
-from .data_controller import get_daily_, set_daily_, change_balance_, \
+from scripts.data_controller import get_daily_, set_daily_, change_balance_, \
     transfer_balance_, TransferError, get_balance_
-from .helpers import get_time_elapsed
+from scripts.helpers import get_time_elapsed
 
 
 class ArgumentError(ValueError):

@@ -9,7 +9,7 @@ from imdbpie import Imdb
 from requests import get
 
 from config import EDAMAM_API
-from .discord_functions import build_embed
+from scripts.discord_functions import build_embed
 
 
 def number_fact(num, not_found_msg, bad_num_msg, header):

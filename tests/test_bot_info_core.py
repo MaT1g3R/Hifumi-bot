@@ -4,7 +4,7 @@ from unittest import TestCase, main
 
 from core.bot_info_core import get_uptime, generate_shard_info, \
     get_all_shard_info, build_info_embed
-from core.helpers import strip_letters, dict_has_empty
+from scripts.helpers import strip_letters, dict_has_empty
 from tests.mock_objects import MockBot, MockContext
 
 

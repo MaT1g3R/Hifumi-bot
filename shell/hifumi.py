@@ -6,7 +6,7 @@ import time
 import traceback
 from asyncio import coroutine
 from logging import WARNING, ERROR, CRITICAL
-from os.path import join
+from pathlib import Path
 from threading import Timer
 
 from discord import ChannelType, Message, Game
@@ -17,17 +17,13 @@ from websockets.exceptions import ConnectionClosed
 from config.settings import DEFAULT_PREFIX, SHARDED, \
     ENABLE_CONSOLE_LOGGING, OWNER
 from core.bot_info_core import generate_shard_info
-from core.checks import NsfwError, BadWordError, ManageRoleError, AdminError, \
-    ManageMessageError, OwnerError
-from core.data_controller import get_language_
-from core.discord_functions import command_error_handler, get_prefix
-from core.file_io import write_json
-from core.language_support import read_language
-from core.logger import setup_logging, get_console_handler, info
-
-
-def __prefix__(bot, message):
-    return get_prefix(bot.cur, message.server, bot.default_prefix)
+from scripts.checks import NsfwError, BadWordError, ManageRoleError, \
+    AdminError, ManageMessageError, OwnerError
+from scripts.data_controller import get_language_
+from scripts.discord_functions import command_error_handler, get_prefix
+from scripts.file_io import write_json
+from scripts.language_support import read_language
+from scripts.logger import setup_logging, get_console_handler, info
 
 
 class Hifumi(Bot):
@@ -36,35 +32,39 @@ class Hifumi(Bot):
     """
     __slots__ = ['default_prefix', 'shard_id', 'shard_count', 'start_time',
                  'language', 'default_language', 'logger', 'mention_normal',
-                 'mention_nick', 'working_dir', 'conn', 'cur', 'all_emojis']
+                 'mention_nick', 'conn', 'cur', 'all_emojis']
 
     def __init__(self, shard_count=1, shard_id=0,
-                 default_language='en', working_dir=''):
+                 default_language='en'):
         """
         Initialize the bot object
         :param shard_count: the shard count, default is 1
         :param shard_id: shard id, default is 0
         :param default_language: the default language of the bot, default is en
-        :param working_dir: the working directory for the bot, dont change this
         unless you know what you are doing
         """
-        super().__init__(command_prefix=__prefix__, shard_count=shard_count,
-                         shard_id=shard_id)
-        self.working_dir = working_dir
-        self.conn = sqlite3.connect(join(working_dir, 'data', 'hifumi_db'))
+        super().__init__(
+            command_prefix=lambda bot, message: get_prefix(
+                bot.cur,
+                message.server,
+                bot.default_prefix
+            ),
+            shard_count=shard_count,
+            shard_id=shard_id)
+        self.conn = sqlite3.connect(str(Path('./data/hifumi_db')))
         self.cur = self.conn.cursor()
         self.default_prefix = DEFAULT_PREFIX
         self.shard_id = shard_id
         self.shard_count = shard_count
         self.start_time = int(time.time())
-        self.language = read_language(join(working_dir, 'data', 'language'))
+        self.language = read_language(Path('./data/language'))
         self.default_language = default_language
         self.logger = setup_logging(
-            self.start_time, join(working_dir, 'data', 'logs')
+            self.start_time, Path('./data/logs')
         )
         self.mention_normal = ''
         self.mention_nick = ''
-        with open(join(self.working_dir, 'data', 'emojis.txt')) as f:
+        with Path('./data/emojis.txt').open() as f:
             self.all_emojis = f.read().splitlines()
             f.close()
 
@@ -159,12 +159,15 @@ class Hifumi(Bot):
             msg = str(e) + '\n' + str(tb)
             self.logger.log(CRITICAL, msg)
             for dev in [await self.get_user_info(i) for i in OWNER]:
-                await self.send_message(dev, 'An exception ocurred while the '
-                                        'bot was running. For help, check '
-                                        '"Troubleshooting" section in '
-                                        'documentation, come to our support '
-                                        'server or open an issue in Git repo.'
-                                        "\n```py" + msg + "```")
+                await self.send_message(
+                    dev,
+                    'An exception ocurred while the '
+                    'bot was running. For help, check '
+                    '"Troubleshooting" section in '
+                    'documentation, come to our support '
+                    'server or open an issue in Git repo.'
+                    "\n```py" + msg + "```"
+                )
 
     @coroutine
     async def process_commands(self, message):
@@ -225,8 +228,7 @@ class Hifumi(Bot):
         Updates the bot shard info every second
         """
         Timer(1, self.update_shard_info).start()
-        file_name = join(self.working_dir, 'data', 'shard_info',
-                         'shard_{}.json'.format(self.shard_id))
+        file = Path('./data/shard_info/shard_{}.json'.format(self.shard_id))
         content = generate_shard_info(
             servers=self.servers,
             channels=self.get_all_channels(),
@@ -234,4 +236,5 @@ class Hifumi(Bot):
             voice=self.voice_clients,
             logged_in=self.is_logged_in
         )
-        write_json(open(file_name, 'w+'), content)
+        with file.open(mode='w+') as f:
+            write_json(f, content)

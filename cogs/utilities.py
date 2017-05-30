@@ -6,8 +6,8 @@ from discord.ext import commands
 from imdbpie import Imdb
 from requests import get
 
-from core.discord_functions import get_prefix
 from core.utilities_core import number_fact, imdb, recipe_search
+from scripts.discord_functions import get_prefix
 from shell import Hifumi
 
 

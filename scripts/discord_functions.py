@@ -8,10 +8,10 @@ from discord.embeds import Embed, EmptyEmbed
 from discord.ext.commands import CommandOnCooldown
 from discord.ext.commands.errors import MissingRequiredArgument
 
-from .checks import ManageMessageError, AdminError, ManageRoleError, \
+from scripts.checks import ManageMessageError, AdminError, ManageRoleError, \
     BadWordError, NsfwError, OwnerError
-from .data_controller import get_prefix_
-from .helpers import strip_letters
+from scripts.data_controller import get_prefix_
+from scripts.helpers import strip_letters
 
 
 def command_error_handler(localize, exception):

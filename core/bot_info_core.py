@@ -3,15 +3,16 @@ Core fuctions for BotInfo cog
 """
 import platform
 import resource
-from os.path import join
+from pathlib import Path
 from time import time
 
 from discord import ChannelType, version_info
 
 from config import *
-from .discord_functions import build_embed, get_prefix
-from .file_io import read_json, read_all_files
-from .helpers import get_system_name, comma, combine_dicts, get_time_elapsed
+from scripts.discord_functions import build_embed, get_prefix
+from scripts.file_io import read_json, read_all_files
+from scripts.helpers import get_system_name, comma, combine_dicts, \
+    get_time_elapsed
 
 
 def get_uptime(start_time, day_str):
@@ -62,7 +63,7 @@ def generate_shard_info(*, servers, members, channels, voice, logged_in):
     }
 
 
-def get_all_shard_info(path=join('data', 'shard_info')):
+def get_all_shard_info(path=Path('./data/shard_info')):
     """
     Get the sum of all shard_info
     :param path: the path that points to the shard_info folder
@@ -70,7 +71,7 @@ def get_all_shard_info(path=join('data', 'shard_info')):
     """
     files = [
         f for f in read_all_files(path)
-        if f.endswith('.json')]
+        if f.name.endswith('.json')]
     dicts = []
     for file in files:
         res = read_json(open(file))
@@ -80,7 +81,7 @@ def get_all_shard_info(path=join('data', 'shard_info')):
     return combine_dicts(dicts)
 
 
-def build_info_embed(ctx, bot, path=join('data', 'shard_info')):
+def build_info_embed(ctx, bot, path=Path('./data/shard_info')):
     """
     build the info embed
     :param ctx: the discord context object

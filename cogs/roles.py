@@ -1,8 +1,8 @@
 from discord.ext import commands
 
-from core.checks import has_manage_role
-from core.discord_functions import get_prefix
 from core.roles_core import get_role_list, add_role, remove_role, role_unrole
+from scripts.checks import has_manage_role
+from scripts.discord_functions import get_prefix
 from shell import Hifumi
 
 

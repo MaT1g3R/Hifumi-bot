@@ -2,10 +2,10 @@ from discord.ext import commands
 from pybooru import Danbooru
 
 from config import *
-from core.checks import is_nsfw, no_badword
-from core.data_controller import write_tag_list_
 from core.nsfw_core import danbooru, gelbooru, k_or_y, random_str, e621, \
     greenteaneko
+from scripts.checks import is_nsfw, no_badword
+from scripts.data_controller import write_tag_list_
 from shell import Hifumi
 
 

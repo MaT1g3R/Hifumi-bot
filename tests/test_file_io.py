@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase, main
 
-from core.file_io import read_json, write_json, read_all_files
+from scripts.file_io import read_json, write_json, read_all_files
 
 
 class TestFileIO(TestCase):
