@@ -4,6 +4,7 @@
 - [ ] Write wrapper functions for getting id's to ensure type safety.
 - [ ] Refactor unittests.
 - [ ] Introduce type annotations where it's appropriate.
+- [ ] Rework configs.
 
 ## 1. Bot manager/launcher
 - Done
