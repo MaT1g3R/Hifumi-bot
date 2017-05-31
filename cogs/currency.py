@@ -6,7 +6,7 @@ from core.currency_core import daily, transfer, slots_setup, roll_slots, \
     determine_slot_result
 from core.trivia_core import TriviaGame
 from scripts.data_controller import get_balance_, change_balance_
-from shell import Hifumi
+from bot import Hifumi
 
 
 class Currency:

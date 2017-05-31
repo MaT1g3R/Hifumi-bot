@@ -8,7 +8,7 @@ from requests import get
 
 from core.utilities_core import number_fact, imdb, recipe_search
 from scripts.discord_functions import get_prefix
-from shell import Hifumi
+from bot import Hifumi
 
 
 class Utilities:

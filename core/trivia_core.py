@@ -5,7 +5,7 @@ from pytrivia import Diffculty, Category, Type
 
 from scripts.data_controller import get_balance_, transfer_balance_, \
     TransferError
-from shell import Hifumi
+from bot import Hifumi
 from scripts.discord_functions import build_embed, get_prefix
 
 

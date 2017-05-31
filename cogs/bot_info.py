@@ -9,7 +9,7 @@ from scripts.data_controller import set_prefix_, delete_prefix_
 from scripts.discord_functions import get_prefix
 from scripts.language_support import generate_language_entry, \
     generate_language_list, set_language
-from shell import Hifumi
+from bot import Hifumi
 
 
 class BotInfo:

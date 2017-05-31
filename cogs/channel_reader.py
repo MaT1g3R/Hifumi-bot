@@ -2,7 +2,7 @@
 The channel reader cog
 """
 from scripts.discord_functions import get_prefix, check_message
-from shell import Hifumi
+from bot import Hifumi
 
 
 class ChannelReader:

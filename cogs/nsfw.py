@@ -6,7 +6,7 @@ from core.nsfw_core import danbooru, gelbooru, k_or_y, random_str, e621, \
     greenteaneko
 from scripts.checks import is_nsfw, no_badword
 from scripts.data_controller import write_tag_list_
-from shell import Hifumi
+from bot import Hifumi
 
 
 class Nsfw:

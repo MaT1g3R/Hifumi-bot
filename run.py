@@ -9,7 +9,7 @@ from cogs import *
 from config import *
 from launcher import is_internet_on
 from scripts import logger
-from shell import Hifumi
+from bot import Hifumi
 
 try:
     import pip  # It will not be used here but still needed
