@@ -5,7 +5,7 @@ Hifumi
 Hifumi, a multifunctional Discord bot.
 
 :copyright: (c) 2017 Hifumi - the Discord Bot Project
-:license: GNU, see LICENSE for more details.
+:license: GPL 3.0, see LICENSE for more details.
 
 """
 from collections import namedtuple

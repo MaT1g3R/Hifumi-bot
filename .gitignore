@@ -16,7 +16,5 @@ temp\.py
 .env
 .env-safe
 .fuse*
-
 data/\.DS_Store
-
 \.DS_Store

@@ -13,6 +13,7 @@ from pathlib import Path
 
 from __init__ import *
 from config import *
+from scripts.release_info import get_latest_release
 from tests.suite import run_tests
 
 try:
@@ -188,58 +189,34 @@ def update_pip():
             "to be aborted.\nPlease fix the error above basing in the docs.\n")
 
 
-def check_hifumi():
-    """
-    Checks if Hifumi's version is the latest. 
-    :return: True if it's latest, otherwise False. None if an error returned.
-    """
-    url = 'https://raw.githubusercontent.com/' \
-          'hifumibot/hifumibot/master/version.txt'
-    r = requests.get(url)
-    version_file = Path('./version.txt')
-    if r.status_code != 200 or not version_file.is_file():
-        raise VersionError
-    online_output = r.text.strip("\n")
-    with version_file.open() as f:
-        local_output = f.readline()
-        f.close()
-    if local_output > online_output:
-        raise VersionError
-    return local_output == online_output
-
-
 def update_hifumi():
     """
-    Updates Hifumi via Git. 
+    Updates Hifumi via Git.
     Useful if something wents wrong or if a new version comes out.
-    :return: Git call, then exit code. 
+    :return: Git call, then exit code.
     0 if went fine, 1 or exception if error ocurred.
     """
-    try:
-        if check_hifumi():
-            info("Hifumi is already the latest version."
-                 "No need to perform an update right now!")
+    if get_latest_release() == __version__:
+        info("Hifumi is already the latest version."
+             "No need to perform an update right now!")
+    else:
+        try:
+            code = subprocess.call(("git", "pull", "--ff-only"))
+        except subprocess.CalledProcessError:
+            error("\nError: Git not found. It's either not installed or "
+                  "not in the PATH environment variable. Please fix this!")
+            return
+        if not code:
+            info("\nHifumi is now updated successfully!")
+            sample_file = Path('./config/sample_settings.py')
+            if sample_file.is_file():
+                sample_file.unlink()
         else:
-            try:
-                code = subprocess.call(("git", "pull", "--ff-only"))
-            except subprocess.CalledProcessError:
-                error("\nError: Git not found. It's either not installed or "
-                      "not in the PATH environment variable. Please fix this!")
-                return
-            if code == 0:
-                info("\nHifumi is now updated successfully!")
-                sample_file = Path('./config/sample_settings.py')
-                if sample_file.is_file():
-                    sample_file.unlink()
-            else:
-                error("\nUh oh! An error ocurred and "
-                      "update is going to be aborted.\n"
-                      "This error might be caused from "
-                      "the environment edits you made. "
-                      "Please fix this by going to the maintenance menu.")
-    except VersionError:
-        error("An error ocurred because version.txt file is edited or invalid."
-              "Please recover the version.txt file from the Git repo.")
+            error("\nUh oh! An error ocurred and "
+                  "update is going to be aborted.\n"
+                  "This error might be caused from "
+                  "the environment edits you made. "
+                  "Please fix this by going to the maintenance menu.")
 
 
 def reset_hifumi(reqs=False, data=False, cogs=False, git_reset=False):
@@ -449,7 +426,7 @@ def update_menu():
         print("\n0. Go back")
         choice = user_choice()
         if choice == "1":
-            check_hifumi()
+            update_hifumi()
             print("Updating requirements...")
             if reqs:
                 install_reqs()
@@ -457,7 +434,7 @@ def update_menu():
                 print("The requirements haven't been installed yet.")
             pause()
         elif choice == "2":
-            check_hifumi()
+            update_hifumi()
             pause()
         elif choice == "3":
             if reqs:

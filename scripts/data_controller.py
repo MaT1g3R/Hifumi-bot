@@ -15,7 +15,7 @@ def get_prefix_(cursor, server_id: str):
     :param server_id: the server id
     :return: the server prefix if found else none
     """
-    sql = '''SELECT prefix FROM prefix WHERE server=?'''
+    sql = '''SELECT prefix FROM prefix_old WHERE server=?'''
     res = cursor.execute(sql, (server_id,)).fetchone()
     return res[0] if res is not None else None
 
@@ -41,7 +41,7 @@ def delete_prefix_(connection, cursor, server_id: str):
     :param server_id: the server id
     """
     sql_delete = '''
-    DELETE FROM prefix WHERE server=?
+    DELETE FROM prefix_old WHERE server=?
     '''
     cursor.execute(sql_delete, (server_id,))
     connection.commit()
@@ -111,7 +111,7 @@ def get_language_(cursor, server_id: str):
     :param server_id: the server id
     :return: the server language if found else none
     """
-    sql = '''SELECT lan FROM language WHERE server=?'''
+    sql = '''SELECT lan FROM language_old WHERE server=?'''
     res = cursor.execute(sql, (server_id,)).fetchone()
     return res[0] if res is not None else None
 
@@ -137,7 +137,7 @@ def delete_language_(connection, cursor, server_id: str):
     :param server_id: the server id
     """
     sql_delete = '''
-    DELETE FROM language WHERE server=?
+    DELETE FROM language_old WHERE server=?
     '''
     cursor.execute(sql_delete, (server_id,))
     connection.commit()
