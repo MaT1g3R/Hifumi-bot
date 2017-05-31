@@ -31,7 +31,3 @@ def autoclean():
     for path in chain(dumps.iterdir(), shard_info.iterdir(), logs.iterdir()):
         if '.gitkeep' not in path.name:
             path.unlink()
-
-
-if __name__ == '__main__':
-    autoclean()
