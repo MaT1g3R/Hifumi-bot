@@ -25,4 +25,3 @@ class DataManager:
 
     def get_prefix(self, guild_id: int) -> str:
         pass
-

@@ -10,14 +10,13 @@ from data_controller.data_manager import TransferError
 
 def _get_guild_row(cursor: Cursor, guild_id: int) -> tuple:
     """
-    Get the row with the guild_id.
-    :param cursor: the sqlite3 cursor object
-    :param guild_id: the guild id
-    :return: a tuple of the columns in that row
+    Get the row with the guild_id from guild_info table.
+    :param cursor: the sqlite3 cursor object.
+    :param guild_id: the guild id.
+    :return: a tuple of the columns in that row.
     """
-    sql = """SELECT * FROM guild_info WHERE guild=?"""
-    res = cursor.execute(sql, (guild_id,)).fetchone()
-    return res or (None,) * 5
+    cursor.execute('SELECT * FROM guild_info WHERE guild=?', (guild_id,))
+    return cursor.fetchone() or (None,) * 5
 
 
 def _write_guild_row(cursor: Cursor, connection: Connection, *args):
@@ -25,50 +24,37 @@ def _write_guild_row(cursor: Cursor, connection: Connection, *args):
     Write into the guild_info table
     :param cursor: the sqlite3 cursor object
     :param connection: the sqlite3 connection object
-    :param args: the content of that row
+    :param args: the values of that row
     """
     assert len(args) == 5
-    sql = """REPLACE INTO guild_info VALUES (?, ?, ?, ?, ?)"""
-    cursor.execute(sql, args)
+    cursor.execute('REPLACE INTO guild_info VALUES (?, ?, ?, ?, ?)', args)
     connection.commit()
 
 
-def _get_prefix(cursor, server_id: str):
+def _get_member_row(cursor: Cursor, member_id: int, guild_id: int) -> tuple:
     """
-    Get the server prefix from databse
-    :param cursor: the database cursor
-    :param server_id: the server id
-    :return: the server prefix if found else none
+    Get the row with member_id and guild_id from member_info table.
+    :param cursor: the sqlite3 cursor object.
+    :param member_id: the member id.
+    :param guild_id: the guild id.
+    :return: a tuple of the columns in that row
     """
-    sql = '''SELECT prefix FROM prefix_old WHERE server=?'''
-    res = cursor.execute(sql, (server_id,)).fetchone()
-    return res[0] if res is not None else None
+    cursor.execute(
+        'SELECT * FROM member_info WHERE member=? AND guild=?',
+        (member_id, guild_id)
+    )
+    return cursor.fetchone() or (None,) * 3
 
 
-def set_prefix_(connection, cursor, server_id: str, prefix: str):
+def _write_member_row(cursor: Cursor, connection: Connection, *args):
     """
-    Set the prefix for a server
-    :param connection: the sqlite db connection
-    :param cursor: the database cursor
-    :param server_id: the server id
-    :param prefix: the command prefix
+    Write into the member_info table
+    :param cursor: the sqlite3 cursor.
+    :param connection: the sqlite3 connection.
+    :param args: the values of that row
     """
-    sql_replace = '''REPLACE INTO prefix VALUES (?, ?)'''
-    cursor.execute(sql_replace, (server_id, prefix))
-    connection.commit()
-
-
-def delete_prefix_(connection, cursor, server_id: str):
-    """
-    Delete the prefix for a server
-    :param connection: the db connection
-    :param cursor: the db cursor
-    :param server_id: the server id
-    """
-    sql_delete = '''
-    DELETE FROM prefix_old WHERE server=?
-    '''
-    cursor.execute(sql_delete, (server_id,))
+    assert len(args) == 3
+    cursor.execute('REPLACE INTO member_info VALUES (?, ?, ?)', args)
     connection.commit()
 
 
@@ -127,179 +113,6 @@ def fuzzy_match_tag_(cursor, site, tag):
     """.format(tag)
     res = cursor.execute(sql, (site,)).fetchone()
     return res[0] if res is not None else None
-
-
-def get_language_(cursor, server_id: str):
-    """
-    Get the server language from databse
-    :param cursor: the database cursor
-    :param server_id: the server id
-    :return: the server language if found else none
-    """
-    sql = '''SELECT lan FROM language_old WHERE server=?'''
-    res = cursor.execute(sql, (server_id,)).fetchone()
-    return res[0] if res is not None else None
-
-
-def set_language_(connection, cursor, server_id: str, language: str):
-    """
-    Set the language for a server
-    :param connection: the sqlite db connection
-    :param cursor: the database cursor
-    :param server_id: the server id
-    :param language: the language
-    """
-    sql_replace = '''REPLACE INTO language VALUES (?, ?)'''
-    cursor.execute(sql_replace, (server_id, language))
-    connection.commit()
-
-
-def delete_language_(connection, cursor, server_id: str):
-    """
-    Delete the language info for a server
-    :param connection: the db connection
-    :param cursor: the db cursor
-    :param server_id: the server id
-    """
-    sql_delete = '''
-    DELETE FROM language_old WHERE server=?
-    '''
-    cursor.execute(sql_delete, (server_id,))
-    connection.commit()
-
-
-def add_role_(connection, cursor, server_id: str, role: str):
-    """
-    Add a role to the db
-    :param connection: the sqlite db connection
-    :param cursor: the database cursor
-    :param server_id: the server id
-    :param role: the role name
-    """
-    sql_replace = '''REPLACE INTO roles VALUES (?, ?)'''
-    cursor.execute(sql_replace, (server_id, role))
-    connection.commit()
-
-
-def remove_role_(connection, cursor, server_id: str, role: str):
-    """
-    Remove a role from the db
-    :param connection: the sqlite db connection
-    :param cursor: the database cursor
-    :param server_id: the server id 
-    :param role: the role name
-    """
-    sql = '''
-    DELETE FROM roles WHERE server=? AND role=?
-    '''
-    cursor.execute(sql, (server_id, role))
-    connection.commit()
-
-
-def get_role_list_(cursor, server_id: str):
-    """
-    Get the list of roles under the server with id == server_id
-    :param cursor: the database cursor
-    :param server_id: the server 
-    :return: a list of roles under the server with id == server_id
-    """
-    sql = '''
-    SELECT role FROM roles WHERE server=?
-    '''
-    cursor.execute(sql, (server_id,))
-    return [i[0] for i in cursor.fetchall()]
-
-
-def set_mod_log_(connection, cursor, server_id: str, channel_id: str):
-    """
-    Set the mod log channel id for a given server
-    :param connection: the sqlite db connection
-    :param cursor: the database cursor
-    :param server_id: the server id
-    :param channel_id: the channel id
-    """
-    sql_replace = '''REPLACE INTO mod_log VALUES (?, ?)'''
-    cursor.execute(sql_replace, (server_id, channel_id))
-    connection.commit()
-
-
-def get_mod_log_(cursor, server_id: str):
-    """
-    Get a list of all mod logs from a given server
-    :param cursor: the database cursor
-    :param server_id: the server id
-    :return: a list of all mod log channel ids
-    """
-
-    sql = '''
-    SELECT channel FROM mod_log WHERE server=?
-    '''
-    cursor.execute(sql, (server_id,))
-    return [i[0] for i in cursor.fetchall()]
-
-
-def remove_mod_log_(connection, cursor, server_id: str, channel_id: str):
-    """
-    Delete a modlog from the db
-    :param connection: the sqlite db connection
-    :param cursor: the database cursor
-    :param server_id: the server id
-    :param channel_id: the channel id
-    """
-    sql = '''
-    DELETE FROM mod_log WHERE server=? AND channel=?
-    '''
-    cursor.execute(sql, (server_id, channel_id))
-    connection.commit()
-
-
-def add_warn_(connection, cursor, server_id: str, user_id: str):
-    """
-    Add 1 to the warning count of the user
-    :param connection: the sqlite db connection
-    :param cursor: the database cursor
-    :param server_id: the server id
-    :param user_id: the user id
-    """
-    sql_insert = '''INSERT OR IGNORE INTO warns VALUES(?,?,0)'''
-    sql = '''
-    UPDATE warns SET number = number + 1 WHERE server = ? AND user = ?
-    '''
-    cursor.execute(sql_insert, (server_id, user_id))
-    cursor.execute(sql, [server_id, user_id])
-    connection.commit()
-
-
-def remove_warn_(connection, cursor, server_id: str, user_id: str):
-    """
-    Subtract 1 from the warning count of the user
-    :param connection: the sqlite db connection
-    :param cursor: the database cursor
-    :param server_id: the server id
-    :param user_id: the user id
-    """
-    sql = '''
-    UPDATE warns SET number = number - 1 
-    WHERE server = ? AND user = ? AND number > 0
-    '''
-    cursor.execute(sql, (server_id, user_id))
-    connection.commit()
-
-
-def get_warn_(cursor, server_id: str, user_id: str):
-    """
-    Get the warning count of a user
-    :param cursor: the database cursor
-    :param server_id: the server id
-    :param user_id: the user id
-    :return: the warning count of the user
-    """
-    sql = '''
-    SELECT number FROM warns WHERE server = ? AND user = ?
-    '''
-    cursor.execute(sql, (server_id, user_id))
-    result = cursor.fetchone()
-    return result[0] if result is not None else 0
 
 
 def get_balance_(cursor, user_id: str):
