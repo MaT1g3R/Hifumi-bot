@@ -8,9 +8,9 @@ from discord.embeds import Embed, EmptyEmbed
 from discord.ext.commands import CommandOnCooldown
 from discord.ext.commands.errors import MissingRequiredArgument
 
+from data_controller.data_controller import get_prefix_
 from scripts.checks import ManageMessageError, AdminError, ManageRoleError, \
     BadWordError, NsfwError, OwnerError
-from scripts.data_controller import get_prefix_
 from scripts.helpers import strip_letters
 
 

@@ -1,12 +1,12 @@
 from discord.ext import commands
 from pybooru import Danbooru
 
+from bot import Hifumi
 from config import *
 from core.nsfw_core import danbooru, gelbooru, k_or_y, random_str, e621, \
     greenteaneko
+from data_controller.data_controller import write_tag_list_
 from scripts.checks import is_nsfw, no_badword
-from scripts.data_controller import write_tag_list_
-from bot import Hifumi
 
 
 class Nsfw:

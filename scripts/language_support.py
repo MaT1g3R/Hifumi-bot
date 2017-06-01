@@ -4,7 +4,7 @@ A collection of functions to deal with language support
 
 from pathlib import Path
 
-from scripts.data_controller import set_language_, delete_language_
+from data_controller.data_controller import set_language_, delete_language_
 from scripts.file_io import read_all_files, read_json
 from scripts.helpers import suplement_dict
 

@@ -4,7 +4,8 @@ Functions to deal with the Roles class
 
 from discord.utils import get
 
-from scripts.data_controller import get_role_list_, remove_role_, add_role_
+from data_controller.data_controller import get_role_list_, remove_role_, \
+    add_role_
 from scripts.discord_functions import handle_forbidden_http
 
 

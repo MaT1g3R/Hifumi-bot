@@ -2,11 +2,11 @@ from discord import Member
 from discord.ext import commands
 from pytrivia import Trivia
 
+from bot import Hifumi
 from core.currency_core import daily, transfer, slots_setup, roll_slots, \
     determine_slot_result
 from core.trivia_core import TriviaGame
-from scripts.data_controller import get_balance_, change_balance_
-from bot import Hifumi
+from data_controller.data_controller import get_balance_, change_balance_
 
 
 class Currency:

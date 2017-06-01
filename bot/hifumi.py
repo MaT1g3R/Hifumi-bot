@@ -17,9 +17,9 @@ from websockets.exceptions import ConnectionClosed
 from config.settings import DEFAULT_PREFIX, SHARDED, \
     ENABLE_CONSOLE_LOGGING, OWNER
 from core.bot_info_core import generate_shard_info
+from data_controller.data_controller import get_language_
 from scripts.checks import NsfwError, BadWordError, ManageRoleError, \
     AdminError, ManageMessageError, OwnerError
-from scripts.data_controller import get_language_
 from scripts.discord_functions import command_error_handler, get_prefix
 from scripts.file_io import write_json
 from scripts.language_support import read_language

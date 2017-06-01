@@ -5,7 +5,8 @@ from collections import deque
 from random import sample, randint
 from time import time
 
-from scripts.data_controller import get_daily_, set_daily_, change_balance_, \
+from data_controller.data_controller import get_daily_, set_daily_, \
+    change_balance_, \
     transfer_balance_, TransferError, get_balance_
 from scripts.helpers import get_time_elapsed
 

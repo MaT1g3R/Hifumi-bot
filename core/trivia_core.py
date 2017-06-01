@@ -3,9 +3,9 @@ from string import ascii_uppercase
 
 from pytrivia import Diffculty, Category, Type
 
-from scripts.data_controller import get_balance_, transfer_balance_, \
-    TransferError
 from bot import Hifumi
+from data_controller.data_controller import get_balance_, transfer_balance_, \
+    TransferError
 from scripts.discord_functions import build_embed, get_prefix
 
 

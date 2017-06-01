@@ -1,14 +1,39 @@
 """
-A sqlite3 database handler
+A sqlite3 database controller, this is not meant to be accessed directly with
+the bot. For bot use, please use the DataManager class.
 """
+from sqlite3 import Cursor, Connection
 from time import time
 
-
-class TransferError(ValueError):
-    pass
+from data_controller.data_manager import TransferError
 
 
-def get_prefix_(cursor, server_id: str):
+def _get_guild_row(cursor: Cursor, guild_id: int) -> tuple:
+    """
+    Get the row with the guild_id.
+    :param cursor: the sqlite3 cursor object
+    :param guild_id: the guild id
+    :return: a tuple of the columns in that row
+    """
+    sql = """SELECT * FROM guild_info WHERE guild=?"""
+    res = cursor.execute(sql, (guild_id,)).fetchone()
+    return res or (None,) * 5
+
+
+def _write_guild_row(cursor: Cursor, connection: Connection, *args):
+    """
+    Write into the guild_info table
+    :param cursor: the sqlite3 cursor object
+    :param connection: the sqlite3 connection object
+    :param args: the content of that row
+    """
+    assert len(args) == 5
+    sql = """REPLACE INTO guild_info VALUES (?, ?, ?, ?, ?)"""
+    cursor.execute(sql, args)
+    connection.commit()
+
+
+def _get_prefix(cursor, server_id: str):
     """
     Get the server prefix from databse
     :param cursor: the database cursor

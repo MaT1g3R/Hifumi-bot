@@ -2,14 +2,14 @@ import time
 
 from discord.ext import commands
 
+from bot import Hifumi
 from config import *
 from core.bot_info_core import build_info_embed
+from data_controller.data_controller import set_prefix_, delete_prefix_
 from scripts.checks import is_admin
-from scripts.data_controller import set_prefix_, delete_prefix_
 from scripts.discord_functions import get_prefix
 from scripts.language_support import generate_language_entry, \
     generate_language_list, set_language
-from bot import Hifumi
 
 
 class BotInfo:

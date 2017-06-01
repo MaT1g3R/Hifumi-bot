@@ -6,7 +6,7 @@ from asyncio import sleep
 from discord import Member
 from discord.utils import get
 
-from scripts.data_controller import get_mod_log_, set_mod_log_, \
+from data_controller.data_controller import get_mod_log_, set_mod_log_, \
     remove_mod_log_, add_warn_, remove_warn_, get_warn_
 from scripts.discord_functions import get_name_with_discriminator, \
     build_embed, get_avatar_url, handle_forbidden_http, get_prefix
