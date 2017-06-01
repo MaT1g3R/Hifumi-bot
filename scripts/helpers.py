@@ -1,9 +1,10 @@
 """
-Useful helper functions
+Useful helper functions/classes
 """
 import re
 from datetime import date, timedelta
 from platform import platform
+from typing import Sequence, Union
 
 
 def combine_dicts(dicts):
@@ -153,3 +154,57 @@ def get_time_elapsed(start, finish):
     hours, seconds = divmod(seconds, 3600)
     minutes, seconds = divmod(seconds, 60)
     return days, hours, minutes, seconds
+
+
+def assert_types(values: Sequence, types: Union(Sequence[type], type),
+                 ignore_none: bool):
+    """
+    Check lengh and types match for a Sequence, NoneType is ignored
+    :param values: the Sequence to be checked
+    :param types: the expected Types
+    :param ignore_none: if False will raise AssertionError when a NoneType
+    is in the values, if True it will be ignored
+    """
+    if isinstance(types, type):
+        for v in values:
+            assert (v is None and ignore_none) or isinstance(v, types)
+    else:
+        assert len(values) == len(types)
+        for v, t in zip(values, types):
+            assert (v is None and ignore_none) or isinstance(v, t)
+
+
+def assert_inputs(types: Union(Sequence[type], type), ignore_none: bool):
+    """
+    Decorator to assert length and types of the input to the db
+    :param types: the expected types
+    :param ignore_none: see assert_types
+    """
+
+    def dec(func: callable):
+        def wrap(*args):
+            assert_types(args[-1], types, ignore_none)
+            func(*args)
+
+        return wrap
+
+    return dec
+
+
+def assert_outputs(types: Union(Sequence[type], type), ignore_none: bool):
+    """
+    Decorator to assert the output of a request to the db
+    :param types: the expected types
+    :param ignore_none: see assert_types
+    """
+
+    def dec(func: callable):
+        def wrap(*args):
+            res = func(*args)
+            if res is not None:
+                assert_types(res, types, ignore_none)
+            return res
+
+        return wrap
+
+    return dec
