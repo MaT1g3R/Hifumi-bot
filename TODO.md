@@ -203,6 +203,7 @@ userinfo            ✕
 ```
 
 ## 4. New features
+- [ ] A bot stats updater (post discordlist.org, carbonitex.net and discord.bots.pw stats every hour)
 - [ ] A command to switch bot status (setstatus)
 - [ ] AFK function (if a user that has AFK activated is mentioned, make Hifumi send a message with the reason if specified)
 - [ ] Actual polls via Discord instead of Strawpoll
@@ -231,10 +232,11 @@ userinfo            ✕
 - [ ] Merge cute(x) commands to a new animal command
 - [ ] Message to general channel of bot introduction when bot joins to a new guild, DM to a mod if bot is kicked (promote feedback) 
 - [x] Modlog
+- [ ] osu! pp calculating for beatmaps
 - [ ] Profile for currency 
 - [ ] Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
-- [ ] Recipe finder
-- [ ] RSS subscriptions and announcements
+- [x] Recipe finder
+- [ ] Reddit post announcements
 - [ ] Softban function (also with modlog, ban someone and then unban him)
 - [ ] Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
 - [ ] Stream Listen.moe via command
@@ -242,12 +244,12 @@ userinfo            ✕
 - [ ] Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
 - [ ] Toggle DM sending for Hifumi
 - [ ] Translation command return
+- [ ] Twitter post announcements
 - [ ] Twitch stream notification 
 - [ ] Voteban! (yes, really; ask the vote of people to ban a person. Admin command to avoid abuse.)
 - [ ] Welcome and farewell system, able for DM or channel
 - [ ] Wikipedia searching
 - [ ] Word filter (mod tool, compatible with words and regex as well)
-- [ ] osu! pp calculating for beatmaps
 
 **NOTE:** Those are the best ideas we picked. Until we're done with them, we're not accepting feature requests anymore.
    
