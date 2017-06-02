@@ -969,6 +969,7 @@ def main():
             faster_bash()
         except Exception as e:
             error("Failed making fast start scripts: {}\n".format(e))
+        warning("This launcher is deprecated. It will be worked ASAP.")
         print(" __    __   __   _______  __    __   ___  ___   __\n"
               "|  |  |  | |  | |   ____||  |  |  | |   \/   | |  |    _\n"
               "|  |__|  | |  | |  |__   |  |  |  | |  \  /  | |  |  _| |_\n"
