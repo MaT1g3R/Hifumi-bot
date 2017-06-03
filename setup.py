@@ -1,23 +1,27 @@
-from setuptools import setup, find_packages
 from pip.req import parse_requirements
-import os
+from setuptools import find_packages, setup
+
+from __init__ import *
+
 
 def read(fname):
-        return open(os.path.join(os.path.dirname(__file__), fname)).read()
+    with open(fname) as f:
+        res = f.read()
+        f.close()
+        return res
 
-install_reqs = parse_requirements("./config/requirements.txt")
-reqs = [str(ir.req) for ir in install_reqs]
 
 setup(
-    name='hifumi',
-    version='0.0.1',
-    packages=find_packages()
-    install_requires=reqs,
+    name=__title__.lower(),
+    version=__version__,
+    packages=find_packages(),
+    install_requires=[
+        str(ir.req) for ir in parse_requirements('requirements.txt')],
     include_package_data=True,
     url='http://www.hifumibot.xyz',
-    license='GPL-3.0',
-    author='Underforest',
+    license=__license__,
+    author=__author__,
     author_email='neovisatoons@gmail.com',
-    description='The official module for Hifumi, the Discord bot.',
+    description='Hifumi, a multifunctional Discord bot.',
     long_description=read('README.md')
-      )
+)

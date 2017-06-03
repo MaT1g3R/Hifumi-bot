@@ -1,13 +1,44 @@
 """
 Functions for file io
 """
-import json
+
 from io import TextIOBase
+from json import dump, load
 from pathlib import Path
 
 from yaml import safe_dump, safe_load
 
 
+def __read(func: callable) -> callable:
+    """
+    Decorator for file-reading functions, checks that the file pointer is not
+    None and closes the file if keep_open is False
+    """
+    def wrap(fp: TextIOBase, keep_open: bool, *args, **kwargs):
+        if fp:
+            res = func(fp, keep_open, *args, **kwargs)
+            if not keep_open:
+                fp.close()
+            return res
+
+    return wrap
+
+
+def __write(func: callable) -> callable:
+    """
+    Decorator for file-writing functions, checks that the file pointer is not
+    None and closes the file if keep_open is False
+    """
+    def wrap(fp: TextIOBase, data, keep_open: bool, *args, **kwargs):
+        if fp:
+            func(fp, data, keep_open, *args, **kwargs)
+            if not keep_open:
+                fp.close()
+
+    return wrap
+
+
+@__read
 def read_json(fp: TextIOBase, keep_open: bool = False) -> dict:
     """
     Read a json file into a dictionary
@@ -15,14 +46,10 @@ def read_json(fp: TextIOBase, keep_open: bool = False) -> dict:
     :param keep_open: keep file open (default False)
     :return: the dictionary
     """
-    if fp is not None:
-        data = json.load(fp)
-        if not keep_open:
-            fp.close()
-        return data
-    return {}
+    return load(fp)
 
 
+@__write
 def write_json(fp: TextIOBase, data: dict, keep_open: bool = False):
     """
     Write a dictionary into a json file
@@ -30,12 +57,10 @@ def write_json(fp: TextIOBase, data: dict, keep_open: bool = False):
     :param data: The dictionary
     :param keep_open: keep file open (default False)
     """
-    if fp is not None:
-        json.dump(data, fp)
-        if not keep_open:
-            fp.close()
+    dump(data, fp)
 
 
+@__read
 def read_yaml(fp: TextIOBase, keep_open: bool = False) -> dict:
     """
     Read a yaml file into a dict
@@ -43,14 +68,10 @@ def read_yaml(fp: TextIOBase, keep_open: bool = False) -> dict:
     :param keep_open: keep file open (default False)
     :return: the dict
     """
-    if fp:
-        data = safe_load(fp)
-        if not keep_open:
-            fp.close()
-        return data
-    return {}
+    return safe_load(fp)
 
 
+@__write
 def write_yaml(fp: TextIOBase, data: dict, keep_open: bool = False):
     """
     Write a dict into a yaml file
@@ -58,10 +79,7 @@ def write_yaml(fp: TextIOBase, data: dict, keep_open: bool = False):
     :param data: the dict
     :param keep_open: keep file open (default False)
     """
-    if fp:
-        safe_dump(data, fp)
-        if not keep_open:
-            fp.close()
+    safe_dump(data, fp)
 
 
 def read_all_files(path: Path):
