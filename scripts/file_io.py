@@ -14,6 +14,7 @@ def __read(func: callable) -> callable:
     Decorator for file-reading functions, checks that the file pointer is not
     None and closes the file if keep_open is False
     """
+
     def wrap(fp: TextIOBase, keep_open: bool, *args, **kwargs):
         if fp:
             res = func(fp, keep_open, *args, **kwargs)
@@ -29,6 +30,7 @@ def __write(func: callable) -> callable:
     Decorator for file-writing functions, checks that the file pointer is not
     None and closes the file if keep_open is False
     """
+
     def wrap(fp: TextIOBase, data, keep_open: bool, *args, **kwargs):
         if fp:
             func(fp, data, keep_open, *args, **kwargs)
