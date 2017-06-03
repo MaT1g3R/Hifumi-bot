@@ -218,7 +218,7 @@ def get_config():
     """
     
     try:
-        path = Path("../data/settings.yml")
+        path = Path("../config/settings.yml")
         with path.open(mode='r') as ymlfile:
             return yaml.load(ymlfile)
     except (FileNotFoundError, yaml.YAMLError):
