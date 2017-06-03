@@ -2,8 +2,7 @@
 A sqlite3 database controller, this is not meant to be accessed directly with
 the bot. For bot use, please use the DataManager class.
 """
-from sqlite3 import Cursor, Connection
-
+from sqlite3 import Connection, Cursor
 from typing import Sequence
 
 from scripts.helpers import assert_inputs, assert_outputs
@@ -52,7 +51,7 @@ def _get_member_row(cursor: Cursor, member_id: int, guild_id: int) -> tuple:
         'SELECT * FROM member_info WHERE member=? AND guild=?',
         (member_id, guild_id)
     )
-    return cursor.fetchone() or (None,) * __member_types
+    return cursor.fetchone() or (None,) * len(__member_types)
 
 
 @assert_inputs(__member_types, True)

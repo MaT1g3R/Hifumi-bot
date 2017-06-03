@@ -1,11 +1,13 @@
-from sqlite3 import connect
-from data_controller.data_rows import GuildRow, MemberRow, UserRow
-from typing import Union, List
 from pathlib import Path
+from sqlite3 import connect
+from time import time
+from typing import List, Union
+
+from data_controller.data_rows import GuildRow, MemberRow, UserRow
 from scripts.helpers import assert_inputs, assert_outputs
 
 
-class TransferError(ValueError):
+class CurrencyError(ValueError):
     pass
 
 
@@ -72,12 +74,28 @@ class DataManager:
         """
         return self.__get_guild_row(guild_id).prefix
 
+    def set_prefix(self, guild_id: int, prefix: str):
+        """
+        Set the prefix for a guild.
+        :param guild_id: the guild id.
+        :param prefix: the prefix to set to.
+        """
+        self.__get_guild_row(guild_id).prefix = prefix
+
     def get_language(self, guild_id: int) -> str:
         """
         Get the language of the guild
         :param guild_id: the guild id
         """
         return self.__get_guild_row(guild_id).language
+
+    def set_language(self, guild_id: int, language: str):
+        """
+        Set the language of a guild.
+        :param guild_id: the guild id of the guild.
+        :param language: the language to set to.
+        """
+        self.__get_guild_row(guild_id).language = language
 
     def get_mod_log(self, guild_id: int) -> int:
         """
@@ -86,18 +104,78 @@ class DataManager:
         """
         return self.__get_guild_row(guild_id).mod_log
 
+    def set_mod_log(self, guild_id: int, channel_id: int):
+        """
+        Set the mod log channel of a guild.
+        :param guild_id: the guild id.
+        :param channel_id: the channel id of the mod log.
+        """
+        self.__get_guild_row(guild_id).mod_log = channel_id
+
     @assert_outputs(str, False)
     def get_roles(self, guild_id: int) -> List[str]:
         """
-        Get the list of roles in the guild
-        :param guild_id: the guild id
+        Get the list of roles in the guild.
+        :param guild_id: the guild id.
         """
         return eval(self.__get_guild_row(guild_id).roles)
 
-    def set_prefix(self, guild_id: int, prefix: str):
+    @assert_inputs(str, False)
+    def set_roles(self, guild_id: int, roles: List[str]):
         """
-        Set the prefix for a guild.
+        Set the role list for the guild.
         :param guild_id: the guild id.
-        :param prefix: the prefix to set to.
+        :param roles: the list of roles.
         """
-        self.__get_guild_row(guild_id).prefix = prefix
+        self.__get_guild_row(guild_id).roles = repr(roles)
+
+    def get_member_warns(self, member_id: int, guild_id: int) -> int:
+        """
+        Get the number of warns on the member.
+        :param member_id: the member id.
+        :param guild_id: the guild id.
+        :return: the number of warns on the member.
+        """
+        return self.__get_member_row(member_id, guild_id).warns or 0
+
+    def set_member_warns(self, member_id: int, guild_id: int, warns: int):
+        """
+        Set the number of warns on the member.
+        :param member_id: the member id.
+        :param guild_id: the guild id.
+        :param warns: the number of warns to set to.
+        """
+        assert warns >= 0
+        self.__get_member_row(member_id, guild_id).warns = warns
+
+    def get_user_balance(self, user_id: int) -> int:
+        """
+        Get the balance of a user.
+        :param user_id: the user id.
+        :return: the balance of that user.
+        """
+        return self.__get_user_row(user_id).balance or 0
+
+    def set_user_balance(self, user_id: int, balance: int):
+        """
+        Set the balance of a user.
+        :param user_id: the user id.
+        :param balance: the balance to set to.
+        """
+        assert balance >= 0
+        self.__get_user_row(user_id).balance = balance
+
+    def get_user_daily(self, user_id: int) -> int:
+        """
+        Get the timestamp of the user's last daily..
+        :param user_id: the user id.
+        :return: the timestamp of the user's last daily.
+        """
+        return self.__get_user_row(user_id).daily
+
+    def refresh_daily(self, user_id: int):
+        """
+        Refresh the user's daily timestamp to the current time.
+        :param user_id: the user id
+        """
+        self.__get_user_row(user_id).daily = int(time())
