@@ -2,7 +2,9 @@
 Useful helper functions/classes
 """
 import re
+import yaml
 from datetime import date, timedelta
+from pathlib import Path
 from platform import platform
 from typing import Sequence, Union
 
@@ -208,3 +210,16 @@ def assert_outputs(types: Union(Sequence[type], type), ignore_none: bool):
         return wrap
 
     return dec
+
+
+def get_config():
+    """
+    Return a configuration variable
+    """
+    
+    try:
+        path = Path("../data/settings.yml")
+        with path.open(mode='r') as ymlfile:
+            return yaml.load(ymlfile)
+    except (FileNotFoundError, yaml.YAMLError):
+        return None
