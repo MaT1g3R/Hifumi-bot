@@ -2,7 +2,6 @@
 Functions for file io
 """
 
-from io import TextIOBase
 from json import dump, load
 from pathlib import Path
 
@@ -15,7 +14,7 @@ def __read(func: callable) -> callable:
     None and closes the file if keep_open is False
     """
 
-    def wrap(fp: TextIOBase, keep_open: bool, *args, **kwargs):
+    def wrap(fp, keep_open: bool, *args, **kwargs):
         if fp:
             res = func(fp, keep_open, *args, **kwargs)
             if not keep_open:
@@ -31,7 +30,7 @@ def __write(func: callable) -> callable:
     None and closes the file if keep_open is False
     """
 
-    def wrap(fp: TextIOBase, data, keep_open: bool, *args, **kwargs):
+    def wrap(fp, data, keep_open: bool, *args, **kwargs):
         if fp:
             func(fp, data, keep_open, *args, **kwargs)
             if not keep_open:
@@ -41,7 +40,7 @@ def __write(func: callable) -> callable:
 
 
 @__read
-def read_json(fp: TextIOBase, keep_open: bool = False) -> dict:
+def read_json(fp, keep_open: bool = False) -> dict:
     """
     Read a json file into a dictionary
     :param fp: the file pointer
@@ -52,7 +51,7 @@ def read_json(fp: TextIOBase, keep_open: bool = False) -> dict:
 
 
 @__write
-def write_json(fp: TextIOBase, data: dict, keep_open: bool = False):
+def write_json(fp, data: dict, keep_open: bool = False):
     """
     Write a dictionary into a json file
     :param fp: The json file
@@ -63,7 +62,7 @@ def write_json(fp: TextIOBase, data: dict, keep_open: bool = False):
 
 
 @__read
-def read_yaml(fp: TextIOBase, keep_open: bool = False) -> dict:
+def read_yaml(fp, keep_open: bool = False) -> dict:
     """
     Read a yaml file into a dict
     :param fp: the file pointer
@@ -74,7 +73,7 @@ def read_yaml(fp: TextIOBase, keep_open: bool = False) -> dict:
 
 
 @__write
-def write_yaml(fp: TextIOBase, data: dict, keep_open: bool = False):
+def write_yaml(fp, data: dict, keep_open: bool = False):
     """
     Write a dict into a yaml file
     :param fp: the file pointer

@@ -2,11 +2,14 @@
 Useful helper functions/classes
 """
 import re
-import yaml
 from datetime import date, timedelta
 from pathlib import Path
 from platform import platform
 from typing import Sequence, Union
+
+from yaml import YAMLError
+
+from scripts.file_io import read_yaml
 
 
 def combine_dicts(dicts):
@@ -212,14 +215,16 @@ def assert_outputs(types: Union(Sequence[type], type), ignore_none: bool):
     return dec
 
 
-def get_config():
+def get_config() -> dict:
     """
-    Return a configuration variable
+    Return the configurations.
     """
-    
-    try:
-        path = Path("../config/settings.yml")
-        with path.open(mode='r') as ymlfile:
-            return yaml.load(ymlfile)
-    except (FileNotFoundError, yaml.YAMLError):
-        return None
+    path = Path('../config/settings.yml')
+    if not path.is_file():
+        return {}
+    with path.open() as f:
+        try:
+            return read_yaml(f)
+        except YAMLError:
+            f.close()
+            return {}
