@@ -3,8 +3,11 @@ A collection of classes that represent a row in the sqlite database
 """
 from sqlite3 import Connection, Cursor
 from typing import Sequence
-from data_controller.data_controller import _get_guild_row, _write_guild_row, \
-    _get_member_row, _write_member_row, _get_user_row, _write_user_row
+
+from data_controller.data_controller import _get_guild_row, _get_member_row, \
+    _get_user_row, _write_guild_row, _write_member_row, _write_user_row
+
+__all__ = ['GuildRow', 'MemberRow', 'UserRow']
 
 
 class _Row:
@@ -37,9 +40,13 @@ class GuildRow:
         :param cursor: the sqlite3 cursor object
         :param guild_id: the guild id
         """
+        row_data = _get_guild_row(cursor, guild_id)
+        if row_data[0] is None:
+            row_data = (guild_id,) + row_data[1:]
         self.__row = _Row(
-            connection, cursor, _get_guild_row(cursor, guild_id)
+            connection, cursor, row_data
         )
+        assert self.__row.row_data[0] is not None
 
     def __write(self):
         """
@@ -105,10 +112,19 @@ class MemberRow:
         :param member_id: the member id.
         :param guild_id: the guild id of that member.
         """
+        row_data = _get_member_row(cursor, member_id, guild_id)
+        if row_data[0] is None and row_data[1] is None:
+            row_data = (member_id, guild_id) + row_data[2:]
+        elif row_data[0] is None or row_data[1] is None:
+            raise RuntimeError(
+                'One of (member_id, guild_id) read from the '
+                'database is None and the other isn\'t None.'
+            )
         self.__row = _Row(
-            connection, cursor,
-            _get_member_row(cursor, member_id, guild_id)
+            connection, cursor, row_data
         )
+        assert self.__row.row_data[0] is not None
+        assert self.__row.row_data[1] is not None
 
     def __write(self):
         """
@@ -144,7 +160,11 @@ class UserRow:
         :param cursor: the sqlite3 cursor
         :param user_id: the user id
         """
-        self.__row = _Row(connection, cursor, _get_user_row(cursor, user_id))
+        row_data = _get_user_row(cursor, user_id)
+        if row_data[0] is None:
+            row_data = (user_id,) + row_data[1:]
+        self.__row = _Row(connection, cursor, row_data)
+        assert self.__row.row_data[0] is not None
 
     def __write(self):
         """

@@ -13,6 +13,10 @@ __member_types = (int, int, int)
 __user_types = (int, int, int)
 __tag_types = (str, str)
 
+__all__ = ['_get_guild_row', '_get_member_row', '_get_tags', '_get_user_row',
+           '_write_guild_row', '_write_member_row', '_write_tags',
+           '_write_user_row']
+
 
 @assert_outputs(__guild_types, True)
 def _get_guild_row(cursor: Cursor, guild_id: int) -> tuple:

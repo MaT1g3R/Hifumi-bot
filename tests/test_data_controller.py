@@ -1,38 +1,20 @@
-from pathlib import Path
 from random import randint
 from sqlite3 import connect
 from string import printable
 
 from pytest import fixture
 
-from data_controller.data_controller import _get_guild_row, _get_member_row, \
-    _get_tags, _get_user_row, _write_guild_row, _write_member_row, _write_tags, \
-    _write_user_row
+from data_controller.data_controller import *
 from scripts.helpers import random_word
-
-__db_path = str(Path(__file__).parent.joinpath('test_data').joinpath('mock_db'))
-
-
-def __clear_db(conn, cur):
-    """
-    Helper function to delete all rows from all tables from the db
-    :param conn: the sqlite3 connection.
-    :param cur: the sqlite3 cursor.
-    """
-    cur.execute('SELECT name FROM sqlite_master WHERE type=?', ('table',))
-    all_tables = [t[0] for t in cur.fetchall() if t[0]]
-    for name in all_tables:
-        cur.execute(f'DELETE FROM {name}')
-    conn.commit()
-    conn.close()
+from tests import *
 
 
 @fixture(scope='module')
 def get_sql_obj():
-    conn = connect(__db_path)
+    conn = connect(_db_path)
     cur = conn.cursor()
     yield conn, cur
-    __clear_db(conn, cur)
+    _clear_db(conn, cur)
 
 
 def test_guild_row(get_sql_obj):
