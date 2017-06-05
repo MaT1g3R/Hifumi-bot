@@ -92,7 +92,7 @@ def _write_user_row(connection: Connection, cursor: Cursor, values):
     connection.commit()
 
 
-def _read_tags(cursor: Cursor) -> Dict[str, List[str]]:
+def _get_tags(cursor: Cursor) -> Dict[str, List[str]]:
     """
     Read the tags stored in the db into a dict mapping of {site: tags}
     :param cursor: the sqlite3 cursor.
@@ -103,7 +103,10 @@ def _read_tags(cursor: Cursor) -> Dict[str, List[str]]:
     for t in cursor.fetchall():
         if len(t) == 2 and all(t):
             k, v = t
-            res[k].append(v) if res[k] is not None else res[k] = [v]
+            if k in res:
+                res[k].append(v)
+            else:
+                res[k] = [v]
     return res
 
 

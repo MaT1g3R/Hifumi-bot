@@ -5,7 +5,8 @@ import re
 from datetime import date, timedelta
 from pathlib import Path
 from platform import platform
-from typing import Sequence, Union
+from random import choice
+from typing import Collection, Sequence
 
 from yaml import YAMLError
 
@@ -66,7 +67,7 @@ def combine_dicts(dicts):
             (combine_dicts(dicts[:l // 2]), combine_dicts(dicts[l // 2:])))
 
 
-def suplement_dict(parent: dict, child: dict):
+def suplement_dict(parent: dict, child: dict):  
     """
     Add all values in parent into child if child doesnt have the key
     :param parent: the parent dict
@@ -161,8 +162,7 @@ def get_time_elapsed(start, finish):
     return days, hours, minutes, seconds
 
 
-def assert_types(values: Sequence, types: Union(Sequence[type], type),
-                 ignore_none: bool):
+def assert_types(values: Sequence, types, ignore_none: bool):
     """
     Check lengh and types match for a Sequence, NoneType is ignored
     :param values: the Sequence to be checked
@@ -179,7 +179,7 @@ def assert_types(values: Sequence, types: Union(Sequence[type], type),
             assert (v is None and ignore_none) or isinstance(v, t)
 
 
-def assert_inputs(types: Union(Sequence[type], type), ignore_none: bool):
+def assert_inputs(types, ignore_none: bool):
     """
     Decorator to assert length and types of the input to the db
     :param types: the expected types
@@ -196,7 +196,7 @@ def assert_inputs(types: Union(Sequence[type], type), ignore_none: bool):
     return dec
 
 
-def assert_outputs(types: Union(Sequence[type], type), ignore_none: bool):
+def assert_outputs(types, ignore_none: bool):
     """
     Decorator to assert the output of a request to the db
     :param types: the expected types
@@ -228,3 +228,13 @@ def get_config() -> dict:
         except YAMLError:
             f.close()
             return {}
+
+
+def random_word(length: int, source: Collection):
+    """
+    Generate a random word.
+    :param length: the length of the word.
+    :param source: the source of characters the word can choose from.
+    :return: a random word of length of <length>
+    """
+    return ''.join(choice(source) for _ in range(length))

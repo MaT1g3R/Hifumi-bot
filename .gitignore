@@ -18,3 +18,4 @@ temp\.py
 .fuse*
 data/\.DS_Store
 \.DS_Store
+\.cache/v/cache/
