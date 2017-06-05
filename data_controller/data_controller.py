@@ -3,7 +3,7 @@ A sqlite3 database controller, this is not meant to be accessed directly with
 the bot. For bot use, please use the DataManager class.
 """
 from sqlite3 import Connection, Cursor
-from typing import Sequence
+from typing import Dict, List, Sequence
 
 from scripts.helpers import assert_inputs, assert_outputs
 
@@ -11,6 +11,7 @@ from scripts.helpers import assert_inputs, assert_outputs
 __guild_types = (int, str, str, int, str)
 __member_types = (int, int, int)
 __user_types = (int, int, int)
+__tag_types = (str, str)
 
 
 @assert_outputs(__guild_types, True)
@@ -88,4 +89,34 @@ def _write_user_row(connection: Connection, cursor: Cursor, values):
     :param values: the values to that row.
     """
     cursor.execute('REPLACE INTO user_info VALUES (?, ?, ?)', values)
+    connection.commit()
+
+
+def _read_tags(cursor: Cursor) -> Dict[str, List[str]]:
+    """
+    Read the tags stored in the db into a dict mapping of {site: tags}
+    :param cursor: the sqlite3 cursor.
+    :return: A dict of tags, mapped as {site: tags}
+    """
+    cursor.execute('SELECT * FROM main.nsfw_tags')
+    res = {}
+    for t in cursor.fetchall():
+        if len(t) == 2 and all(t):
+            k, v = t
+            res[k].append(v) if res[k] is not None else res[k] = [v]
+    return res
+
+
+def _write_tags(
+        connection: Connection, cursor: Cursor, site: str, tags: List[str]):
+    """
+    Write a list of tags into the db based on the site
+    :param connection: the sqlite3 connection.
+    :param cursor: the sqlite3 cursor.
+    :param site: the site name.
+    :param tags: the list of tags.
+    """
+    for tag in tags:
+        cursor.execute(
+            'INSERT OR IGNORE INTO nsfw_tags VALUES (?, ?)', (site, tag))
     connection.commit()

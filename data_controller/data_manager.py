@@ -1,6 +1,5 @@
 from pathlib import Path
 from sqlite3 import connect
-from time import time
 from typing import List, Union
 
 from data_controller.data_rows import GuildRow, MemberRow, UserRow
@@ -173,9 +172,10 @@ class DataManager:
         """
         return self.__get_user_row(user_id).daily
 
-    def refresh_daily(self, user_id: int):
+    def set_user_daily(self, user_id: int, time_stamp: int):
         """
         Refresh the user's daily timestamp to the current time.
-        :param user_id: the user id
+        :param user_id: the user id.
+        :param time_stamp: the timestamp for the daily.
         """
-        self.__get_user_row(user_id).daily = int(time())
+        self.__get_user_row(user_id).daily = time_stamp
