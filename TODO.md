@@ -224,12 +224,13 @@ userinfo            ✕
 - [ ] Google searching, as well as images and videos
 - [ ] Hackban (ban users outside the server via user ID) and individual unban as well
 - [ ] Invite blocker and mention spam protection
-- [ ] Lookup a Pokemon with number or name
 - [ ] Love Live! school idols information because why not (this <a href="https://github.com/SchoolIdolTomodachi/SchoolIdolAPI">API</a>)
 - [ ] Make a waifu command (search random Google pictures for the bot character, this can be specified in settings.py; in the public version the command should be "~hifumi")
 - [ ] Make another meme command but with user avatar (For example spoo.py "Fun" category commands or t!beautiful from Tatsumaki)
+- [ ] Make another meme command but with this kind of style with custom text and picture (<a href="https://cdn.discordapp.com/attachments/227915483293286403/294309409415495680/3ac1a19.jpg">example</a>)
 - [ ] Make an easy installer for Windows (graphic mode, planned)
 - [ ] Make possible a triggered command with the picture of a user (with filters, like blargbot)
+- [ ] Make waiting music customizable
 - [ ] Merge cute(x) commands to a new animal command
 - [ ] Message to general channel of bot introduction when bot joins to a new guild, DM to a mod if bot is kicked (promote feedback) 
 - [x] Modlog
@@ -237,6 +238,7 @@ userinfo            ✕
 - [ ] Profile for currency 
 - [ ] Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
 - [x] Recipe finder
+- [ ] Replace GIF command tracker from Giphy to be available also in filters (respectively Giphy, Tenor and Imgur)
 - [ ] Reddit post announcement
 - [ ] Softban function (also with modlog, ban someone and then unban him)
 - [ ] Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
@@ -248,6 +250,7 @@ userinfo            ✕
 - [ ] Twitter post announcements
 - [ ] Voteban! (yes, really; ask the vote of people to ban a person. Admin command to avoid abuse.)
 - [ ] Welcome and farewell system, able for DM or channel
+- [ ] "Who's that Pokemon?" trivia
 - [ ] Wikipedia searching
 - [ ] Word filter (mod tool, compatible with words and regex as well)
 
