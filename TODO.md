@@ -209,6 +209,7 @@ userinfo            ✕
 - [ ] Add ban, softban and kick notifications for modlog! If possible, also include server general actions, like audit log
 - [ ] Addition of Chuck Norris jokes (name customizable) 
 - [ ] Announce when there's the birthday for someone 
+- [ ] As people is requesting it too much, instead of people's permissions, replace that with commands permissions like Rem's system.
 - [ ] Automatic hentai posting if set
 - [ ] Autorole function (assign a role to new members)
 - [ ] Battle command to defeat from other users 
@@ -220,7 +221,7 @@ userinfo            ✕
 - [ ] Feedback (with cooldown to avoid abuse)
 - [ ] Fix the bug for shard ID argument instead of settings 
 - [x] Format errors when bot DMs
-- [ ] Google searching, as well as images
+- [ ] Google searching, as well as images and videos
 - [ ] Hackban (ban users outside the server via user ID) and individual unban as well
 - [ ] Invite blocker and mention spam protection
 - [ ] Lookup a Pokemon with number or name
@@ -240,12 +241,11 @@ userinfo            ✕
 - [ ] Softban function (also with modlog, ban someone and then unban him)
 - [ ] Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
 - [ ] Stream Listen.moe via command
-- [ ] Stream notification available too for Hitbox and Beam
+- [ ] Stream notification available too for Twitch, Hitbox and Beam
 - [ ] Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
 - [ ] Toggle DM sending for Hifumi
 - [ ] Translation command return
 - [ ] Twitter post announcements
-- [ ] Twitch stream notification 
 - [ ] Voteban! (yes, really; ask the vote of people to ban a person. Admin command to avoid abuse.)
 - [ ] Welcome and farewell system, able for DM or channel
 - [ ] Wikipedia searching
