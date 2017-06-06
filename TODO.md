@@ -9,7 +9,6 @@
 ## 1. Bot manager/launcher
 - Done
 
-- [ ] Localize launcher and errors 
 ## 2. Bot base and command handler
 - mostly finished, contiune to add onto it if needed
 - [ ] Check wether there are news about discord.py library rewrite
@@ -225,6 +224,7 @@ userinfo            ✕
 - [ ] Hackban (ban users outside the server via user ID) and individual unban as well
 - [ ] Invite blocker and mention spam protection
 - [ ] Lookup a Pokemon with number or name
+- [ ] Love Live! school idols information because why not (this <a href="https://github.com/SchoolIdolTomodachi/SchoolIdolAPI">API</a>)
 - [ ] Make a waifu command (search random Google pictures for the bot character, this can be specified in settings.py; in the public version the command should be "~hifumi")
 - [ ] Make another meme command but with user avatar (For example spoo.py "Fun" category commands or t!beautiful from Tatsumaki)
 - [ ] Make an easy installer for Windows (graphic mode, planned)
@@ -236,7 +236,7 @@ userinfo            ✕
 - [ ] Profile for currency 
 - [ ] Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
 - [x] Recipe finder
-- [ ] Reddit post announcements
+- [ ] Reddit post announcement
 - [ ] Softban function (also with modlog, ban someone and then unban him)
 - [ ] Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
 - [ ] Stream Listen.moe via command
