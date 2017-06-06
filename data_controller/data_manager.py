@@ -1,13 +1,12 @@
 from pathlib import Path
 from sqlite3 import connect
-from typing import List, Union
+from typing import List, Type, Union
 
-from data_controller.data_rows import GuildRow, MemberRow, UserRow
+from data_controller.data_rows import *
 from scripts.helpers import assert_inputs, assert_outputs
 
-
-class CurrencyError(ValueError):
-    pass
+__all__ = ['DataManager']
+_row_types = Union[GuildRow, MemberRow, UserRow]
 
 
 class DataManager:
@@ -15,7 +14,6 @@ class DataManager:
     A class that layer between the bot and the sqlite db. The bot should
     read/write to this class and the class will write to the db.
     """
-    __row_types = Union(GuildRow, MemberRow, UserRow)
 
     def __init__(self, path: Path):
         """
@@ -24,22 +22,15 @@ class DataManager:
         """
         self.__connection = connect(str(path))
         self.__cursor = self.__connection.cursor()
-        self.__tables = {}
+        self.__guilds = {}
+        self.__members = {}
+        self.__users = {}
 
-    def __get_row(self, row_type: __row_types, *keys) -> __row_types:
-        """
-        Get a row by its type and keys, if the row does not exist already,
-        create a new row with the keys.
-        :param row_type: the row type.
-        :param keys: the keys to the row.
-        :return: the row with the keys.
-        """
-        if keys not in self.__tables[row_type]:
-            new_row = row_type(self.__connection, self.__cursor, *keys)
-            self.__tables[row_type][keys] = new_row
-            return new_row
-
-        return self.__tables[row_type][keys]
+    def __get_row(self, dict_: dict, class_: Type[_row_types], *args):
+        if args not in dict_:
+            new = class_(self.__connection, self.__cursor, *args)
+            dict_[args] = new
+        return dict_[args]
 
     def __get_guild_row(self, guild_id: int) -> GuildRow:
         """
@@ -47,7 +38,7 @@ class DataManager:
         :param guild_id: the guild id.
         :return: the row with the id guild_id.
         """
-        return self.__get_row(GuildRow, guild_id)
+        return self.__get_row(self.__guilds, GuildRow, guild_id)
 
     def __get_member_row(self, member_id: int, guild_id: int) -> MemberRow:
         """
@@ -56,7 +47,7 @@ class DataManager:
         :param guild_id: the guild id
         :return: the row with id (member_id, guild_id)
         """
-        return self.__get_row(MemberRow, member_id, guild_id)
+        return self.__get_row(self.__members, MemberRow, member_id, guild_id)
 
     def __get_user_row(self, user_id: int) -> UserRow:
         """
@@ -64,7 +55,7 @@ class DataManager:
         :param user_id: the user id.
         :return: the row with id user_id.
         """
-        return self.__get_row(UserRow, user_id)
+        return self.__get_row(self.__users, UserRow, user_id)
 
     def get_prefix(self, guild_id: int) -> str:
         """
@@ -117,7 +108,8 @@ class DataManager:
         Get the list of roles in the guild.
         :param guild_id: the guild id.
         """
-        return eval(self.__get_guild_row(guild_id).roles)
+        if self.__get_guild_row(guild_id).roles is not None:
+            return eval(self.__get_guild_row(guild_id).roles)
 
     @assert_inputs(str, False)
     def set_roles(self, guild_id: int, roles: List[str]):
@@ -135,7 +127,7 @@ class DataManager:
         :param guild_id: the guild id.
         :return: the number of warns on the member.
         """
-        return self.__get_member_row(member_id, guild_id).warns or 0
+        return self.__get_member_row(member_id, guild_id).warns
 
     def set_member_warns(self, member_id: int, guild_id: int, warns: int):
         """
@@ -153,7 +145,7 @@ class DataManager:
         :param user_id: the user id.
         :return: the balance of that user.
         """
-        return self.__get_user_row(user_id).balance or 0
+        return self.__get_user_row(user_id).balance
 
     def set_user_balance(self, user_id: int, balance: int):
         """
