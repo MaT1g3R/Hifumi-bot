@@ -1,7 +1,8 @@
 # TODO
 # High Priority!!
-- [ ] Re-structure database to store id's as int to prepare for library rewrite.
-- [ ] Write wrapper functions for getting id's to ensure type safety.
+- [x] Re-structure database to store id's as int to prepare for library rewrite.  
+~~Write wrapper functions for getting id's to ensure type safety.~~  
+- [x] Write classes to handle database in/out for the bot instead of reading/writing from the db directly. 
 - [ ] Refactor unittests.
 - [ ] Introduce type annotations where it's appropriate.
 - [ ] Rework configs.
@@ -9,7 +10,6 @@
 ## 1. Bot manager/launcher
 - Done
 
-- [ ] Localize launcher and errors 
 ## 2. Bot base and command handler
 - mostly finished, contiune to add onto it if needed
 - [ ] Check wether there are news about discord.py library rewrite
@@ -210,6 +210,7 @@ userinfo            ✕
 - [ ] Add ban, softban and kick notifications for modlog! If possible, also include server general actions, like audit log
 - [ ] Addition of Chuck Norris jokes (name customizable) 
 - [ ] Announce when there's the birthday for someone 
+- [ ] As people is requesting it too much, instead of people's permissions, replace that with commands permissions like Rem's system.
 - [ ] Automatic hentai posting if set
 - [ ] Autorole function (assign a role to new members)
 - [ ] Battle command to defeat from other users 
@@ -221,14 +222,16 @@ userinfo            ✕
 - [ ] Feedback (with cooldown to avoid abuse)
 - [ ] Fix the bug for shard ID argument instead of settings 
 - [x] Format errors when bot DMs
-- [ ] Google searching, as well as images
+- [ ] Google searching, as well as images and videos
 - [ ] Hackban (ban users outside the server via user ID) and individual unban as well
 - [ ] Invite blocker and mention spam protection
-- [ ] Lookup a Pokemon with number or name
+- [ ] Love Live! school idols information because why not (this <a href="https://github.com/SchoolIdolTomodachi/SchoolIdolAPI">API</a>)
 - [ ] Make a waifu command (search random Google pictures for the bot character, this can be specified in settings.py; in the public version the command should be "~hifumi")
 - [ ] Make another meme command but with user avatar (For example spoo.py "Fun" category commands or t!beautiful from Tatsumaki)
+- [ ] Make another meme command but with this kind of style with custom text and picture (<a href="https://cdn.discordapp.com/attachments/227915483293286403/294309409415495680/3ac1a19.jpg">example</a>)
 - [ ] Make an easy installer for Windows (graphic mode, planned)
 - [ ] Make possible a triggered command with the picture of a user (with filters, like blargbot)
+- [ ] Make waiting music customizable
 - [ ] Merge cute(x) commands to a new animal command
 - [ ] Message to general channel of bot introduction when bot joins to a new guild, DM to a mod if bot is kicked (promote feedback) 
 - [x] Modlog
@@ -236,18 +239,19 @@ userinfo            ✕
 - [ ] Profile for currency 
 - [ ] Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
 - [x] Recipe finder
-- [ ] Reddit post announcements
+- [ ] Replace GIF command tracker from Giphy to be available also in filters (respectively Giphy, Tenor and Imgur)
+- [ ] Reddit post announcement
 - [ ] Softban function (also with modlog, ban someone and then unban him)
 - [ ] Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
 - [ ] Stream Listen.moe via command
-- [ ] Stream notification available too for Hitbox and Beam
+- [ ] Stream notification available too for Twitch, Hitbox and Beam
 - [ ] Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
 - [ ] Toggle DM sending for Hifumi
 - [ ] Translation command return
 - [ ] Twitter post announcements
-- [ ] Twitch stream notification 
 - [ ] Voteban! (yes, really; ask the vote of people to ban a person. Admin command to avoid abuse.)
 - [ ] Welcome and farewell system, able for DM or channel
+- [ ] "Who's that Pokemon?" trivia
 - [ ] Wikipedia searching
 - [ ] Word filter (mod tool, compatible with words and regex as well)
 
