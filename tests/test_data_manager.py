@@ -12,9 +12,10 @@ from tests import _clear_db, _db_path
 
 @fixture(scope='module')
 def manager():
-    yield DataManager(_db_path)
     conn = connect(_db_path)
-    _clear_db(conn, conn.cursor())
+    cur = conn.cursor()
+    yield DataManager(conn, cur)
+    _clear_db(conn, cur)
 
 
 def __simple_test(

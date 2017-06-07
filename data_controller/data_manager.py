@@ -1,5 +1,4 @@
-from pathlib import Path
-from sqlite3 import connect
+from sqlite3 import Connection, Cursor
 from typing import List, Type, Union
 
 from data_controller.data_rows import *
@@ -15,13 +14,14 @@ class DataManager:
     read/write to this class and the class will write to the db.
     """
 
-    def __init__(self, path: Path):
+    def __init__(self, connection: Connection, cursor: Cursor):
         """
         Initialize an instance of this class.
-        :param path: the path that points to the db
+        :param connection: the sqlite3 connection.
+        :param cursor: the sqlite3 cursor.
         """
-        self.__connection = connect(str(path))
-        self.__cursor = self.__connection.cursor()
+        self.__connection = connection
+        self.__cursor = cursor
         self.__guilds = {}
         self.__members = {}
         self.__users = {}
