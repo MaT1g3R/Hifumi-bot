@@ -2,12 +2,14 @@
 Useful helper functions/classes
 """
 import re
+from collections import Iterable
 from datetime import date, timedelta
 from pathlib import Path
 from platform import platform
 from random import choice
 from typing import Collection, Sequence
 
+from aiohttp import ClientSession
 from yaml import YAMLError
 
 from scripts.file_io import read_yaml
@@ -67,7 +69,7 @@ def combine_dicts(dicts):
             (combine_dicts(dicts[:l // 2]), combine_dicts(dicts[l // 2:])))
 
 
-def suplement_dict(parent: dict, child: dict):  
+def suplement_dict(parent: dict, child: dict):
     """
     Add all values in parent into child if child doesnt have the key
     :param parent: the parent dict
@@ -238,3 +240,45 @@ def random_word(length: int, source: Collection):
     :return: a random word of length of <length>
     """
     return ''.join(choice(source) for _ in range(length))
+
+
+def flatten(in_) -> list:
+    """
+    Flaten a input list/tuple into a list
+    :param in_: the input
+    :return: a flattened list of the input
+    >>> flatten(([0, 1], [2, 3], [[4, 5], 6]))
+    [0, 1, 2, 3, 4, 5, 6]
+    >>> flatten((['0', '1'], ['2', '34'], [[4, 5], 6]))
+    ['0', '1', '2', '34', 4, 5, 6]
+    >>> flatten(([None, '1'], ['2', '34'], [[4, 5], 6]))
+    ['1', '2', '34', 4, 5, 6]
+    """
+    if in_ is None:
+        return []
+    elif isinstance(in_, Iterable) and not isinstance(in_, str):
+        res = []
+        for l in in_:
+            res += flatten(l)
+        return res
+    else:
+        return [in_]
+
+
+async def request_get(url: str, session: ClientSession, close_session: bool):
+    """
+    Make a get request to the url.
+    :param url: the request url.
+    :param session: the aiohttp ClientSession
+    :return: the response if status code is 200
+    :param close_session: To close the session after the request or not.
+    :raises ConnectionError if the status code isnt 200.
+    """
+    async with session.get(url) as r:
+        if r.status != 200:
+            if close_session:
+                session.close()
+            raise ConnectionError
+        if close_session:
+            session.close()
+        return await r

@@ -52,3 +52,12 @@ class TagMatcher:
             return
         res = get_close_matches(tag, self.__tags[site], 1)
         return res[0] if res else None
+
+    def tag_exist(self, site: str, tag: str) -> bool:
+        """
+        Check weather if tag exist in the db,
+        :param site: the site name.
+        :param tag: the tag.
+        :return: True if it is in the db.
+        """
+        return site in self.__tags and tag in self.__tags[site]
