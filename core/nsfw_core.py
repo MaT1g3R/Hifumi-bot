@@ -224,8 +224,8 @@ async def get_lewd(
     :param tag_matcher: the TagMatcher object.
     :param user: the danbooru username, not required for other sites.
     :param api_key: the danbooru api key, not required for other sites.
-    :return: a tuple of (
-    the message with the file url to send, a list of tags to write to the db)
+    :return: a tuple of
+    (the message with the file url to send, a list of tags to write to the db)
     """
     assert site in ('danbooru', 'konachan', 'yandere', 'e621', 'gelbooru')
     assert (user and api_key) or site != 'danbooru'
