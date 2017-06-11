@@ -29,12 +29,12 @@ class TagMatcher:
         written = False
         if site not in self.__tags:
             self.__tags[site] = []
-        if isinstance(tags, str) and tags not in self.__tags[site]:
+        if isinstance(tags, str) and tags not in self.__tags[site] and tags:
             self.__tags[site].append(tags)
             written = True
         elif isinstance(tags, list):
             for tag in tags:
-                if tag not in self.__tags[site]:
+                if tag not in self.__tags[site] and tag:
                     self.__tags[site].append(tag)
                     written = True
         if written:

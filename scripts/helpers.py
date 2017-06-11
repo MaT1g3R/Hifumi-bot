@@ -265,7 +265,7 @@ def flatten(in_) -> list:
         return [in_]
 
 
-async def request_get(url: str, session: ClientSession, close_session: bool):
+async def aiohttp_get(url: str, session: ClientSession, close_session: bool):
     """
     Make a get request to the url.
     :param url: the request url.
@@ -281,4 +281,4 @@ async def request_get(url: str, session: ClientSession, close_session: bool):
             raise ConnectionError
         if close_session:
             session.close()
-        return await r
+        return r

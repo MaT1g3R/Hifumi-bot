@@ -1,4 +1,4 @@
-aiohttp>=1.0.5
+aiohttp>=2.1.0
 async-timeout>=1.2.1
 CacheControl>=0.12.3
 certifi>=2017.4.17
@@ -7,7 +7,7 @@ chardet>=3.0.3
 click>=6.7
 colorama>=0.3.9
 colorlog>=2.10.0
-discord.py==0.16.8
+discord.py>=0.16.8
 idna>=2.5
 imdbpie>=4.2.0
 lockfile>=0.12.2
@@ -25,3 +25,5 @@ requests>=2.17.3
 six>=1.10.0
 urllib3>=1.21.1
 websockets>=3.3
+xmltodict>=0.11.0
+yarl>=0.10.2
