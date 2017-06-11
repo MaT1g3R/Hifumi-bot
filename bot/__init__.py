@@ -1,3 +1,3 @@
-from .hifumi import Hifumi
+from bot.hifumi import Hifumi
 
 __all__ = ['Hifumi']

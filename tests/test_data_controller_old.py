@@ -3,7 +3,7 @@ from pathlib import Path
 from random import choice
 from unittest import TestCase, main
 
-from data_controller.data_controller import *
+from data_controller.sql_executor import *
 
 
 def clear_db(conn, cur):

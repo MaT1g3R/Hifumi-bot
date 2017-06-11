@@ -9,7 +9,7 @@ from platform import platform
 from random import choice
 from typing import Collection, Sequence
 
-from aiohttp import ClientSession
+from aiohttp import ClientResponseError, ClientSession
 from yaml import YAMLError
 
 from scripts.file_io import read_yaml
@@ -272,13 +272,13 @@ async def aiohttp_get(url: str, session: ClientSession, close_session: bool):
     :param session: the aiohttp ClientSession
     :return: the response if status code is 200
     :param close_session: To close the session after the request or not.
-    :raises ConnectionError if the status code isnt 200.
+    :raises ClientResponseError if the status code isn't 200.
     """
     async with session.get(url) as r:
         if r.status != 200:
-            if close_session:
-                session.close()
-            raise ConnectionError
+            raise ClientResponseError
+    try:
+        return r
+    finally:
         if close_session:
             session.close()
-        return r

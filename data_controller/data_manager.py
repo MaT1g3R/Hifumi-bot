@@ -1,5 +1,5 @@
 from sqlite3 import Connection, Cursor
-from typing import List, Type, Union
+from typing import List, Optional, Type, Union
 
 from data_controller.data_rows import *
 from scripts.helpers import assert_inputs, assert_outputs
@@ -94,7 +94,7 @@ class DataManager:
         """
         return self.__get_guild_row(guild_id).mod_log
 
-    def set_mod_log(self, guild_id: int, channel_id: int):
+    def set_mod_log(self, guild_id: int, channel_id: Optional[int]):
         """
         Set the mod log channel of a guild.
         :param guild_id: the guild id.

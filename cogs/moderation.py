@@ -1,10 +1,10 @@
 from discord import Member
 from discord.ext import commands
 
-from core.moderation_core import ban_kick, clean_msg, mute_unmute, \
-    generate_mod_log_list, add_mod_log, remove_mod_log, warn_pardon
-from scripts.checks import is_admin, has_manage_message, has_manage_role
 from bot import Hifumi
+from core.moderation_core import ban_kick, clean_msg, mute_unmute, warn_pardon
+from data_controller.data_utils import get_modlog, get_prefix
+from scripts.checks import has_manage_message, has_manage_role, is_admin
 
 
 class Moderation:
@@ -157,47 +157,47 @@ class Moderation:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
-            await self.bot.say(
-                generate_mod_log_list(
-                    localize=self.bot.get_language_dict(ctx),
-                    conn=self.bot.conn,
-                    cur=self.bot.cur,
-                    server=ctx.message.server,
-                    default_prefix=self.bot.default_prefix
-                )
-            )
+            localize = self.bot.get_language_dict(ctx)
+            modlog = get_modlog(self.bot.data_manager, ctx.message.server)
+            if modlog:
+                await self.bot.say(
+                    localize['mod_log_channel'].format(modlog.name))
+            else:
+                await self.bot.say(localize['mod_log_empty'])
+            await self.bot.say(localize['mod_log_info'].format(
+                get_prefix(self.bot, ctx.message)))
+
+    async def __set_rm_modlog(self, ctx, is_set):
+        """
+        Helper method to set/remove the modlog.
+        :param ctx: the discord context.
+        :param is_set: True to set, False to remove
+        """
+        # FIXME Remove casting when library rewrite is finished
+        localize = self.bot.get_language_dict(ctx)
+        guild_id = int(ctx.message.server.id)
+        channel = ctx.message.channel
+        channel_id = int(channel.id)
+        if is_set:
+            self.bot.data_manager.set_mod_log(guild_id, channel_id)
+            key = 'mod_log_set'
+        else:
+            self.bot.data_manager.set_mod_log(guild_id, None)
+            key = 'mod_log_rm'
+        await self.bot.say(localize[key].format(channel.name))
 
     @modlog.command(pass_context=True)
-    async def add(self, ctx):
+    async def set(self, ctx):
         """
-        Add the current channel as a mod log channel
+        Set the current channel as a mod log channel
         :param ctx: the discord context
         """
-        await self.bot.say(
-            add_mod_log(
-                conn=self.bot.conn,
-                cur=self.bot.cur,
-                server_id=ctx.message.server.id,
-                channel_id=ctx.message.channel.id,
-                channel_name=ctx.message.channel.name,
-                localize=self.bot.get_language_dict(ctx)
-            )
-        )
+        await self.__set_rm_modlog(ctx, True)
 
     @modlog.command(pass_context=True)
     async def remove(self, ctx):
-
         """
         Remove the current channel from mod log channels
         :param ctx: the discord context
         """
-        await self.bot.say(
-            remove_mod_log(
-                conn=self.bot.conn,
-                cur=self.bot.cur,
-                server_id=ctx.message.server.id,
-                channel_id=ctx.message.channel.id,
-                channel_name=ctx.message.channel.name,
-                localize=self.bot.get_language_dict(ctx)
-            )
-        )
+        await self.__set_rm_modlog(ctx, False)

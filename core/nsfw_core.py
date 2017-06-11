@@ -4,12 +4,14 @@ NSFW functions
 from random import choice
 from typing import List, Optional, Tuple
 
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientResponseError
 from requests import get
 from xmltodict import parse
 
 from data_controller.tag_matcher import TagMatcher
 from scripts.helpers import aiohttp_get, flatten
+
+__all__ = ['get_lewd', 'greenteaneko']
 
 
 def __parse_query(query: Tuple[str]) -> tuple:
@@ -76,7 +78,7 @@ async def __request_lewd(
     :return: a tuple of
     (request response, tags that are in the TagMatcher db,
     tags that are not in the TagMatcher db)
-    :raises: ConnectionError if the status code isnt 200
+    :raises: ClientResponseError if the status code isnt 200
     """
     safe_queries, unsafe_queries = __process_queries(
         site, tags, tag_matcher)
@@ -86,7 +88,7 @@ async def __request_lewd(
     if site == 'gelbooru':
         res = get(url + combined)
         if res.status_code != 200:
-            raise ConnectionError
+            raise ClientResponseError
     else:
         res = await aiohttp_get(url + combined, session, False)
     return res, safe_queries, unsafe_queries
@@ -248,16 +250,21 @@ async def get_lewd(
             return msg, tags_to_write
         else:
             return localize['nsfw_sorry'], None
-    except ConnectionError:
+    except ClientResponseError:
         return localize['nsfw_error'].format(site.title()), None
 
 
-async def greenteaneko():
+async def greenteaneko(localize):
     """
     Get a random green tea neko comic
+    :param localize: the localization strings
     :return: the green tea neko comic
     """
     url = 'https://rra.ram.moe/i/r?type=nsfw-gtn&nsfw=true'
-    res = await aiohttp_get(url, ClientSession(), True)
-    js = await res.json()
-    return 'https://rra.ram.moe' + js['path']
+    try:
+        res = await aiohttp_get(url, ClientSession(), True)
+        js = await res.json()
+        return 'https://rra.ram.moe{}\n{}'.format(
+            js['path'], localize['gtn_artist'])
+    except ClientResponseError:
+        return localize['nsfw_error'].format('rra.ram.moe')

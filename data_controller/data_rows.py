@@ -4,8 +4,7 @@ A collection of classes that represent a row in the sqlite database
 from sqlite3 import Connection, Cursor
 from typing import Sequence
 
-from data_controller.data_controller import _get_guild_row, _get_member_row, \
-    _get_user_row, _write_guild_row, _write_member_row, _write_user_row
+from data_controller.sql_executor import *
 
 __all__ = ['GuildRow', 'MemberRow', 'UserRow']
 

@@ -6,9 +6,9 @@ from discord.ext import commands
 from imdbpie import Imdb
 from requests import get
 
-from core.utilities_core import number_fact, imdb, recipe_search
-from scripts.discord_functions import get_prefix
 from bot import Hifumi
+from core.utilities_core import imdb, number_fact, recipe_search
+from data_controller.data_utils import get_prefix
 
 
 class Utilities:
@@ -48,10 +48,7 @@ class Utilities:
         if ctx.invoked_subcommand is None:
             await self.bot.say(
                 self.bot.get_language_dict(ctx)['fact_list'].format(
-                    get_prefix(
-                        self.bot.cur, ctx.message.server,
-                        self.bot.default_prefix
-                    ),
+                    get_prefix(self.bot, ctx.message),
                     '\n'.join(tuple(self.fact.commands.keys()))
                 )
             )

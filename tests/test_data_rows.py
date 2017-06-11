@@ -5,7 +5,7 @@ from time import time
 
 from pytest import fixture
 
-from data_controller.data_controller import _get_guild_row, _get_member_row, \
+from data_controller.sql_executor import _get_guild_row, _get_member_row, \
     _get_user_row, _write_guild_row, _write_member_row, _write_user_row
 from data_controller.data_rows import *
 from scripts.helpers import random_word

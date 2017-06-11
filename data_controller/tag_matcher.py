@@ -2,7 +2,7 @@ from difflib import get_close_matches
 from sqlite3 import Connection, Cursor
 from typing import List, Optional, Union
 
-from data_controller.data_controller import _get_tags, _write_tags
+from data_controller.sql_executor import _get_tags, _write_tags
 
 
 class TagMatcher:

@@ -4,26 +4,22 @@ The Hifumi bot object
 import sqlite3
 import time
 import traceback
-from asyncio import coroutine
-from logging import WARNING, ERROR, CRITICAL
+from logging import CRITICAL, ERROR, WARNING
 from pathlib import Path
-from threading import Timer
 
-from discord import ChannelType, Message, Game
-from discord.ext.commands import Bot, CommandOnCooldown, Context, \
-    MissingRequiredArgument, CommandNotFound
+from discord import ChannelType, Game, Message
+from discord.ext.commands import Bot, CommandNotFound, CommandOnCooldown, \
+    Context, MissingRequiredArgument
 from websockets.exceptions import ConnectionClosed
 
-from config.settings import DEFAULT_PREFIX, SHARDED, \
-    ENABLE_CONSOLE_LOGGING, OWNER
-from core.bot_info_core import generate_shard_info
-from data_controller.data_controller import get_language_
-from scripts.checks import NsfwError, BadWordError, ManageRoleError, \
-    AdminError, ManageMessageError, OwnerError
-from scripts.discord_functions import command_error_handler, get_prefix
-from scripts.file_io import write_json
+from config.settings import DEFAULT_PREFIX, ENABLE_CONSOLE_LOGGING, OWNER
+from data_controller import *
+from data_controller.data_utils import get_prefix
+from scripts.checks import AdminError, BadWordError, ManageMessageError, \
+    ManageRoleError, NsfwError, OwnerError
+from scripts.discord_functions import command_error_handler
 from scripts.language_support import read_language
-from scripts.logger import setup_logging, get_console_handler, info
+from scripts.logger import get_console_handler, info, setup_logging
 
 
 class Hifumi(Bot):
@@ -44,15 +40,14 @@ class Hifumi(Bot):
         unless you know what you are doing
         """
         super().__init__(
-            command_prefix=lambda bot, message: get_prefix(
-                bot.cur,
-                message.server,
-                bot.default_prefix
-            ),
+            command_prefix=get_prefix,
             shard_count=shard_count,
-            shard_id=shard_id)
-        self.conn = sqlite3.connect(str(Path('./data/hifumi_db')))
+            shard_id=shard_id
+        )
+        self.conn = sqlite3.connect(str(DB_PATH))
         self.cur = self.conn.cursor()
+        self.tag_matcher = TagMatcher(self.conn, self.cur)
+        self.data_manager = DataManager(self.conn, self.cur)
         self.default_prefix = DEFAULT_PREFIX
         self.shard_id = shard_id
         self.shard_count = shard_count
@@ -68,14 +63,14 @@ class Hifumi(Bot):
             self.all_emojis = f.read().splitlines()
             f.close()
 
-    @coroutine
+    def __del__(self):
+        self.conn.close()
+
     async def on_ready(self):
         """
         Event for the bot is ready
         """
         g = '{}help'.format(self.default_prefix)
-        if SHARDED:
-            g = '{}/{} | '.format(self.shard_id + 1, self.shard_count) + g
         info('Logged in as ' + self.user.name + '#' + self.user.discriminator)
         info('Bot ID: ' + self.user.id)
         self.mention_normal = '<@{}>'.format(self.user.id)
@@ -89,15 +84,12 @@ class Hifumi(Bot):
                 self.logger.warning(str(e))
                 await self.logout()
                 await self.login()
-                __change_presence()
+                await __change_presence()
 
         await __change_presence()
-        if SHARDED:
-            self.update_shard_info()
         if ENABLE_CONSOLE_LOGGING:
             self.logger.addHandler(get_console_handler())
 
-    @coroutine
     async def on_command_error(self, exception, context):
         """
         Custom command error handling
@@ -140,7 +132,6 @@ class Hifumi(Bot):
                 )
             )
 
-    @coroutine
     async def on_error(self, event_method, *args, **kwargs):
         """
         General error handling for discord
@@ -169,7 +160,6 @@ class Hifumi(Bot):
                     "\n```py" + msg + "```"
                 )
 
-    @coroutine
     async def process_commands(self, message):
         """
         Overwrites the process_commands method
@@ -178,7 +168,7 @@ class Hifumi(Bot):
         """
         if message.author.bot:
             return
-        prefix = get_prefix(self.cur, message.server, self.default_prefix)
+        prefix = get_prefix(self, message)
         name = message.content.split(' ')[0][len(prefix):]
         # TODO Implement command black list
         await super().process_commands(message)
@@ -218,23 +208,7 @@ class Hifumi(Bot):
             raise TypeError
         channel = message.channel
         if channel.type == ChannelType.text:
-            lan = get_language_(self.cur, message.server.id)
-            return lan if lan is not None else self.default_language
+            lan = self.data_manager.get_language(int(message.server.id))
+            return lan or self.default_language
         else:
             return self.default_language
-
-    def update_shard_info(self):
-        """
-        Updates the bot shard info every second
-        """
-        Timer(1, self.update_shard_info).start()
-        file = Path('./data/shard_info/shard_{}.json'.format(self.shard_id))
-        content = generate_shard_info(
-            servers=self.servers,
-            channels=self.get_all_channels(),
-            members=self.get_all_members(),
-            voice=self.voice_clients,
-            logged_in=self.is_logged_in
-        )
-        with file.open(mode='w+') as f:
-            write_json(f, content)

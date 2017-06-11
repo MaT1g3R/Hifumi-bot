@@ -3,15 +3,16 @@ Core fuctions for BotInfo cog
 """
 import platform
 import resource
-from pathlib import Path
 from time import time
 
 from discord import ChannelType, version_info
+from discord.embeds import Embed
+from psutil import virtual_memory
 
 from config import *
-from scripts.discord_functions import build_embed, get_prefix
-from scripts.file_io import read_json, read_all_files
-from scripts.helpers import get_system_name, comma, combine_dicts, \
+from data_controller.data_utils import get_prefix
+from scripts.discord_functions import add_embed_fields
+from scripts.helpers import comma, get_system_name, \
     get_time_elapsed
 
 
@@ -31,13 +32,13 @@ def get_uptime(start_time, day_str):
     )
 
 
-def generate_shard_info(*, servers, members, channels, voice, logged_in):
+def generate_info(*, guilds, members, channels, voice, logged_in):
     """
-    Generates the shard info for a given shard
+    Generates the info for the bot
 
-    :param servers: the list of servers the bot is in
+    :param guilds: the list of guilds the bot is in
 
-    :param members: the list of members in all the servers the bot is in
+    :param members: the list of members in all the guilds the bot is in
 
     :param channels: the lsit of channels the bot is in
 
@@ -45,9 +46,9 @@ def generate_shard_info(*, servers, members, channels, voice, logged_in):
 
     :param logged_in: is the bot logged in
 
-    :return: the shard info of the bot
+    :return: the info of the bot
     """
-    server_count = len(list(servers))
+    server_count = len(list(guilds))
     user_count = len(list(members))
     text_channel_count = len(
         [c for c in channels if c.type == ChannelType.text])
@@ -55,7 +56,7 @@ def generate_shard_info(*, servers, members, channels, voice, logged_in):
     ram = float(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
     return {
         'ram': ram,
-        'server_count': server_count,
+        'guild_count': server_count,
         'user_count': user_count,
         'text_channel_count': text_channel_count,
         'voice_count': voice_count,
@@ -63,70 +64,38 @@ def generate_shard_info(*, servers, members, channels, voice, logged_in):
     }
 
 
-def get_all_shard_info(path: Path = Path('./data/shard_info')):
-    """
-    Get the sum of all shard_info
-    :param path: the path that points to the shard_info folder
-    :return: The sum of all shard_info minus logged_in
-    """
-    files = [
-        f for f in read_all_files(path)
-        if f.name.endswith('.json')]
-    dicts = []
-    for file in files:
-        res = read_json(open(file))
-        if res['logged_in']:
-            del res['logged_in']
-            dicts.append(res)
-    return combine_dicts(dicts)
-
-
-def build_info_embed(ctx, bot, path: Path = Path('./data/shard_info')):
+def build_info_embed(ctx, bot):
     """
     build the info embed
     :param ctx: the discord context object
     :param bot: the bot object
-    :param path: the path that points to the shard_info folder
     :return: the info embed
     """
-    shard_stat = generate_shard_info(
-        servers=bot.servers,
+    stats = generate_info(
+        guilds=bot.servers,
         members=bot.get_all_members(),
         channels=bot.get_all_channels(),
         voice=bot.voice_clients,
         logged_in=bot.is_logged_in
     )
-    total_stat = get_all_shard_info(path)
     user = bot.user
-    author = {'name': user.name, 'icon_url': '{0.avatar_url}'.format(user)}
     lan = bot.get_language_dict(ctx)
 
-    shard_ram = shard_stat['ram']
-    shard_server = comma(shard_stat['server_count'])
-    shard_user = comma(shard_stat['user_count'])
-    shard_text = comma(shard_stat['text_channel_count'])
-    shard_voice = comma(shard_stat['voice_count'])
+    ram = stats['ram']
+    guild_count = comma(stats['guild_count'])
+    user_count = comma(stats['user_count'])
+    text_count = comma(stats['text_channel_count'])
+    voice_count = comma(stats['voice_count'])
 
-    ram_str = '{0:.2f}MB'.format(shard_ram)
-    server_str = shard_server
-    users_str = shard_user
-    text_str = shard_text
-    voice_str = shard_voice
-    if SHARDED:
-        total_ram = total_stat['ram'] / 1024
-        total_server = comma(total_stat['server_count'])
-        total_user = comma(total_stat['user_count'])
-        total_text = comma(total_stat['text_channel_count'])
-        total_voice = comma(total_stat['voice_count'])
-        ram_str += '/{0:.2f}GB'.format(total_ram)
-        server_str += '/' + total_server
-        users_str += '/' + total_user
-        text_str += '/' + total_text
-        voice_str += '/' + total_voice
-
-    body = [(NAME, lan['stats_order'], False)] if SHARDED else []
-    body += [
-        (lan['ram_used'], ram_str),
+    if ram < 1024:
+        ram_str = '{0:.2f}MB'.format(ram)
+    else:
+        ram_str = '{0:.2f}GB'.format(ram / 1024)
+    total_ram = virtual_memory().total / 1024 / 1024 / 1024
+    total_ram_str = '{0:.2f}GB'.format(total_ram)
+    body = [
+        (lan['ram_used'] + '/' + lan['total_ram'],
+         f'{ram_str}/{total_ram_str}'),
         (lan['uptime'], get_uptime(bot.start_time, lan['days'])),
         (lan['python_ver'], platform.python_version()),
         (lan['lib'],
@@ -139,17 +108,14 @@ def build_info_embed(ctx, bot, path: Path = Path('./data/shard_info')):
     if HELPERS:
         body += [(lan['helper'], '\n'.join(HELPERS))]
     body += [
-        (lan['servers'], server_str),
-        (lan['users'], users_str),
-        (lan['text_channels'], text_str),
-        (lan['voice_channels'], voice_str)
+        (lan['guilds'], guild_count),
+        (lan['users'], user_count),
+        (lan['text_channels'], text_count),
+        (lan['voice_channels'], voice_count)
     ]
-    if SHARDED:
-        body += [(lan['sharding'],
-                  '{}/{}'.format(str(bot.shard_id + 1), str(bot.shard_count)))]
-    # cur, server, default_prefix
-    footer = lan['info_footer'].format(get_prefix(
-        bot.cur, ctx.message.server, bot.default_prefix)
-    )
+    footer = lan['info_footer'].format(get_prefix(bot, ctx.message))
 
-    return build_embed(body, COLOUR, author=author, footer=footer)
+    embed = Embed(colour=COLOUR)
+    embed.set_author(name=user.name, icon_url='{0.avatar_url}'.format(user))
+    embed.set_footer(text=footer)
+    return add_embed_fields(embed, body)

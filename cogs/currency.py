@@ -3,10 +3,11 @@ from discord.ext import commands
 from pytrivia import Trivia
 
 from bot import Hifumi
-from core.currency_core import daily, transfer, slots_setup, roll_slots, \
-    determine_slot_result
+from core.currency_core import daily, determine_slot_result, roll_slots, \
+    slots_setup, transfer
 from core.trivia_core import TriviaGame
-from data_controller.data_controller import get_balance_, change_balance_
+from data_controller import LowBalanceError
+from data_controller.data_utils import change_balance
 
 
 class Currency:
@@ -25,9 +26,11 @@ class Currency:
         Daily command
         :param ctx: the discord context
         """
-        await self.bot.say(daily(
-            self.bot.conn, self.bot.cur,
-            ctx.message.author.id, self.bot.get_language_dict(ctx))
+        await self.bot.say(
+            daily(
+                self.bot.data_manager,
+                int(ctx.message.author.id),
+                self.bot.get_language_dict(ctx))
         )
 
     @commands.command(pass_context=True)
@@ -39,17 +42,16 @@ class Currency:
         the message author's balance
         """
         if member is None:
-            member_id = ctx.message.author.id
+            member_id = int(ctx.message.author.id)
             localize_key = 'balance_self'
             name = ctx.message.author.display_name
         else:
-            member_id = member.id
+            member_id = int(member.id)
             localize_key = 'balance_other'
             name = member.display_name
+        balance = self.bot.data_manager.get_user_balance(member_id) or 0
         await self.bot.say(
-            self.bot.get_language_dict(ctx)[localize_key].format(
-                name, get_balance_(self.bot.cur, member_id)
-            )
+            self.bot.get_language_dict(ctx)[localize_key].format(name, balance)
         )
 
     @commands.command(pass_context=True, no_pm=True)
@@ -70,8 +72,8 @@ class Currency:
         else:
             await self.bot.say(
                 transfer(
-                    self.bot.conn, self.bot.cur,
-                    ctx.message.author, member, amount, localize
+                    self.bot.data_manager, ctx.message.author,
+                    member, amount, localize
                 )
             )
 
@@ -90,30 +92,30 @@ class Currency:
                 raise ValueError
         except (ValueError, TypeError):
             await self.bot.say(localize['currency_bad_num'])
-        else:
-            localize = self.bot.get_language_dict(ctx)
-            conn = self.bot.conn
-            cur = self.bot.cur
-            user_id = ctx.message.author.id
-            balance = get_balance_(cur, user_id)
-            if balance < amount:
-                await self.bot.say(localize['low_balance'].format(balance))
-            else:
-                change_balance_(conn, cur, user_id, -amount)
-                q1, q2, q3, n1, n2, n3 = slots_setup(self.bot.all_emojis, 2, 5)
-                await self.bot.say(localize['slots_header'])
-                msg = await self.bot.say(
-                    '[ {} | {} | {} ]'.format(q1[0], q2[0], q3[0])
-                )
-                r1, r2, r3 = await roll_slots(
-                    self.bot, msg, q1, q2, q3, n1, n2, n3
-                )
-                await self.bot.say(
-                    determine_slot_result(
-                        conn, cur, user_id, self.bot.user.id,
-                        localize, r1, r2, r3, amount
-                    )
-                )
+            return
+
+        localize = self.bot.get_language_dict(ctx)
+        user_id = int(ctx.message.author.id)
+        try:
+            change_balance(self.bot.data_manager, user_id, -amount)
+        except LowBalanceError as e:
+            await self.bot.say(localize['low_balance'].format(str(e)))
+            return
+
+        q1, q2, q3, n1, n2, n3 = slots_setup(self.bot.all_emojis, 2, 5)
+        await self.bot.say(localize['slots_header'])
+        msg = await self.bot.say(
+            '[ {} | {} | {} ]'.format(q1[0], q2[0], q3[0])
+        )
+        r1, r2, r3 = await roll_slots(
+            self.bot, msg, q1, q2, q3, n1, n2, n3
+        )
+        await self.bot.say(
+            determine_slot_result(
+                self.bot.data_manager, user_id,
+                localize, r1, r2, r3, amount
+            )
+        )
 
     @commands.command(pass_context=True)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.user)

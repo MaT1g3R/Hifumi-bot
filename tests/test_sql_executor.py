@@ -4,7 +4,7 @@ from string import printable
 
 from pytest import fixture
 
-from data_controller.data_controller import *
+from data_controller.sql_executor import *
 from scripts.helpers import random_word
 from tests import *
 

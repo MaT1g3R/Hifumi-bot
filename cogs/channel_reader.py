@@ -1,7 +1,8 @@
 """
 The channel reader cog
 """
-from scripts.discord_functions import get_prefix, check_message
+from scripts.discord_functions import check_message
+from data_controller.data_utils import get_prefix
 from bot import Hifumi
 
 
@@ -28,9 +29,7 @@ class ChannelReader:
         ) or check_message(
             self.bot, message, self.bot.mention_nick + ' prefix'
         ):
-            prefix = get_prefix(
-                self.bot.cur, message.server, self.bot.default_prefix
-            )
+            prefix = get_prefix(self.bot, message)
             localize = self.bot.get_language_dict(message)
             await self.bot.send_message(
                 message.channel,
