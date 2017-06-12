@@ -1,11 +1,9 @@
 # TODO
 # High Priority!!
-- [x] Re-structure database to store id's as int to prepare for library rewrite.  
-~~Write wrapper functions for getting id's to ensure type safety.~~  
-- [x] Write classes to handle database in/out for the bot instead of reading/writing from the db directly. 
-- [ ] Refactor unittests.
-- [ ] Introduce type annotations where it's appropriate.
-- [ ] Rework configs.
+ - [ ] Change the rest of the HTTP requests to use aiohttp.
+ - [ ] Refactor the rest of the tests to use pytest.
+ - [ ] Rework the config file into json for better write access.
+ - [ ] Refactor code related to moderation commands.
 
 ## 1. Bot manager/launcher
 - Done
