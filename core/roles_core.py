@@ -4,44 +4,34 @@ Functions to deal with the Roles class
 
 from discord.utils import get
 
-from scripts.data_controller import get_role_list_, remove_role_, add_role_
+from data_controller import DataManager
+from data_controller.data_utils import add_self_role, remove_self_role
 from scripts.discord_functions import handle_forbidden_http
 
 
-def get_server_role(role, server):
-    """
-    Get a list of server roles with the name ame as :param role
-
-    :param role: the role name
-
-    :param server: the server
-
-    :return: a list of discord role object
-    """
-    return get(server.roles, name=role)
-
-
-def get_role_list(*, server, conn, cur, localize):
+def get_role_list(*, guild, data_manager: DataManager, localize):
     """
     Get the role list of the server
 
-    :param server: the discord server
+    :param guild: the discord guild
 
-    :param conn: the db connection
-
-    :param cur: the db cursor
+    :param data_manager: the data manager.
 
     :param localize: localization strings
 
     :return: the string representation of the server role list
     """
-    lst = get_role_list_(cur, server.id)
+    guild_id = int(guild.id)
+    lst = data_manager.get_roles(guild_id) or []
+    edit = False
     # Check for any non-existing roles and remove them from the db
     for i in range(len(lst)):
         role = lst[i]
-        if get_server_role(role, server) is None:
-            remove_role_(conn, cur, server.id, role)
+        if not get(guild.roles, name=role):
+            edit = True
             lst.remove(role)
+    if edit:
+        data_manager.set_roles(guild_id, lst)
     if lst:
         lst = ['* ' + r for r in lst]
         return localize['has_role_list'] + '```' + '\n'.join(lst) + '```'
@@ -49,15 +39,13 @@ def get_role_list(*, server, conn, cur, localize):
         return localize['no_role_list']
 
 
-def add_role(*, conn, cur, server, localize, role):
+def add_role(*, data_manager: DataManager, guild, localize, role):
     """
     Add a role to the db to be self assignable
 
-    :param conn: the database connection
+    :param guild: the discord guild
 
-    :param cur: the database cursor
-
-    :param server: the discord server
+    :param data_manager: the data manager.
 
     :param localize: the localization strings
 
@@ -65,14 +53,14 @@ def add_role(*, conn, cur, server, localize, role):
 
     :return: the response string
     """
-    if get_server_role(role, server) is None:
-        return localize['role_no_exist']
-    else:
-        add_role_(conn, cur, server.id, role)
+    if get(guild.roles, name=role):
+        add_self_role(data_manager, int(guild.id), role)
         return localize['role_add_success'].format(role)
+    else:
+        return localize['role_no_exist']
 
 
-def remove_role(*, localize, server, conn, cur, role):
+def remove_role(*, localize, guild, data_manager: DataManager, role):
     """
     Remove a role from the db
 
@@ -80,31 +68,29 @@ def remove_role(*, localize, server, conn, cur, role):
 
     :param localize: the localization strings
 
-    :param server: the discord server
+    :param guild: the discord guild
 
-    :param conn: the database connection
-
-    :param cur: the database cursor
+    :param data_manager: the data manager.
 
     :return: the response string
     """
-    res = localize['role_no_exist'] if get_server_role(role, server) is None \
+    res = localize['role_no_exist'] if get(guild.roles, name=role) is None \
         else localize['role_remove_success'].format(role)
-    remove_role_(conn, cur, server.id, role)
+    remove_self_role(data_manager, int(guild.id), role)
     return res
 
 
-def role_add_rm(*, role, localize, server, cur, conn, is_add, check_db=True):
+def role_add_rm(*,
+                role, localize, guild,
+                data_manager: DataManager, is_add, check_db=True):
     """
     A helper function for role_unrole
 
     :param localize: the localization strings
 
-    :param server: the discord server
+    :param guild: the discord guild
 
-    :param cur: the database cursor
-
-    :param conn: the database connection
+    :param data_manager: the data manager.
 
     :param role: the role name
 
@@ -114,14 +100,16 @@ def role_add_rm(*, role, localize, server, cur, conn, is_add, check_db=True):
 
     :return: (the response string, the role to be handled)
     """
-    lst = get_role_list(server=server, conn=conn, cur=cur, localize=localize) \
+    lst = get_role_list(guild=guild,
+                        data_manager=data_manager, localize=localize) \
         if check_db else []  # To save runtime
-    server_role = get_server_role(role, server)
-    if (not check_db or role in lst) and server_role is not None:
+
+    guild_role = get(guild.roles, name=role)
+    if (not check_db or role in lst) and guild_role is not None:
         s = localize['role_me_success'] if is_add \
             else localize['unrole_me_success']
-        return s.format(role), server_role
-    elif role in lst and server_role is None:
+        return s.format(role), guild_role
+    elif role in lst and guild_role is None:
         return localize['role_unrole_no_exist'], None
     elif role not in lst:
         return localize['not_assignable'], None
@@ -144,7 +132,6 @@ async def role_unrole(*, bot, ctx, target, role_name, is_add,
 
     :param is_add: wether if the method is add or remove
 
-
     :param check_db: if need to check the db for self role
 
     :param reason: the reason for mute/unmute
@@ -153,14 +140,13 @@ async def role_unrole(*, bot, ctx, target, role_name, is_add,
     """
     from core.moderation_core import send_mod_log
     localize = bot.get_language_dict(ctx)
-    server = ctx.message.server
+    guild = ctx.message.server
     channel = ctx.message.channel
     res, role = role_add_rm(
         role=role_name,
         localize=localize,
-        server=server,
-        cur=bot.cur,
-        conn=bot.conn,
+        guild=guild,
+        data_manager=bot.data_manager,
         is_add=is_add,
         check_db=check_db
     )

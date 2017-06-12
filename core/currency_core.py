@@ -2,61 +2,58 @@
 Functions for currency commands
 """
 from collections import deque
-from random import sample, randint
+from random import randint, sample
 from time import time
 
-from scripts.data_controller import get_daily_, set_daily_, change_balance_, \
-    transfer_balance_, TransferError, get_balance_
+from data_controller import DataManager, LowBalanceError
+from data_controller.data_utils import change_balance, transfer_balance
 from scripts.helpers import get_time_elapsed
 
 
-class ArgumentError(ValueError):
-    pass
-
-
-def daily(conn, cur, user_id, localize):
+def daily(data_manager: DataManager, user_id: int, localize):
     """
     Function to handle daily command
-    :param conn: the db connection
-    :param cur: the db cursor
+    :param data_manager: the data manager.
     :param user_id: the user id
     :param localize: the localization strings
     :return: the daily command message
     """
-    current_daily = get_daily_(cur, user_id)
+    current_daily = data_manager.get_user_daily(user_id)
     first_time = current_daily is None
     delta = 500 if first_time else 200
+
     if not first_time:
         time_delta = int(time() - current_daily)
         if time_delta < 86400:
             hours, minutes, seconds = get_time_elapsed(time_delta, 86400)[1:]
             return localize['daily_come_back'].format(hours, minutes, seconds)
-    set_daily_(conn, cur, user_id)
-    change_balance_(conn, cur, user_id, delta)
+
+    data_manager.set_user_daily(user_id, int(time()))
+    change_balance(data_manager, user_id, delta)
     res_str = localize['daily_first_time'] if first_time \
         else localize['daily_success']
     return res_str.format(delta)
 
 
-def transfer(conn, cur, root, target, amount, localize):
+def transfer(
+        data_manager: DataManager, sender,
+        reciver, amount: int, localize: dict) -> str:
     """
-    Transfer x amout of money from root to target
-    :param conn: the db connection
-    :param cur: the db cursor
-    :param root: the root user
-    :param target: the target user
+    Transfer x amout of money from root to reciver
+    :param data_manager: the data manager.
+    :param sender: the sender user
+    :param reciver: the reciver user
     :param amount: the amount of transfer
     :param localize: the localize strings
     :return: the result message
     """
     try:
-        transfer_balance_(conn, cur, root.id, target.id, amount)
-        root_balance = get_balance_(cur, root.id)
-        target_balance = get_balance_(cur, target.id)
+        new_sender, new_reciver = transfer_balance(
+            data_manager, int(sender.id), int(reciver.id), amount)
         return localize['transfer_success'].format(
-            amount, target.display_name, root_balance, target_balance
+            amount, reciver.display_name, new_sender, new_reciver
         )
-    except TransferError as e:
+    except LowBalanceError as e:
         return localize['low_balance'].format(str(e))
 
 
@@ -106,14 +103,12 @@ async def roll_slots(bot, msg, q1, q2, q3, n1, n2, n3):
     return q1[0], q2[0], q3[0]
 
 
-def determine_slot_result(conn, cur, user_id, bot_id, localize, r1, r2, r3,
-                          amount):
+def determine_slot_result(
+        data_manager: DataManager, user_id: int, localize, r1, r2, r3, amount):
     """
     determine the slot game result and give/take away money from the user
-    :param conn: the db connection
-    :param cur: the db cursor
+    :param data_manager: the data manager.
     :param user_id: the user id
-    :param bot_id: the bot id
     :param localize: the localization strings
     :param r1: result 1
     :param r2: result 2
@@ -123,16 +118,13 @@ def determine_slot_result(conn, cur, user_id, bot_id, localize, r1, r2, r3,
     """
     if r1 == r2 == r3:
         delta = amount * 3
-        change_balance_(conn, cur, user_id, delta)
+        change_balance(data_manager, user_id, delta)
         res = localize['slots_win'].format(delta - amount)
     elif r1 != r2 and r1 != r3 and r2 != r3:
-        delta = 0
         res = localize['slots_loose'].format(amount)
     else:
-        delta = amount
         res = localize['slots_draw']
-        change_balance_(conn, cur, user_id, delta)
-    change_balance_(conn, cur, bot_id, amount - delta)
+        change_balance(data_manager, user_id, amount)
     return res + '\n' + localize['new_balance'].format(
-        get_balance_(cur, user_id)
+        data_manager.get_user_balance(user_id)
     )

@@ -1,44 +1,86 @@
 """
 Functions for file io
 """
-import json
+
+from json import dump, load
 from pathlib import Path
 
+from yaml import safe_dump, safe_load
 
-def read_json(fp, keep_open=False):
+
+def __read(func: callable) -> callable:
+    """
+    Decorator for file-reading functions, checks that the file pointer is not
+    None and closes the file if keep_open is False
+    """
+
+    def wrap(fp, keep_open: bool, *args, **kwargs):
+        if fp:
+            res = func(fp, keep_open, *args, **kwargs)
+            if not keep_open:
+                fp.close()
+            return res
+
+    return wrap
+
+
+def __write(func: callable) -> callable:
+    """
+    Decorator for file-writing functions, checks that the file pointer is not
+    None and closes the file if keep_open is False
+    """
+
+    def wrap(fp, data, keep_open: bool, *args, **kwargs):
+        if fp:
+            func(fp, data, keep_open, *args, **kwargs)
+            if not keep_open:
+                fp.close()
+
+    return wrap
+
+
+@__read
+def read_json(fp, keep_open: bool = False) -> dict:
     """
     Read a json file into a dictionary
     :param fp: the file pointer
-    :type fp: file
     :param keep_open: keep file open (default False)
-    :type keep_open: bool | int
     :return: the dictionary
-    :rtype: dict
     """
-    if fp is not None:
-        data = json.load(fp)
-        if not keep_open:
-            fp.close()
-        return data
-    return {}
+    return load(fp)
 
 
-def write_json(fp, data, keep_open=False):
+@__write
+def write_json(fp, data: dict, keep_open: bool = False):
     """
     Write a dictionary into a json file
     :param fp: The json file
-    :type fp: ffile
     :param data: The dictionary
-    :type data: dict
     :param keep_open: keep file open (default False)
-    :type keep_open: bool | int
-    :return: nothing
-    :rtype: None
     """
-    if fp is not None:
-        json.dump(data, fp)
-        if not keep_open:
-            fp.close()
+    dump(data, fp)
+
+
+@__read
+def read_yaml(fp, keep_open: bool = False) -> dict:
+    """
+    Read a yaml file into a dict
+    :param fp: the file pointer
+    :param keep_open: keep file open (default False)
+    :return: the dict
+    """
+    return safe_load(fp)
+
+
+@__write
+def write_yaml(fp, data: dict, keep_open: bool = False):
+    """
+    Write a dict into a yaml file
+    :param fp: the file pointer
+    :param data: the dict
+    :param keep_open: keep file open (default False)
+    """
+    safe_dump(data, fp)
 
 
 def read_all_files(path: Path):

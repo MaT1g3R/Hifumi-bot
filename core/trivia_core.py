@@ -1,12 +1,13 @@
 from random import shuffle
 from string import ascii_uppercase
 
-from pytrivia import Diffculty, Category, Type
+from discord.embeds import Embed
+from pytrivia import Category, Diffculty, Type
 
-from scripts.data_controller import get_balance_, transfer_balance_, \
-    TransferError
-from shell import Hifumi
-from scripts.discord_functions import build_embed, get_prefix
+from bot import Hifumi
+from data_controller import LowBalanceError
+from data_controller.data_utils import change_balance, get_prefix
+from scripts.discord_functions import add_embed_fields
 
 
 class ArgumentError(ValueError):
@@ -18,7 +19,7 @@ class TriviaGame:
     A class to handle the trivia command
     """
     __slots__ = ['api', 'bot', 'args', 'channel', 'author', 'conn', 'cur',
-                 'localize', 'bet', 'prefix']
+                 'localize', 'bet', 'prefix', 'data_manager', 'user_id']
 
     def __init__(self, ctx, bot: Hifumi, args, api):
         """
@@ -30,14 +31,12 @@ class TriviaGame:
         """
         self.api = api
         self.bot = bot
-        self.prefix = get_prefix(
-            bot.cur, ctx.message.server, bot.default_prefix
-        )
+        self.data_manager = bot.data_manager
+        self.prefix = get_prefix(bot, ctx.message)
         self.args = args
         self.channel = ctx.message.channel
         self.author = ctx.message.author
-        self.conn = bot.conn
-        self.cur = bot.cur
+        self.user_id = int(self.author.id)
         self.localize = bot.get_language_dict(ctx)
         self.bet = 0
 
@@ -69,22 +68,17 @@ class TriviaGame:
             if self.bet > 0:
                 await self.bot.say(
                     _handle_bet(
-                        conn=self.conn,
-                        cur=self.cur,
+                        data_manager=self.data_manager,
                         correct=correct,
                         difficulty=difficulty,
                         amount=self.bet,
-                        user_id=self.author.id,
-                        bot_id=self.bot.user.id,
+                        user_id=self.user_id,
                         localize=self.localize
                     )
                 )
         except Exception as e:
             if self.bet > 0:
-                transfer_balance_(
-                    self.conn, self.cur, self.bot.user.id,
-                    self.author.id, self.bet, False
-                )
+                change_balance(self.data_manager, self.user_id, self.bet)
             raise e
 
     async def __handle_no_args(self):
@@ -148,16 +142,12 @@ class TriviaGame:
         bet = kwargs['amount'] if 'amount' in kwargs else 0
         if bet > 0:
             try:
-                transfer_balance_(
-                    self.conn, self.cur, self.author.id, self.bot.user.id, bet
-                )
+                change_balance(self.data_manager, self.user_id, -bet)
                 self.bet = bet
                 return True
-            except TransferError:
+            except LowBalanceError as e:
                 await self.bot.send_message(
-                    self.channel, self.localize['low_balance'].format(
-                        get_balance_(self.cur, self.author.id)
-                    )
+                    self.channel, self.localize['low_balance'].format(str(e))
                 )
                 return False
         return True
@@ -313,30 +303,28 @@ def _format_trivia(trivia_data, localize):
     else:
         answer = correct[:1]
         correct_str = correct
-    return build_embed(body, colour), answer, correct_str, difficulty
+    embed = Embed(colour=colour)
+    embed = add_embed_fields(embed, body)
+    return embed, answer, correct_str, difficulty
 
 
 def _handle_bet(**kwargs):
     """
     Handle the trivia outcome if the user placed a bet
     :param kwargs: see below for details
-    :key conn: the db connection
-    :key cur:  the db cursor
+    :key data_manager: the data_manager
     :key correct: if the answer was correct or not
     :key difficulty: the difficulty of the answer
     :key amount: the amount of bet
     :key user_id: the user id
-    :key bot_id: the bot id
     :key localize: the localization strings
     :return: the bot response string
     """
-    conn = kwargs['conn']
-    cur = kwargs['cur']
+    data_manager = kwargs['data_manager']
     correct = kwargs['correct']
     difficulty = kwargs['difficulty']
     amount = kwargs['amount']
     user_id = kwargs['user_id']
-    bot_id = kwargs['bot_id']
     localize = kwargs['localize']
     if correct:
         multiplier = {
@@ -346,8 +334,8 @@ def _handle_bet(**kwargs):
         }[difficulty]
         price = round(amount * multiplier)
         delta = price
-        transfer_balance_(conn, cur, bot_id, user_id, amount + price, False)
+        change_balance(data_manager, user_id, amount + price)
     else:
         delta = amount
     key = 'trivia_correct_balance' if correct else 'trivia_wrong_balance'
-    return localize[key].format(delta, get_balance_(cur, user_id))
+    return localize[key].format(delta, data_manager.get_user_balance(user_id))

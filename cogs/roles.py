@@ -1,9 +1,9 @@
 from discord.ext import commands
 
-from core.roles_core import get_role_list, add_role, remove_role, role_unrole
+from bot import Hifumi
+from core.roles_core import add_role, get_role_list, remove_role, role_unrole
+from data_controller.data_utils import get_prefix
 from scripts.checks import has_manage_role
-from scripts.discord_functions import get_prefix
-from shell import Hifumi
 
 
 class Roles:
@@ -56,9 +56,8 @@ class Roles:
         """
         await self.bot.say(
             get_role_list(
-                server=ctx.message.server,
-                conn=self.bot.conn,
-                cur=self.bot.cur,
+                guild=ctx.message.server,
+                data_manager=self.bot.data_manager,
                 localize=self.bot.get_language_dict(ctx)
             )
         )
@@ -73,10 +72,7 @@ class Roles:
         if ctx.invoked_subcommand is None:
             await self.bot.say(
                 self.bot.get_language_dict(ctx)['selfrole_bad_command'].format(
-                    get_prefix(
-                        self.bot.cur, ctx.message.server,
-                        self.bot.default_prefix
-                    )
+                    get_prefix(self.bot, ctx.message)
                 )
             )
 
@@ -87,9 +83,8 @@ class Roles:
         """
         await self.bot.say(
             add_role(
-                conn=self.bot.conn,
-                cur=self.bot.cur,
-                server=ctx.message.server,
+                data_manager=self.bot.data_manager,
+                guild=ctx.message.server,
                 localize=self.bot.get_language_dict(ctx),
                 role=' '.join(args)
             )
@@ -102,9 +97,8 @@ class Roles:
         """
         await self.bot.say(
             remove_role(
-                conn=self.bot.conn,
-                cur=self.bot.cur,
-                server=ctx.message.server,
+                data_manager=self.bot.data_manager,
+                guild=ctx.message.server,
                 localize=self.bot.get_language_dict(ctx),
                 role=' '.join(args)
             )

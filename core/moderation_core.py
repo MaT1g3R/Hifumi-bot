@@ -4,12 +4,13 @@ Functions for Moderation class
 from asyncio import sleep
 
 from discord import Member
+from discord.embeds import Embed
 from discord.utils import get
 
-from scripts.data_controller import get_mod_log_, set_mod_log_, \
-    remove_mod_log_, add_warn_, remove_warn_, get_warn_
-from scripts.discord_functions import get_name_with_discriminator, \
-    build_embed, get_avatar_url, handle_forbidden_http, get_prefix
+from bot import Hifumi
+from data_controller.data_utils import get_modlog
+from scripts.discord_functions import add_embed_fields, get_avatar_url, \
+    get_name_with_discriminator, handle_forbidden_http
 from scripts.helpers import get_date
 
 
@@ -80,16 +81,15 @@ async def mute_unmute(ctx, bot, member, is_mute, reason):
     :param is_mute: if True mute, if False unmute
     :param reason: the reason for mute/unmute
     """
-    from core.roles_core import get_server_role
     from core.roles_core import role_unrole
-    server = ctx.message.server
+    guild = ctx.message.server
     localize = bot.get_language_dict(ctx)
     action = localize['mute'] if is_mute else localize['unmute']
     if is_mute and member.id == bot.user.id:
         await bot.say(localize['go_away'])
     elif member == ctx.message.author and is_mute:
         await bot.say(localize['ban_kick_mute_self'].format(action))
-    elif get_server_role('Muted', server) is not None:
+    elif get(guild.roles, name='Muted') is not None:
         await role_unrole(
             bot=bot,
             target=member,
@@ -102,104 +102,6 @@ async def mute_unmute(ctx, bot, member, is_mute, reason):
         )
     else:
         await bot.say(localize['muted_role_not_found'])
-
-
-def get_mod_log_channels(cur, server):
-    """
-    Get the mod log of a server based on the context
-    :param cur: the database cursor
-    :param server: the discord server
-    :return: A list of discord.Channel objects for the mod logs
-    """
-    ids = get_mod_log_(cur, server.id)
-    res = []
-    for id_ in ids:
-        channel = get(server.channels, id=id_)
-        if channel is not None:
-            res.append(channel)
-    return res
-
-
-def add_mod_log(*, conn, cur, server_id, channel_id, channel_name, localize):
-    """
-    Add a mod log channel into the db
-    :param conn: the database connection,
-    :param cur: the databse cursor
-    :param server_id: the server id
-    :param channel_id: the channel id
-    :param channel_name: the channel name
-    :param localize: the localizationn strings
-    :return: a message to inform mod log has been added
-    """
-    set_mod_log_(
-        conn, cur, server_id, channel_id
-    )
-    return localize['mod_log_add'].format(channel_name)
-
-
-def remove_mod_log(*, conn, cur, server_id, channel_id, channel_name, localize):
-    """
-    Remove a mod log entry from the db
-    :param conn: the database connection,
-    :param cur: the databse cursor
-    :param server_id: the server id
-    :param channel_id: the channel id
-    :param channel_name: the channel name
-    :param localize: the localizationn strings
-    :return: a message to inform the mod log has been removed
-    """
-    remove_mod_log_(
-        conn, cur, server_id, channel_id
-    )
-    return localize['mod_log_rm'].format(channel_name)
-
-
-def get_mod_log_name_list(conn, cur, server):
-    """
-    Get a list of mod log channel names
-    :param conn: the database connection,
-    :param cur: the databse cursor
-    :param server: the discord server
-    :return: a list of mod log channel names
-    """
-    id_lst = get_mod_log_(cur, server.id)
-    res = []
-    for id_ in id_lst:
-        channel = get(server.channels, id=id_)
-        if channel is not None:
-            res.append(channel.name)
-        else:
-            remove_mod_log_(
-                connection=conn,
-                cursor=cur,
-                server_id=server.id,
-                channel_id=id_
-            )
-    return res
-
-
-def generate_mod_log_list(*, localize, conn, cur, server, default_prefix):
-    """
-    Generate a mod log list, as a string
-
-    :param localize: the localization strings
-
-    :param conn: the database connection
-
-    :param cur: the database cursor
-
-    :param server: the discord server
-
-    :param default_prefix: the bot default prefix
-
-    :return: A formatting string to list all mod log channels
-    """
-    names = get_mod_log_name_list(conn, cur, server)
-    res = localize['mod_log_info'].format(
-        get_prefix(cur, server, default_prefix)
-    )
-    return res + localize['mod_log_list'].format('\n'.join(names)) if names \
-        else res + localize['mod_log_empty']
 
 
 def generate_mod_log_entry(action, mod, target, reason, localize,
@@ -222,21 +124,20 @@ def generate_mod_log_entry(action, mod, target, reason, localize,
         localize['warn']: 0xddc61a,
         localize['pardon']: 0x4286f4
     }[action]
-    author = {
-        'name': get_name_with_discriminator(target) + ' ({})'.format(target.id),
-        'icon_url': get_avatar_url(target)
-    }
     body = [(localize['type'], action.title()), (localize['reason'], reason)]
     if action == localize['warn'] or action == localize['pardon']:
         body.append((localize['warnings'], str(warn_count)))
-    footer = {
-        'text': get_name_with_discriminator(mod) + ' | ' + get_date(),
-        'icon_url': get_avatar_url(mod)
-    }
-    return build_embed(body, colour=colour, author=author, footer=footer)
+    embed = Embed(colour=colour)
+    embed.set_author(
+        name=get_name_with_discriminator(target) + ' ({})'.format(target.id),
+        icon_url=get_avatar_url(target))
+    embed.set_footer(text=get_name_with_discriminator(mod) + ' | ' + get_date(),
+                     icon_url=get_avatar_url(mod))
+    return add_embed_fields(embed, body)
 
 
-async def send_mod_log(ctx, bot, action, member, reason, warn_count=None):
+async def send_mod_log(
+        ctx, bot: Hifumi, action, member, reason, warn_count=None):
     """
     Helper function to send a mod log
     :param ctx: the discord funtion
@@ -247,18 +148,18 @@ async def send_mod_log(ctx, bot, action, member, reason, warn_count=None):
     :param warn_count: the total warning count on the user
     """
     localize = bot.get_language_dict(ctx)
-    log_lst = get_mod_log_channels(
-        bot.cur, ctx.message.server
-    )
-    if log_lst:
+    mod_log = bot.data_manager.get_mod_log(int(ctx.message.server.id))
+    if mod_log:
         entry = generate_mod_log_entry(
             action, ctx.message.author, member, reason, localize, warn_count
         )
-        for channel in log_lst:
+        # FIXME Remove str when library rewrite is finished
+        channel = get_modlog(bot.data_manager, ctx.message.server)
+        if channel:
             await bot.send_message(channel, embed=entry)
 
 
-async def warn_pardon(bot, ctx, reason, member, is_warn):
+async def warn_pardon(bot: Hifumi, ctx, reason, member, is_warn):
     """
     Helper function for warn/pardon commands
     :param bot: the bot
@@ -270,23 +171,24 @@ async def warn_pardon(bot, ctx, reason, member, is_warn):
     localize = bot.get_language_dict(ctx)
     author = ctx.message.author
     author = get_name_with_discriminator(author)
-    server_id = ctx.message.server.id
-    user_id = ctx.message.author.id
+    # FIXME Remove casting when library rewrite is finished
+    guild_id = int(ctx.message.server.id)
+    member_id = int(ctx.message.author.id)
+    data_manager = bot.data_manager
+    warn_count = data_manager.get_member_warns(member_id, guild_id) or 0
     if is_warn:
-        add_warn_(
-            bot.conn, bot.cur, server_id, user_id
-        )
+        new_warn_count = warn_count + 1
+        data_manager.set_member_warns(member_id, guild_id, new_warn_count)
         actions = 'warn', 'warn_success'
     else:
-        remove_warn_(
-            bot.conn, bot.cur, server_id, user_id
-        )
+        new_warn_count = max(0, warn_count - 1)
+        data_manager.set_member_warns(member_id, guild_id, new_warn_count)
         actions = 'pardon', 'pardon_success'
-    warn_count = get_warn_(bot.cur, server_id, user_id)
+
     await bot.say(
         localize[actions[1]].format(member, reason, author) +
-        str(warn_count)
+        str(new_warn_count)
     )
     await send_mod_log(
-        ctx, bot, localize[actions[0]], member, reason, warn_count
+        ctx, bot, localize[actions[0]], member, reason, new_warn_count
     )

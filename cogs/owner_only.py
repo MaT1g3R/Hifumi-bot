@@ -10,14 +10,14 @@ blacklist           ✕
 """
 
 from discord.ext import commands
-from requests import get, RequestException, ConnectionError
+from requests import ConnectionError, RequestException, get
 
+from bot import Hifumi
 from config import OWNER
-from core.owner_only_core import handle_eval, bash_script, setavatar
+from core.owner_only_core import bash_script, handle_eval, setavatar
+from data_controller.data_utils import get_prefix
 from scripts.checks import is_owner
-from scripts.discord_functions import check_message_startwith, clense_prefix, \
-    get_prefix
-from shell import Hifumi
+from scripts.discord_functions import check_message_startwith, clense_prefix
 
 
 class OwnerOnly:
@@ -38,9 +38,7 @@ class OwnerOnly:
         Events for reading messages
         :param message: the message
         """
-        prefix = get_prefix(
-            self.bot.cur, message.server, self.bot.default_prefix
-        )
+        prefix = get_prefix(self.bot, message)
         if check_message_startwith(self.bot, message, '{}eval'.format(prefix)):
             localize = self.bot.get_language_dict(message)
             if str(message.author.id) in OWNER:

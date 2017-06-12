@@ -5,11 +5,10 @@ from platform import python_version
 
 from colorama import init
 
+from bot import Hifumi
 from cogs import *
 from config import *
-from launcher import is_internet_on
 from scripts import logger
-from shell import Hifumi
 
 try:
     import pip  # It will not be used here but still needed
@@ -32,13 +31,7 @@ def __run():
 
 
 def run():
-    if not is_internet_on():
-        logger.error(
-            "You're not connected to Internet! "
-            "Please check your connection and try again."
-        )
-        exit(1)
-    elif SAFE_SHUTDOWN:
+    if SAFE_SHUTDOWN:
         logger.warning(
             "Safe shutdown launched as requested in settings."
             "To startup the bot back, toggle SAFE_SHUTDOWN "

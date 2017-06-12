@@ -1,9 +1,18 @@
 """
-Useful helper functions
+Useful helper functions/classes
 """
 import re
+from collections import Iterable
 from datetime import date, timedelta
+from pathlib import Path
 from platform import platform
+from random import choice
+from typing import Collection, Sequence
+
+from aiohttp import ClientResponseError, ClientSession
+from yaml import YAMLError
+
+from scripts.file_io import read_yaml
 
 
 def combine_dicts(dicts):
@@ -153,3 +162,123 @@ def get_time_elapsed(start, finish):
     hours, seconds = divmod(seconds, 3600)
     minutes, seconds = divmod(seconds, 60)
     return days, hours, minutes, seconds
+
+
+def assert_types(values: Sequence, types, ignore_none: bool):
+    """
+    Check lengh and types match for a Sequence, NoneType is ignored
+    :param values: the Sequence to be checked
+    :param types: the expected Types
+    :param ignore_none: if False will raise AssertionError when a NoneType
+    is in the values, if True it will be ignored
+    """
+    if isinstance(types, type):
+        for v in values:
+            assert (v is None and ignore_none) or isinstance(v, types)
+    else:
+        assert len(values) == len(types)
+        for v, t in zip(values, types):
+            assert (v is None and ignore_none) or isinstance(v, t)
+
+
+def assert_inputs(types, ignore_none: bool):
+    """
+    Decorator to assert length and types of the input to the db
+    :param types: the expected types
+    :param ignore_none: see assert_types
+    """
+
+    def dec(func: callable):
+        def wrap(*args):
+            assert_types(args[-1], types, ignore_none)
+            func(*args)
+
+        return wrap
+
+    return dec
+
+
+def assert_outputs(types, ignore_none: bool):
+    """
+    Decorator to assert the output of a request to the db
+    :param types: the expected types
+    :param ignore_none: see assert_types
+    """
+
+    def dec(func: callable):
+        def wrap(*args):
+            res = func(*args)
+            if res is not None:
+                assert_types(res, types, ignore_none)
+            return res
+
+        return wrap
+
+    return dec
+
+
+def get_config() -> dict:
+    """
+    Return the configurations.
+    """
+    path = Path('../config/settings.yml')
+    if not path.is_file():
+        return {}
+    with path.open() as f:
+        try:
+            return read_yaml(f)
+        except YAMLError:
+            f.close()
+            return {}
+
+
+def random_word(length: int, source: Collection):
+    """
+    Generate a random word.
+    :param length: the length of the word.
+    :param source: the source of characters the word can choose from.
+    :return: a random word of length of <length>
+    """
+    return ''.join(choice(source) for _ in range(length))
+
+
+def flatten(in_) -> list:
+    """
+    Flaten a input list/tuple into a list
+    :param in_: the input
+    :return: a flattened list of the input
+    >>> flatten(([0, 1], [2, 3], [[4, 5], 6]))
+    [0, 1, 2, 3, 4, 5, 6]
+    >>> flatten((['0', '1'], ['2', '34'], [[4, 5], 6]))
+    ['0', '1', '2', '34', 4, 5, 6]
+    >>> flatten(([None, '1'], ['2', '34'], [[4, 5], 6]))
+    ['1', '2', '34', 4, 5, 6]
+    """
+    if in_ is None:
+        return []
+    elif isinstance(in_, Iterable) and not isinstance(in_, str):
+        res = []
+        for l in in_:
+            res += flatten(l)
+        return res
+    else:
+        return [in_]
+
+
+async def aiohttp_get(url: str, session: ClientSession, close_session: bool):
+    """
+    Make a get request to the url.
+    :param url: the request url.
+    :param session: the aiohttp ClientSession
+    :return: the response if status code is 200
+    :param close_session: To close the session after the request or not.
+    :raises ClientResponseError if the status code isn't 200.
+    """
+    async with session.get(url) as r:
+        if r.status != 200:
+            raise ClientResponseError
+    try:
+        return r
+    finally:
+        if close_session:
+            session.close()

@@ -3,14 +3,12 @@ A collection of functions that's related to discord
 """
 import re
 
-from discord import HTTPException, Forbidden
-from discord.embeds import Embed, EmptyEmbed
+from discord import Forbidden, HTTPException
 from discord.ext.commands import CommandOnCooldown
 from discord.ext.commands.errors import MissingRequiredArgument
 
-from scripts.checks import ManageMessageError, AdminError, ManageRoleError, \
-    BadWordError, NsfwError, OwnerError
-from scripts.data_controller import get_prefix_
+from scripts.checks import AdminError, BadWordError, ManageMessageError, \
+    ManageRoleError, NsfwError, OwnerError
 from scripts.helpers import strip_letters
 
 
@@ -47,83 +45,6 @@ def command_error_handler(localize, exception):
         # This case should never happen, since it's should be checked in
         # bot.on_command_error
         raise exception
-
-
-def get_prefix(cur, server, default_prefix):
-    """
-    the the prefix of commands for a channel
-    defaults to the default database
-    :param cur: the database cursor
-    :param server: the discord server
-    :param default_prefix: the bot default prefix
-    :return: the prefix for the server
-    """
-    if server is None:
-        return default_prefix
-    res = get_prefix_(cur, server.id)
-    return res if res is not None else default_prefix
-
-
-def build_embed(content: list, colour, description=EmptyEmbed, **kwargs):
-    """
-    Build a discord embed object 
-
-    :param content: list of tuples with as such:
-        (name, value, *optional: Inline)
-        If inline is not provided it defaults to true
-
-    :param colour: the colour of the embed
-
-    :param description: the description of the embed, optional
-
-    :param kwargs: extra options
-
-    :key author: a dictionary to supply author info as such:
-        {
-            'name': author name,
-            'icon_url': icon url, optional
-        }
-
-    :key footer: the footer for the embed as a string for pure text
-                 or a dict as such:
-        {
-            'text': the footer text,
-            'icon_url': the footer icon url, optional
-        }
-
-    :key image: the image url
-
-    :key thumbnail: the thumbnail image url
-
-    :return: a discord embed object
-    """
-    res = Embed(colour=colour, description=description)
-    if 'author' in kwargs:
-        author = kwargs['author']
-        name = author.get('name', None)
-        icon_url = author.get('icon_url', EmptyEmbed)
-        author_url = author.get('url', EmptyEmbed)
-        res.set_author(name=name, icon_url=icon_url, url=author_url)
-    for c in content:
-        name = c[0]
-        value = c[1]
-        inline = len(c) != 3 or c[2]
-        res.add_field(name=name, value=value, inline=inline)
-    if 'footer' in kwargs:
-        if isinstance(kwargs['footer'], str):
-            res.set_footer(text=kwargs['footer'])
-        elif 'icon_url' in kwargs['footer']:
-            res.set_footer(
-                text=kwargs['footer']['text'],
-                icon_url=kwargs['footer']['icon_url']
-            )
-        else:
-            res.set_footer(text=kwargs['footer']['text'])
-    if 'image' in kwargs:
-        res.set_image(url=kwargs['image'])
-    if 'thumbnail' in kwargs:
-        res.set_thumbnail(url=kwargs['thumbnail'])
-    return res
 
 
 def check_message(bot, message, expected):
@@ -205,3 +126,25 @@ def get_name_with_discriminator(member):
     :return: the name of a member with discriminator
     """
     return member.display_name + '#' + member.discriminator
+
+
+def add_embed_fields(embed, body):
+    """
+    Add fileds into a embed.
+    :param embed: the embed.
+    :param body: a list of tuples with length 2 or 3.
+    With the first element be the name of the field,
+    the second element be the value of the field,
+    the third element be a boolean for inline. defaults to True if the element
+    is not present
+    :return: the embed with fields added.
+    """
+    for t in body:
+        name = t[0]
+        val = t[1]
+        if len(t) < 3:
+            inline = True
+        else:
+            inline = t[2]
+        embed.add_field(name=name, value=val, inline=inline)
+    return embed

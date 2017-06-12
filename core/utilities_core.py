@@ -4,12 +4,12 @@ Functions for Utilities commands
 from json import JSONDecodeError
 from random import randint
 
-from discord.embeds import EmptyEmbed
+from discord.embeds import Embed, EmptyEmbed
 from imdbpie import Imdb
 from requests import get
 
 from config import EDAMAM_API
-from scripts.discord_functions import build_embed
+from scripts.discord_functions import add_embed_fields
 
 
 def number_fact(num, not_found_msg, bad_num_msg, header):
@@ -89,10 +89,12 @@ def imdb(query, api: Imdb, localize):
             (localize['score'], score),
             (localize['plot_outline'], plot, False)
         ]
-        res = build_embed(body, 0xE5BC26, author={'name': title})
+        embed = Embed(colour=0xE5BC26)
+        embed.set_author(name=title)
         if poster:
-            res.set_image(url=poster)
-        return res
+            embed.set_image(url=poster)
+        return add_embed_fields(embed, body)
+
     except (JSONDecodeError, IndexError):
         return localize['title_not_found']
 
@@ -112,19 +114,6 @@ def recipe_search(query, localize):
     except IndexError:
         return localize['recipe_not_found']
 
-    kwargs = {}
-    author = {}
-    if 'label' in res and res['label']:
-        author['name'] = res['label']
-    if 'url' in res and res['url']:
-        author['url'] = res['url']
-    if 'image' in res and res['image']:
-        kwargs['thumbnail'] = res['image']
-    if 'source' in res and res['source']:
-        kwargs['footer'] = localize['recipe_source'] + res['source'] + \
-                           " | " + localize['recipe_open']
-    if author:
-        kwargs['author'] = author
     servings = res.get('yield', None)
     if servings and servings % 1 == 0:
         servings = int(servings)
@@ -163,14 +152,26 @@ def recipe_search(query, localize):
     body = [t for t in body if t[1]]
     des = localize['recipe_en'] if localize['language_data']['code'] != 'en' \
         else EmptyEmbed
-    return build_embed(
-        body,
-        int(
-            '0x%02X%02X%02X' % (
-                randint(0, 255), randint(0, 255), randint(0, 255)
-            ),
-            base=16
-        ),
-        des,
-        **kwargs
+    colour = int(
+        '0x%02X%02X%02X' % (randint(0, 255), randint(0, 255), randint(0, 255)),
+        base=16
     )
+    embed = Embed(colour=colour, description=des)
+    author = {}
+    if 'label' in res and res['label']:
+        author['name'] = res['label']
+    if 'url' in res and res['url']:
+        author['url'] = res['url']
+    if author:
+        embed.set_author(
+            name=author.get('name', EmptyEmbed),
+            url=author.get('url', EmptyEmbed)
+        )
+    if 'image' in res and res['image']:
+        embed.set_thumbnail(url=res['image'])
+    if 'source' in res and res['source']:
+        recipe_source = localize['recipe_source']
+        source = res['source']
+        recipe_open = localize['recipe_open']
+        embed.set_footer(text=f'{recipe_source}{source} | {recipe_open}')
+    return add_embed_fields(embed, body)

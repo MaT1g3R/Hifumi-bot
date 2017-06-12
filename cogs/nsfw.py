@@ -1,19 +1,16 @@
 from discord.ext import commands
-from pybooru import Danbooru
 
-from config import *
-from core.nsfw_core import danbooru, gelbooru, k_or_y, random_str, e621, \
-    greenteaneko
+from bot import Hifumi
+from config import DANBOORU_API, DANBOORU_USERNAME
+from core.nsfw_core import *
 from scripts.checks import is_nsfw, no_badword
-from scripts.data_controller import write_tag_list_
-from shell import Hifumi
 
 
 class Nsfw:
     """
     NSFW cog
     """
-    __slots__ = ['bot', 'danbooru_api']
+    __slots__ = ['bot']
 
     def __init__(self, bot: Hifumi):
         """
@@ -21,8 +18,26 @@ class Nsfw:
         :param bot: the discord bot object
         """
         self.bot = bot
-        self.danbooru_api = Danbooru(
-            'danbooru', username=DANBOORU_USERNAME, api_key=DANBOORU_API)
+
+    async def __process_search(self, ctx, site: str, query: tuple):
+        """
+        Process a search request.
+        :param ctx: the discord context.
+        :param site: the site name.
+        :param query: the search quries.
+        """
+        localize = self.bot.get_language_dict(ctx)
+        if len(query) > 2 and site == 'danbooru':
+            await self.bot.say(localize['two_term'])
+            return
+        res, tags = await get_lewd(
+            site, query, localize,
+            self.bot.tag_matcher,
+            DANBOORU_USERNAME, DANBOORU_API
+        )
+        await self.bot.say(res)
+        if tags:
+            self.bot.tag_matcher.add_tags(site, tags)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -34,32 +49,14 @@ class Nsfw:
         :param ctx: the discord context
         :param query: the sarch queries
         """
-        localize = self.bot.get_language_dict(ctx)
-        if len(query) > 2:
-            await self.bot.say(localize['two_term'])
-            return
-        if len(query) == 0:
-            await self.bot.say(random_str(self.bot, ctx))
-        result, tags = danbooru(
-            self.bot.cur, query, self.danbooru_api, localize
-        )
-        await self.bot.say(result)
-        if tags is not None:
-            write_tag_list_(self.bot.conn, self.bot.cur, 'danbooru', tags)
+        await self.__process_search(ctx, 'danbooru', query)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
     @commands.check(no_badword)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.server)
     async def konachan(self, ctx, *query: str):
-        if len(query) == 0:
-            await self.bot.say(random_str(self.bot, ctx))
-        res, tags = k_or_y(
-            self.bot.cur, query, 'Konachan', self.bot.get_language_dict(ctx)
-        )
-        await self.bot.say(res)
-        if tags is not None:
-            write_tag_list_(self.bot.conn, self.bot.cur, 'konachan', tags)
+        await self.__process_search(ctx, 'konachan', query)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -71,14 +68,7 @@ class Nsfw:
         :param ctx: the discord context
         :param query: the sarch queries
         """
-        if len(query) == 0:
-            await self.bot.say(random_str(self.bot, ctx))
-        res, tags = k_or_y(
-            self.bot.cur, query, 'Yandere', self.bot.get_language_dict(ctx)
-        )
-        await self.bot.say(res)
-        if tags is not None:
-            write_tag_list_(self.bot.conn, self.bot.cur, 'yandere', tags)
+        await self.__process_search(ctx, 'yandere', query)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -90,14 +80,7 @@ class Nsfw:
         :param ctx: the discord context
         :param query: the sarch queries
         """
-        if len(query) == 0:
-            await self.bot.say(random_str(self.bot, ctx))
-        await self.bot.say(
-            gelbooru(
-                self.bot.conn, self.bot.cur,
-                query, self.bot.get_language_dict(ctx)
-            )
-        )
+        await self.__process_search(ctx, 'gelbooru', query)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -109,12 +92,7 @@ class Nsfw:
        :param ctx: the discord context
        :param query: the sarch queries
        """
-        if len(query) == 0:
-            await self.bot.say(random_str(self.bot, ctx))
-        res, tags = e621(self.bot.cur, query, self.bot.get_language_dict(ctx))
-        await self.bot.say(res)
-        if tags is not None:
-            write_tag_list_(self.bot.conn, self.bot.cur, 'e621', tags)
+        await self.__process_search(ctx, 'e621', query)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -124,4 +102,5 @@ class Nsfw:
         Find a random greenteaneko comic
         :param ctx: the discord context
         """
-        await self.bot.say(greenteaneko(self.bot.get_language_dict(ctx)))
+        res = await greenteaneko(self.bot.get_language_dict(ctx))
+        await self.bot.say(res)

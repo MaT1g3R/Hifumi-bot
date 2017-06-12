@@ -2,14 +2,13 @@ import time
 
 from discord.ext import commands
 
+from bot import Hifumi
 from config import *
 from core.bot_info_core import build_info_embed
+from data_controller.data_utils import get_prefix, set_language
 from scripts.checks import is_admin
-from scripts.data_controller import set_prefix_, delete_prefix_
-from scripts.discord_functions import get_prefix
 from scripts.language_support import generate_language_entry, \
-    generate_language_list, set_language
-from shell import Hifumi
+    generate_language_list
 
 
 class BotInfo:
@@ -100,10 +99,7 @@ class BotInfo:
             await self.bot.say(
                 localize['language'].format(
                     generate_language_entry(localize['language_data']),
-                    get_prefix(
-                        self.bot.cur,
-                        ctx.message.server, self.bot.default_prefix
-                    ),
+                    get_prefix(self.bot, ctx.message),
                     self.bot.default_language
                 )
             )
@@ -114,9 +110,30 @@ class BotInfo:
         Display a list of languages
         :param ctx: the discord context object
         """
-        await self.bot.say(generate_language_list(
-            self.bot.language, self.bot.get_language_key(ctx))
+        await self.bot.say(
+            generate_language_list(
+                self.bot.language, self.bot.get_language_key(ctx)
+            )
         )
+
+    async def __set_language(self, ctx, language):
+        """
+        Helper method to set the language of a guild.
+        :param ctx: the discord context.
+        :param language: the language to set to.
+        """
+        localize = self.bot.get_language_dict(ctx)
+        if language not in self.bot.language:
+            await self.bot.say(
+                localize['lan_no_exist'].format(
+                    language,
+                    get_prefix(self.bot, ctx.message)
+                )
+            )
+        else:
+            await self.bot.say(
+                set_language(self.bot, ctx, language)
+            )
 
     @language.command(pass_context=True, no_pm=True, name='set')
     @commands.check(is_admin)
@@ -126,19 +143,7 @@ class BotInfo:
         :param ctx: the discord context object
         :param language: the language to set to
         """
-        localize = self.bot.get_language_dict(ctx)
-        if language not in self.bot.language or language is None:
-            await self.bot.say(
-                localize['lan_no_exist'].format(
-                    language,
-                    get_prefix(
-                        self.bot.cur, ctx.message.server,
-                        self.bot.default_prefix
-                    )
-                )
-            )
-        else:
-            await self.bot.say(set_language(self.bot, ctx, language))
+        await self.__set_language(ctx, language)
 
     @language.command(pass_context=True, no_pm=True, name='reset')
     @commands.check(is_admin)
@@ -147,9 +152,7 @@ class BotInfo:
         Reset the language for the current server
         :param ctx: the discord context
         """
-        await self.bot.say(
-            set_language(self.bot, ctx, self.bot.default_language, True)
-        )
+        await self.__set_language(ctx, self.bot.default_language)
 
     @commands.group(pass_context=True, no_pm=True)
     async def prefix(self, ctx):
@@ -160,23 +163,21 @@ class BotInfo:
         if ctx.invoked_subcommand is None:
             await self.bot.say(
                 self.bot.get_language_dict(ctx)['prefix'].format(
-                    get_prefix(
-                        self.bot.cur, ctx.message.server,
-                        self.bot.default_prefix
-                    ),
+                    get_prefix(self.bot, ctx.message),
                     self.bot.default_prefix
                 )
             )
 
-    @prefix.command(pass_context=True, no_pm=True, name='set')
-    @commands.check(is_admin)
-    async def p_set(self, ctx, prefix: str):
+    async def __set_prefix(self, ctx, prefix: str):
         """
-        Set the prefix for the server
-        :param ctx: the discord context object
-        :param prefix: the prefix to set to
+        Helper method to set the prefix of a guild.
+        :param ctx: the discord context.
+        :param prefix: the prefix to set to.
         """
         localize = self.bot.get_language_dict(ctx)
+        if not prefix:
+            await self.bot.say(localize['prefix_empty'])
+            return
         if '/' in prefix or '\\' in prefix:
             await self.bot.say(localize['prefix_bad'])
             return
@@ -184,8 +185,18 @@ class BotInfo:
                 or prefix.startswith('<@'):
             await self.bot.say(localize['prefix_bad_start'])
             return
-        set_prefix_(self.bot.conn, self.bot.cur, ctx.message.server.id, prefix)
-        await self.bot.say(localize['set_prefix_'].format(prefix))
+        self.bot.data_manager.set_prefix(int(ctx.message.server.id), prefix)
+        await self.bot.say(localize['set_prefix'].format(prefix))
+
+    @prefix.command(pass_context=True, no_pm=True, name='set')
+    @commands.check(is_admin)
+    async def p_set(self, ctx, prefix: str = None):
+        """
+        Set the prefix for the server
+        :param ctx: the discord context object
+        :param prefix: the prefix to set to
+        """
+        await self.__set_prefix(ctx, prefix)
 
     @prefix.command(pass_context=True, no_pm=True, name='reset')
     @commands.check(is_admin)
@@ -194,9 +205,4 @@ class BotInfo:
         Reset the prefix of the server
         :param ctx: the discord context
         """
-        delete_prefix_(self.bot.conn, self.bot.cur, ctx.message.server.id)
-        await self.bot.say(
-            self.bot.get_language_dict(ctx)['set_prefix_'].format(
-                self.bot.default_prefix
-            )
-        )
+        await self.__set_prefix(ctx, self.bot.default_prefix)

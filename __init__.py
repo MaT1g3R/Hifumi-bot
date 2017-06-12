@@ -28,7 +28,8 @@ version_info = VersionInfo(
     major=0, minor=0, micro=1, releaselevel='alpha', serial=0
 )
 
-with open(Path('./config/simple_license')) as f:
+__path = Path(__file__).parent.joinpath('config').joinpath('simple_license')
+with Path(__path).open() as f:
     LICENSE = f.read()
     f.close()
 

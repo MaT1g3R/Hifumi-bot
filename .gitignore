@@ -3,7 +3,7 @@ core/__pycache__/
 test_run\.py
 cogs/__pycache__/
 config/__pycache__/
-shell/__pycache__/
+bot/__pycache__/
 data/shard_info/shard_0\.json
 config/settings\.py
 *.log
@@ -18,3 +18,4 @@ temp\.py
 .fuse*
 data/\.DS_Store
 \.DS_Store
+\.cache/v/cache/
