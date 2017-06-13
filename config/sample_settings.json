@@ -1,1 +1,48 @@
-{}
+{
+  "comments": [
+    "This is the settings file which is used for Hifumi's functions,",
+    "as well as it is required for the environment to work properly.",
+    "Please visit the documentation ('Setting up' section) for information",
+    "before you start to edit this file."
+  ],
+  "bot": {
+    "privateInstance": false,
+    "sharding": {
+      "enabled": false,
+      "automatic": false,
+      "shardCount": 0,
+      "shardInstances": []
+    },
+    "token": "",
+    "prefix": "~",
+    "information": {
+    },
+    "owner": [],
+    "embedColor": "0xff0000",
+    "waifuName": "hifumi takimoto"
+  },
+  "environment": {
+    "logTracking": true,
+    "safeShutdown": false,
+    "automaticUpdate": true
+  },
+  "apiKeys": {
+    "postingApi": {
+      "abalDiscordList": "",
+      "discordBotsDotOrg": "",
+      "carbonitex": {
+        "compliant": false,
+        "key": ""
+      }
+    },
+    "danbooru": {
+      "username": "",
+      "key": ""
+    },
+    "wolkeApi": "",
+    "edamamApi": {
+      "appId": "",
+      "key": ""
+    }
+  }
+}
