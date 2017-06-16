@@ -36,7 +36,7 @@ async def number_fact(num, localize):
         return header.format(res['number']) + res['text'] if res['found'] \
             else not_found_msg
     except ClientResponseError:
-        return localize['nsfw_error'].format('Numbers Fact')
+        return localize['api_error'].format('Numbers Fact')
 
 
 async def imdb(query, api: Imdb, localize):
@@ -119,7 +119,7 @@ async def recipe_search(query, localize):
     except IndexError:
         return localize['recipe_not_found']
     except ClientResponseError:
-        return localize['nsfw_error'].format('Edamam')
+        return localize['api_error'].format('Edamam')
 
     servings = res.get('yield', None)
     if servings and servings % 1 == 0:

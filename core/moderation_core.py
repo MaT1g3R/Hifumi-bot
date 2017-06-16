@@ -148,12 +148,12 @@ async def send_mod_log(
     :param warn_count: the total warning count on the user
     """
     localize = bot.get_language_dict(ctx)
+    # FIXME Remove type casting when library rewrite is finished
     mod_log = bot.data_manager.get_mod_log(int(ctx.message.server.id))
     if mod_log:
         entry = generate_mod_log_entry(
             action, ctx.message.author, member, reason, localize, warn_count
         )
-        # FIXME Remove str when library rewrite is finished
         channel = get_modlog(bot.data_manager, ctx.message.server)
         if channel:
             await bot.send_message(channel, embed=entry)

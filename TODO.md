@@ -1,8 +1,6 @@
 # TODO
 # High Priority!!
- - [ ] Change the rest of the HTTP requests to use aiohttp.
- - [ ] Refactor the rest of the tests to use pytest.
- - [ ] Rework the config file into json for better write access.
+ - [x] Change the rest of the HTTP requests to use aiohttp.
  - [ ] Refactor code related to moderation commands.
 
 ## 1. Bot manager/launcher
@@ -14,12 +12,12 @@
 - [ ] If needed, restructure the functions if that happens
 
 ## 3. Current hifumi commands transfering
-1. Fun
+#### Fun
 ```
 8ball               ✕
 accordingtodevin    ✕
 choose              ✕
-coinflip            ✕ 
+coinflip            ✕
 cutecat             ✕
 cutedog             ✕
 dice                ✕
@@ -34,7 +32,7 @@ love                ✕
 meme                ✕
 meme list           ✕      
 rate                ✕
-reverse             ✕ 
+reverse             ✕
 rip                 ✕
 roll                ✕
 rps                 ✕
@@ -44,7 +42,8 @@ triggered           ✕
 xkcd                ✕
 yomomma             ✕
 ```
-2. Interactions
+
+#### Interactions
 ```
 cry                 ✕
 cuddle              ✕
@@ -58,13 +57,14 @@ slap                ✕
 stare               ✕
 tickle              ✕
 ```
-3. Utilities/Search
+#### Utilities/Search
 * osu/setosu moved to its own category
 * shorten removed cuz I said so
 * anime/manga moved to its own category
 * serverinfo/userinfo/avatar/birthday/nicknames moved to its own category
 * fact commands made into command group
-* dog facts removed due to no good api
+* dog facts removed due to no good api  
+
 ```
 advice              ✔
 fact                ✔
@@ -80,7 +80,8 @@ urban               ✕
 weather             ✕
 yesno               ✕
 ```
-4. Roles :white_check_mark:
+
+#### Roles :white_check_mark:
 ```
 rolelist            ✔
 roleme              ✔
@@ -88,9 +89,10 @@ unroleme            ✔
 selfrole add        ✔
 selfrole remove	    ✔
 ```
-5. Moderation :white_check_mark:
+#### Moderation :white_check_mark:
 * setlevel removed in favour of role based permissions
 * Mod log function is finished
+
 ```
 ban                 ✔
 kick                ✔
@@ -103,7 +105,8 @@ modlog *new         ○
 modlog add *new     ○
 modlog remove *new  ○
 ```
-6. Music
+
+#### Music
 ```
 join                ✕
 request             ✕
@@ -120,16 +123,16 @@ skip                ✕
 forceskip           ✕
 leave               ✕
 ```
-7. Tags
+#### Tags
 ```
 tag create          ✕
 tag delete          ✕
 tag edit            ✕
 tag owner           ✕
 ```
-8. NSFW :white_check_mark:
-
+#### NSFW :white_check_mark:
 * rule34 is removed due to dead api
+
 ```
 e621                ✔
 konachan            ✔
@@ -138,7 +141,7 @@ danbooru *new       ○
 gelbooru *new       ○
 greenteaneko        ✔
 ```
-9. Bot info
+#### Bot info
 ```
 info                ✔
 support             ✔
@@ -155,7 +158,7 @@ prefix              ✔
 prefix set          ✔
 prefix reset *new   ○
 ```
-10. Owner only
+#### Owner only
 ```
 bash                ✔
 setavatar           ✔
@@ -169,7 +172,7 @@ shutdown            ✕
 blacklist           ✕
 ```
 
-11. Currency
+#### Currency
 ```
 daily               ✔
 balance             ✔
@@ -179,19 +182,19 @@ slots               ✔
 trivia              ✔
 ```
 
-12. Osu
+#### Osu
 ```
 osu                 ✕
 setosu              ✕
 ```
 
-13. Weeb
+#### Weeb
 ```
 anime               ✕
 manga               ✕
 ```
 
-14. User/Server Info
+#### User/Server Info
 ```
 avatar              ✕
 birthday            ✕
@@ -206,19 +209,19 @@ userinfo            ✕
 - [ ] AFK function (if a user that has AFK activated is mentioned, make Hifumi send a message with the reason if specified)
 - [ ] Actual polls via Discord instead of Strawpoll
 - [ ] Add ban, softban and kick notifications for modlog! If possible, also include server general actions, like audit log
-- [ ] Addition of Chuck Norris jokes (name customizable) 
-- [ ] Announce when there's the birthday for someone 
+- [ ] Addition of Chuck Norris jokes (name customizable)
+- [ ] Announce when there's the birthday for someone
 - [ ] As people is requesting it too much, instead of people's permissions, replace that with commands permissions like Rem's system.
 - [ ] Automatic hentai posting if set
 - [ ] Autorole function (assign a role to new members)
-- [ ] Battle command to defeat from other users 
+- [ ] Battle command to defeat from other users
 - [ ] Calculator for math, if possible scientific
 - [ ] Cleaning filters (clean bot messages, all bots messages, specific user messages)
 - [ ] Cleverbot return
 - [x] Danbooru, Gelbooru and Safebooru addition
 - [ ] Display a list for 10 latest results if music is requested via search query, user can choose by typing the option number and then bot queues for play (Refer to Rem's !w.qa)
 - [ ] Feedback (with cooldown to avoid abuse)
-- [ ] Fix the bug for shard ID argument instead of settings 
+- [ ] Fix the bug for shard ID argument instead of settings
 - [x] Format errors when bot DMs
 - [ ] Google searching, as well as images and videos
 - [ ] Hackban (ban users outside the server via user ID) and individual unban as well
@@ -231,10 +234,10 @@ userinfo            ✕
 - [ ] Make possible a triggered command with the picture of a user (with filters, like blargbot)
 - [ ] Make waiting music customizable
 - [ ] Merge cute(x) commands to a new animal command
-- [ ] Message to general channel of bot introduction when bot joins to a new guild, DM to a mod if bot is kicked (promote feedback) 
+- [ ] Message to general channel of bot introduction when bot joins to a new guild, DM to a mod if bot is kicked (promote feedback)
 - [x] Modlog
 - [ ] osu! pp calculating for beatmaps
-- [ ] Profile for currency 
+- [ ] Profile for currency
 - [ ] Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
 - [x] Recipe finder
 - [ ] Replace GIF command tracker from Giphy to be available also in filters (respectively Giphy, Tenor and Imgur)
@@ -254,12 +257,15 @@ userinfo            ✕
 - [ ] Word filter (mod tool, compatible with words and regex as well)
 
 **NOTE:** Those are the best ideas we picked. Until we're done with them, we're not accepting feature requests anymore.
-   
+
 ## 5. Translation support
    - Done! Locals are actually WIP
+
 ## 6. Documentation
    - coming soon!
+
 ## 7. Database transfer and final touches
    - coming soon!
+
 ## 8. Release
    - coming soon!

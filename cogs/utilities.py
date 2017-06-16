@@ -41,7 +41,7 @@ class Utilities:
                 slip['slip_id'], slip['advice']
             )
         except ClientResponseError:
-            res = localize['nsfw_error'].format('Adviceslip')
+            res = localize['api_error'].format('Adviceslip')
         await self.bot.say(res)
 
     @commands.group(pass_context=True)
@@ -72,7 +72,7 @@ class Utilities:
             resp = await resp.read()
             res = loads(resp)['facts'][0]
         except ClientResponseError:
-            res = localize['nsfw_error'].format('Catfacts')
+            res = localize['api_error'].format('Catfacts')
         await self.bot.say(res)
 
     @fact.command(pass_context=True)

@@ -80,8 +80,7 @@ def remove_role(*, localize, guild, data_manager: DataManager, role):
     return res
 
 
-def role_add_rm(*,
-                role, localize, guild,
+def role_add_rm(*, role, localize, guild,
                 data_manager: DataManager, is_add, check_db=True):
     """
     A helper function for role_unrole
