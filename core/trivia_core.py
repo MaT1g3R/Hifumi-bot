@@ -1,8 +1,9 @@
 from random import shuffle
 from string import ascii_uppercase
 
+from aiohttp import ClientResponseError, ClientSession
 from discord.embeds import Embed
-from pytrivia import Category, Diffculty, Type
+from pytrivia import Category, Diffculty, Trivia, Type
 
 from bot import Hifumi
 from data_controller import LowBalanceError
@@ -21,7 +22,7 @@ class TriviaGame:
     __slots__ = ['api', 'bot', 'args', 'channel', 'author', 'conn', 'cur',
                  'localize', 'bet', 'prefix', 'data_manager', 'user_id']
 
-    def __init__(self, ctx, bot: Hifumi, args, api):
+    def __init__(self, ctx, bot: Hifumi, args, api: Trivia):
         """
         Initialize an instance of this class
         :param ctx: the discord context
@@ -126,7 +127,10 @@ class TriviaGame:
         Get the trivia data from kwargs
         :return: the trivia data
         """
-        trivia_data = _get_trivia_data(kwargs, self.api)
+        try:
+            trivia_data = await _get_trivia_data(kwargs, self.api)
+        except ClientResponseError:
+            trivia_data = None
         if trivia_data is None:
             await self.bot.send_message(
                 self.channel, self.localize['trivia_error']
@@ -231,7 +235,7 @@ def _no_args(message):
             return 'trivia_abort', False
 
 
-def _get_trivia_data(kwargs, api):
+async def _get_trivia_data(kwargs, api: Trivia):
     """
     Get the trivia data from the api
     :param kwargs: the kwargs parsed from user input args
@@ -241,7 +245,9 @@ def _get_trivia_data(kwargs, api):
     category = kwargs['category'] if 'category' in kwargs else None
     type_ = kwargs['type'] if 'type' in kwargs else None
     diffculty = kwargs['diffculty'] if 'diffculty' in kwargs else None
-    res = api.request(1, category, diffculty, type_)
+
+    res = await api.request_async(
+        ClientSession(), True, 1, category, diffculty, type_)
     return res if res['response_code'] == 0 else None
 
 
