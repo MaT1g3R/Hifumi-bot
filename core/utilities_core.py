@@ -4,40 +4,42 @@ Functions for Utilities commands
 from json import JSONDecodeError
 from random import randint
 
+from aiohttp import ClientResponseError, ClientSession
 from discord.embeds import Embed, EmptyEmbed
 from imdbpie import Imdb
-from requests import get
 
 from config import EDAMAM_API
 from scripts.discord_functions import add_embed_fields
+from scripts.helpers import aiohttp_get
 
 
-def number_fact(num, not_found_msg, bad_num_msg, header):
+async def number_fact(num, localize):
     """
     Find a fact about a number
     :param num: the number
-    :param not_found_msg: message if fact is not found
-    :param bad_num_msg: message if the number isnt valid
-    :param header: the header for the return string
+    :param localize: the localization strings
     :return: a string representation for the fact
     """
+    header = localize['num_fact_random'] if num is None \
+        else localize['num_fact_found']
+    bad_num_msg = localize['num_fact_str']
+    not_found_msg = localize['num_fact_not_found']
     try:
         if num != 'random':
             num = int(num)
     except ValueError:
         return bad_num_msg
     url = f'http://numbersapi.com/{num}?json=true'
-    while True:
-        try:
-            res = get(url).json()
-            break
-        except JSONDecodeError:
-            continue
-    return header.format(res['number']) + res['text'] if res['found'] \
-        else not_found_msg
+    try:
+        res = await aiohttp_get(url, ClientSession(), True)
+        res = await res.json()
+        return header.format(res['number']) + res['text'] if res['found'] \
+            else not_found_msg
+    except ClientResponseError:
+        return localize['nsfw_error'].format('Numbers Fact')
 
 
-def imdb(query, api: Imdb, localize):
+async def imdb(query, api: Imdb, localize):
     """
     Send an api request to imdb using the search query
     :param query: the search query
@@ -45,6 +47,7 @@ def imdb(query, api: Imdb, localize):
     :param localize: the localization strings
     :return: the result
     """
+    # FIXME: Use Aiohttp instead of this api wrapper
     try:
         names = lambda x: ', '.join((p.name for p in x)) if x else 'N/A'
         null_check = lambda x: x if x and not isinstance(x, int) else 'N/A'
@@ -99,7 +102,7 @@ def imdb(query, api: Imdb, localize):
         return localize['title_not_found']
 
 
-def recipe_search(query, localize):
+async def recipe_search(query, localize):
     """
     Search for a food recipe
     :param query: the search query
@@ -110,9 +113,13 @@ def recipe_search(query, localize):
           f'app_id={EDAMAM_API[0]}&app_key={EDAMAM_API[1]}&q={query}&to=1&' \
           f'returns=label'
     try:
-        res = get(url).json()['hits'][0]['recipe']
+        response = await aiohttp_get(url, ClientSession(), True)
+        js = await response.json()
+        res = js['hits'][0]['recipe']
     except IndexError:
         return localize['recipe_not_found']
+    except ClientResponseError:
+        return localize['nsfw_error'].format('Edamam')
 
     servings = res.get('yield', None)
     if servings and servings % 1 == 0:
