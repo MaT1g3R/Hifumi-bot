@@ -1,10 +1,14 @@
 """
 Utility functions to interact with the database
 """
+from typing import List
+
+from discord import Server
 from discord.utils import get
 
 from data_controller.data_manager import DataManager
 from data_controller.errors import LowBalanceError, NegativeTransferError
+from scripts.discord_functions import role_exist
 from scripts.language_support import generate_language_entry
 
 
@@ -88,8 +92,9 @@ def add_self_role(data_manager: DataManager, guild_id: int, role):
     :param role: the role name.
     """
     lst = data_manager.get_roles(guild_id) or []
-    lst.append(role)
-    data_manager.set_roles(guild_id, lst)
+    if role not in lst:
+        lst.append(role)
+        data_manager.set_roles(guild_id, lst)
 
 
 def remove_self_role(data_manager: DataManager, guild_id: int, role):
@@ -99,10 +104,36 @@ def remove_self_role(data_manager: DataManager, guild_id: int, role):
     :param guild_id: the guild id.
     :param role: the role name.
     """
-    lst = data_manager.get_roles(guild_id)
-    if lst and role in lst:
+    lst = data_manager.get_roles(guild_id) or []
+    if role in lst:
         lst.remove(role)
         data_manager.set_roles(guild_id, lst)
+
+
+# FIXME Change Server to Guild after lib rewrite
+def self_role_names(guild: Server, data_manager: DataManager) -> List[str]:
+    """
+    Get the role list of the server
+
+    :param guild: the discord guild
+
+    :param data_manager: the data manager.
+
+    :return: a list of role names of self assignable roles in the guild.
+    """
+    # FIXME Remove casting after lib rewrite
+    guild_id = int(guild.id)
+    lst = data_manager.get_roles(guild_id) or []
+    edit = False
+    # Check for any non-existing roles and remove them from the db
+    for i in range(len(lst)):
+        role = lst[i]
+        if not role_exist(role, guild):
+            edit = True
+            lst.remove(role)
+    if edit:
+        data_manager.set_roles(guild_id, lst)
+    return lst
 
 
 def get_modlog(data_manager: DataManager, guild):

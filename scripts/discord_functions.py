@@ -2,10 +2,12 @@
 A collection of functions that's related to discord
 """
 import re
+from typing import Optional
 
-from discord import Forbidden, HTTPException
+from discord import Forbidden, HTTPException, Role, Server
 from discord.ext.commands import CommandOnCooldown
 from discord.ext.commands.errors import MissingRequiredArgument
+from discord.utils import get
 
 from scripts.checks import AdminError, BadWordError, ManageMessageError, \
     ManageRoleError, NsfwError, OwnerError
@@ -148,3 +150,25 @@ def add_embed_fields(embed, body):
             inline = t[2]
         embed.add_field(name=name, value=val, inline=inline)
     return embed
+
+
+# FIXME Change Server to Guild after lib rewrite
+def role_exist(role_name: str, guild: Server) -> bool:
+    """
+    Check if a role exist in the guild.
+    :param role_name: the role name
+    :param guild: the guild.
+    :return: True if the role exists.
+    """
+    return get(guild.roles, name=role_name) is not None
+
+
+# FIXME Change Server to Guild after lib rewrite
+def get_server_role(role_name: str, guild: Server) -> Optional[Role]:
+    """
+    Get a role by name from a guild.
+    :param role_name: the role name.
+    :param guild: the guild.
+    :return: the role with the same name as role name if it exists, else None
+    """
+    return get(guild.roles, name=role_name)
