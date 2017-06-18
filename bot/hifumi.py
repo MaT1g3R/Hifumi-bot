@@ -30,7 +30,7 @@ class Hifumi(Bot):
                  'language', 'default_language', 'logger', 'mention_normal',
                  'mention_nick', 'conn', 'cur', 'all_emojis']
 
-    def __init__(self, shard_count=1, shard_id=0,
+    def __init__(self, shard_count, shard_id,
                  default_language='en'):
         """
         Initialize the bot object

@@ -142,13 +142,7 @@ def add_embed_fields(embed, body):
     :return: the embed with fields added.
     """
     for t in body:
-        name = t[0]
-        val = t[1]
-        if len(t) < 3:
-            inline = True
-        else:
-            inline = t[2]
-        embed.add_field(name=name, value=val, inline=inline)
+        embed.add_field(name=t[0], value=t[1], inline=bool(t[-1]))
     return embed
 
 

@@ -1,7 +1,7 @@
 from pip.req import parse_requirements
 from setuptools import find_packages, setup
 
-from __init__ import *
+from bot import *
 
 
 def read(fname):

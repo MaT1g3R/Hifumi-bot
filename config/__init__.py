@@ -1,11 +1,10 @@
 from os import name
-from platform import platform, machine
+from platform import machine, platform
 from sys import platform as pl, version_info
 
-from .settings import COLOUR, NAME, DEVS, HELPERS, DEFAULT_PREFIX, \
-    SUPPORT, TWITTER, WEBSITE, TOKEN, INVITE, OWNER, DANBOORU_USERNAME, \
-    DANBOORU_API, BAD_WORD, SHARDED, SHARD_ID, SHARD_COUNT, \
-    ENABLE_CONSOLE_LOGGING, SAFE_SHUTDOWN, EDAMAM_API
+from .settings import BAD_WORD, COLOUR, DANBOORU_API, DANBOORU_USERNAME, \
+    DEFAULT_PREFIX, DEVS, EDAMAM_API, ENABLE_CONSOLE_LOGGING, HELPERS, INVITE, \
+    NAME, OWNER, SAFE_SHUTDOWN, SHARD_COUNT, SUPPORT, TOKEN, TWITTER, WEBSITE
 
 IS_WINDOWS = name == "nt"
 IS_MAC = pl == "darwin"
@@ -17,6 +16,6 @@ PYTHON_OK = version_info >= (3, 6)
 __all__ = ['COLOUR', 'NAME', 'DEVS', 'HELPERS', 'DEFAULT_PREFIX', 'SUPPORT',
            'TWITTER', 'WEBSITE', 'TOKEN', 'INVITE', 'OWNER',
            'DANBOORU_USERNAME', 'DANBOORU_API', 'EDAMAM_API', 'BAD_WORD',
-           'SHARDED', 'SHARD_ID', 'SHARD_COUNT', 'ENABLE_CONSOLE_LOGGING',
+           'SHARD_COUNT', 'ENABLE_CONSOLE_LOGGING',
            'SAFE_SHUTDOWN', 'IS_WINDOWS', 'IS_MAC', 'IS_LINUX', 'SYSTEM_OK',
            'IS_64BIT', 'PYTHON_OK']

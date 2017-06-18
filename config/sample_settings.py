@@ -62,11 +62,10 @@ BAD_WORD = ['loli', 'l0l1', 'lol1', 'l0li', '7071', 'lolii', 'looli', 'lolli',
 # sonoda umi -> love live sonoda umi
 WAIFU_NAME = 'BOT_CHARACTER_NAME_HERE'
 
-# Setting for sharding, defualts to not sharded
-# Please read "Sharding" page in the documentation for more information
-SHARDED = False
-SHARD_ID = 0
+# Setting for sharding, set the count to greater than 1 for sharded bot.
 SHARD_COUNT = 1
+assert SHARD_COUNT >= 1
+
 # Toggle this to true if you want to enable console logging
 ENABLE_CONSOLE_LOGGING = False
 
