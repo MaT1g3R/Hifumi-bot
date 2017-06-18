@@ -209,34 +209,27 @@ userinfo            ✕
 
 ## 4. New features
 - [ ] A bot stats updater (post discordlist.org, carbonitex.net and discord.bots.pw stats every hour)
-- [ ] A command to switch bot status (setstatus)
-- [ ] AFK function (if a user that has AFK activated is mentioned, make Hifumi send a message with the reason if specified)
 - [ ] Actual polls via Discord instead of Strawpoll
 - [ ] Add ban, softban and kick notifications for modlog! If possible, also include server general actions, like audit log
 - [ ] Addition of Chuck Norris jokes (name customizable)
 - [ ] Announce when there's the birthday for someone
 - [ ] As people is requesting it too much, instead of people's permissions, replace that with commands permissions like Rem's system.
-- [ ] Automatic hentai posting if set
 - [ ] Autorole function (assign a role to new members)
 - [ ] Battle command to defeat from other users
 - [ ] Calculator for math, if possible scientific
 - [ ] Cleaning filters (clean bot messages, all bots messages, specific user messages)
 - [ ] Cleverbot return
 - [x] Danbooru, Gelbooru and Safebooru addition
-- [ ] Display a list for 10 latest results if music is requested via search query, user can choose by typing the option number and then bot queues for play (Refer to Rem's !w.qa)
-- [ ] Feedback (with cooldown to avoid abuse)
 - [ ] Fix the bug for shard ID argument instead of settings
 - [x] Format errors when bot DMs
 - [ ] Google searching, as well as images and videos
 - [ ] Hackban (ban users outside the server via user ID) and individual unban as well
 - [ ] Invite blocker and mention spam protection
+- [ ] Level up system (a.k.a. XP system), I'll explain this later if doing that feature someday
 - [ ] Love Live! school idols information because why not (this <a href="https://github.com/SchoolIdolTomodachi/SchoolIdolAPI">API</a>)
 - [ ] Make a waifu command (search random Google pictures for the bot character, this can be specified in settings.py; in the public version the command should be "~hifumi")
 - [ ] Make another meme command but with user avatar (For example spoo.py "Fun" category commands or t!beautiful from Tatsumaki)
-- [ ] Make another meme command but with this kind of style with custom text and picture (<a href="https://cdn.discordapp.com/attachments/227915483293286403/294309409415495680/3ac1a19.jpg">example</a>)
-- [ ] Make an easy installer for Windows (graphic mode, planned)
 - [ ] Make possible a triggered command with the picture of a user (with filters, like blargbot)
-- [ ] Make waiting music customizable
 - [ ] Merge cute(x) commands to a new animal command
 - [ ] Message to general channel of bot introduction when bot joins to a new guild, DM to a mod if bot is kicked (promote feedback)
 - [x] Modlog
@@ -245,7 +238,6 @@ userinfo            ✕
 - [ ] Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
 - [x] Recipe finder
 - [ ] Replace GIF command tracker from Giphy to be available also in filters (respectively Giphy, Tenor and Imgur)
-- [ ] Reddit post announcement
 - [ ] Softban function (also with modlog, ban someone and then unban him)
 - [ ] Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
 - [ ] Stream Listen.moe via command
@@ -253,7 +245,6 @@ userinfo            ✕
 - [ ] Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
 - [ ] Toggle DM sending for Hifumi
 - [ ] Translation command return
-- [ ] Twitter post announcements
 - [ ] Voteban! (yes, really; ask the vote of people to ban a person. Admin command to avoid abuse.)
 - [ ] Welcome and farewell system, able for DM or channel
 - [ ] "Who's that Pokemon?" trivia
