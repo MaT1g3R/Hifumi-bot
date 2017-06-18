@@ -147,6 +147,13 @@ class Utilities:
     async def weather(self):
         pass
 
-    @commands.command()
-    async def yesno(self):
-        pass
+    @commands.command(pass_context=True)
+    async def yesno(self, ctx):
+        url = 'https://yesno.wtf/api'
+        try:
+            resp = await aiohttp_get(url, ClientSession(), True)
+            resp = await resp.read()
+            res = loads(resp)['image']
+        except ClientResponseError:
+            res = localize['api_error'].format('yesno')
+        await self.bot.say(res)
