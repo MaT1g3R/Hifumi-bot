@@ -1,4 +1,3 @@
-from asyncio import sleep
 from json import loads
 
 from aiohttp import ClientResponseError, ClientSession
@@ -123,30 +122,27 @@ class Utilities:
         """
         Set a reminder and notify the user when time is up
         """
-        t = int(t)
-        await sleep(t)
-        await self.bot.say(ctx)
-        await self.bot.say(t)
+        raise NotImplementedError
 
     @commands.command()
     async def strawpoll(self):
-        pass
+        raise NotImplementedError
 
     @commands.command()
     async def time(self):
-        pass
+        raise NotImplementedError
 
     @commands.command()
     async def twitch(self):
-        pass
+        raise NotImplementedError
 
     @commands.command()
     async def urban(self):
-        pass
+        raise NotImplementedError
 
     @commands.command()
     async def weather(self):
-        pass
+        raise NotImplementedError
 
     # FIXME Remove this method when the api can be used with Aiohttp
     @staticmethod

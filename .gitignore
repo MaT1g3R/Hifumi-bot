@@ -16,3 +16,5 @@ data/\.DS_Store
 \.DS_Store
 \.cache/v/cache/
 /data/hifumi_db
+
+config/settings\.json

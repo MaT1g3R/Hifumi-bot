@@ -80,7 +80,7 @@ time                ✕
 twitch              ✕
 urban               ✕
 weather             ✕
-yesno               ✕
+yesno               ✔
 ```
 
 #### Roles :white_check_mark:
@@ -109,6 +109,8 @@ modlog remove *new  ○
 ```
 
 #### Music
+* Using temporary module for now, rewrite later
+
 ```
 join                ✕
 request             ✕
