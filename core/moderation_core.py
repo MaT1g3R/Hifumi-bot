@@ -3,38 +3,38 @@ Functions for Moderation class
 """
 from asyncio import sleep
 
-from discord import Member
+from discord import Member, Role
 from discord.embeds import Embed
-from discord.utils import get
 
 from bot import Hifumi
 from data_controller.data_utils import get_modlog
-from scripts.discord_functions import add_embed_fields, get_avatar_url, \
-    get_name_with_discriminator, handle_forbidden_http
+from scripts.discord_functions import get_avatar_url, \
+    get_name_with_discriminator, get_server_role, handle_forbidden_http
 from scripts.helpers import get_date
 
 
-async def ban_kick(bot, ctx, member: Member, delete_message_days, reason):
+async def ban_kick(bot: Hifumi, ctx, member: Member, reason: str,
+                   is_ban: bool, delete_message_days: int = 0):
     """
     A function to handle banning and kicking of members
     :param bot: the bot
     :param ctx: the discord context
     :param member: the member to be banned/kicked
-    :param delete_message_days: arg for bot.kick
+    :param is_ban: True for a ban, False for a kick
+    :param delete_message_days: number of days to delete messages of the banned
+    user, not used for kick.
     :param reason: the reason the member is ban/kicked
     """
     localize = bot.get_language_dict(ctx)
-    action = localize['ban'] if delete_message_days is not None \
-        else localize['kick']
-    action_past = localize['banned'] if delete_message_days is not None \
-        else localize['kicked']
+    action = localize['ban'] if is_ban else localize['kick']
+    action_past = localize['banned'] if is_ban else localize['kicked']
     if member == ctx.message.author:
         await bot.say(
             localize['ban_kick_mute_self'].format(action)
         )
         return
     try:
-        if delete_message_days is not None:
+        if is_ban:
             await bot.ban(member, delete_message_days)
         else:
             await bot.kick(member)
@@ -47,7 +47,7 @@ async def ban_kick(bot, ctx, member: Member, delete_message_days, reason):
         )
 
 
-async def clean_msg(ctx, bot, count):
+async def clean_msg(ctx, bot: Hifumi, count: int):
     """
     A function to handle clean message command
     :param ctx: the discord context
@@ -58,54 +58,82 @@ async def clean_msg(ctx, bot, count):
     localize = bot.get_language_dict(ctx)
     if count < 2 or count > 100:
         await bot.say(localize['clean_message_bad_num'])
+        return
+    channel = ctx.message.channel
+    try:
+        await bot.purge_from(channel, limit=count)
+        purge_msg = await bot.say(
+            localize['clean_message_success'].format(count - 1))
+        await sleep(3)
+        await bot.delete_message(purge_msg)
+    except Exception as e:
+        await handle_forbidden_http(
+            e, bot, channel, localize, localize['clean_messages']
+        )
+
+
+async def __mute(ctx, bot: Hifumi, member: Member, muted_role: Role,
+                 is_mute: bool, localize: dict, action: str, reason: str):
+    """
+    Helper function to mute/unmute a member
+    :param ctx: the discsord context
+    :param bot: the bot
+    :param member: the member to be muted/unmuted
+    :param muted_role: the 'Muted' role to assign/remove to the member.
+    :param is_mute: True to mute, False to unmute
+    :param localize: the localization strings.
+    :param action: the action string. ('mute' or 'unmute' in case of english)
+    :param reason: the reason for mute/unmute.
+    """
+    try:
+        if is_mute:
+            await bot.add_roles(member, muted_role)
+        else:
+            await bot.remove_roles(member, muted_role)
+    except Exception as e:
+        await handle_forbidden_http(
+            e, bot, ctx.message.channel, localize, action)
     else:
-        channel = ctx.message.channel
-        try:
-            await bot.purge_from(channel, limit=count)
-            purge_msg = await bot.say(
-                localize['clean_message_success'].format(count - 1))
-            await sleep(3)
-            await bot.delete_message(purge_msg)
-        except Exception as e:
-            await handle_forbidden_http(
-                e, bot, channel, localize, localize['clean_messages']
-            )
+        _res = localize['muted'] if is_mute else localize['unmuted']
+        res = localize['mute_unmute_success'].format(
+            _res, member.name, reason
+        )
+        await send_mod_log(ctx, bot, action, member, reason)
+        await bot.send_message(ctx.message.channel, res)
 
 
-async def mute_unmute(ctx, bot, member, is_mute, reason):
+async def mute_unmute(ctx, bot: Hifumi, member: Member,
+                      is_mute: bool, reason: str):
     """
     Mute/unmute a member
-    :param ctx: the message context
+    :param ctx: the discsord context
     :param bot: the bot
     :param member: the member to be muted/unmuted
     :param is_mute: if True mute, if False unmute
     :param reason: the reason for mute/unmute
     """
-    from core.roles_core import role_unrole
+    # FIXME change server to guild when rewrite is finished
     guild = ctx.message.server
     localize = bot.get_language_dict(ctx)
     action = localize['mute'] if is_mute else localize['unmute']
     if is_mute and member.id == bot.user.id:
         await bot.say(localize['go_away'])
+        return
     elif member == ctx.message.author and is_mute:
         await bot.say(localize['ban_kick_mute_self'].format(action))
-    elif get(guild.roles, name='Muted') is not None:
-        await role_unrole(
-            bot=bot,
-            target=member,
-            role_name='Muted',
-            is_add=is_mute,
-            is_mute=True,
-            check_db=False,
-            ctx=ctx,
-            reason=reason
-        )
+        return
+    muted_role = get_server_role('Muted', guild)
+    if muted_role:
+        await __mute(
+            ctx, bot, member, muted_role, is_mute, localize, action, reason)
     else:
-        await bot.say(localize['muted_role_not_found'])
+        await bot.send_message(
+            ctx.message.channel, localize['muted_role_not_found'])
 
 
-def generate_mod_log_entry(action, mod, target, reason, localize,
-                           warn_count=None):
+def generate_mod_log_entry(action: str, mod: Member, target: Member,
+                           reason: str, localize: dict,
+                           warn_count: int = None):
     """
     Generate a mod log entry
     :param action: the action
@@ -124,20 +152,27 @@ def generate_mod_log_entry(action, mod, target, reason, localize,
         localize['warn']: 0xddc61a,
         localize['pardon']: 0x4286f4
     }[action]
-    body = [(localize['type'], action.title()), (localize['reason'], reason)]
-    if action == localize['warn'] or action == localize['pardon']:
-        body.append((localize['warnings'], str(warn_count)))
     embed = Embed(colour=colour)
+
     embed.set_author(
         name=get_name_with_discriminator(target) + ' ({})'.format(target.id),
-        icon_url=get_avatar_url(target))
-    embed.set_footer(text=get_name_with_discriminator(mod) + ' | ' + get_date(),
-                     icon_url=get_avatar_url(mod))
-    return add_embed_fields(embed, body)
+        icon_url=get_avatar_url(target)
+    )
+    embed.set_footer(
+        text=get_name_with_discriminator(mod) + ' | ' + get_date(),
+        icon_url=get_avatar_url(mod)
+    )
+
+    embed.add_field(name=localize['type'], value=action.title())
+    embed.add_field(name=localize['reason'], value=reason)
+    if action == localize['warn'] or action == localize['pardon']:
+        embed.add_field(name=localize['warnings'], value=str(warn_count))
+
+    return embed
 
 
-async def send_mod_log(
-        ctx, bot: Hifumi, action, member, reason, warn_count=None):
+async def send_mod_log(ctx, bot: Hifumi, action: str, member: Member,
+                       reason: str, warn_count: int = None):
     """
     Helper function to send a mod log
     :param ctx: the discord funtion
@@ -159,7 +194,8 @@ async def send_mod_log(
             await bot.send_message(channel, embed=entry)
 
 
-async def warn_pardon(bot: Hifumi, ctx, reason, member, is_warn):
+async def warn_pardon(bot: Hifumi, ctx, reason: str, member: Member,
+                      is_warn: bool):
     """
     Helper function for warn/pardon commands
     :param bot: the bot
@@ -178,13 +214,11 @@ async def warn_pardon(bot: Hifumi, ctx, reason, member, is_warn):
     warn_count = data_manager.get_member_warns(member_id, guild_id) or 0
     if is_warn:
         new_warn_count = warn_count + 1
-        data_manager.set_member_warns(member_id, guild_id, new_warn_count)
         actions = 'warn', 'warn_success'
     else:
         new_warn_count = max(0, warn_count - 1)
-        data_manager.set_member_warns(member_id, guild_id, new_warn_count)
         actions = 'pardon', 'pardon_success'
-
+    data_manager.set_member_warns(member_id, guild_id, new_warn_count)
     await bot.say(
         localize[actions[1]].format(member, reason, author) +
         str(new_warn_count)

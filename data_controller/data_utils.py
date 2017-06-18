@@ -8,7 +8,7 @@ from discord.utils import get
 
 from data_controller.data_manager import DataManager
 from data_controller.errors import LowBalanceError, NegativeTransferError
-from scripts.discord_functions import role_exist
+from scripts.discord_functions import get_server_role
 from scripts.language_support import generate_language_entry
 
 
@@ -128,7 +128,7 @@ def self_role_names(guild: Server, data_manager: DataManager) -> List[str]:
     # Check for any non-existing roles and remove them from the db
     for i in range(len(lst)):
         role = lst[i]
-        if not role_exist(role, guild):
+        if not get_server_role(role, guild):
             edit = True
             lst.remove(role)
     if edit:

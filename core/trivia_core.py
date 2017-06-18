@@ -8,7 +8,6 @@ from pytrivia import Category, Diffculty, Trivia, Type
 from bot import Hifumi
 from data_controller import LowBalanceError
 from data_controller.data_utils import change_balance, get_prefix
-from scripts.discord_functions import add_embed_fields
 
 
 class ArgumentError(ValueError):
@@ -285,6 +284,7 @@ def _format_trivia(trivia_data, localize):
     correct = result['correct_answer']
     incorrect = result['incorrect_answers']
     difficulty = result['difficulty']
+
     is_multiple = type_ == 'multiple'
     choice_str = localize['choices_str'] if is_multiple else localize['tf_str']
     colour = {
@@ -292,25 +292,21 @@ def _format_trivia(trivia_data, localize):
         "medium": 0xeab31c,
         "hard": 0xd10606
     }[difficulty]
-    body = [
-        (localize['category'], category),
-        (localize['difficulty'], localize[difficulty]),
-        (localize['type'], localize[type_]),
-        (localize['question'], question, False),
-        (localize['choices'], choice_str, False)
-    ]
+    embed = Embed(colour=colour)
+    embed.add_field(name=localize['category'], value=category)
+    embed.add_field(name=localize['difficulty'], value=localize[difficulty])
+    embed.add_field(name=localize['type'], value=localize[type_])
+    embed.add_field(name=localize['question'], value=question, inline=False)
+    embed.add_field(name=localize['choices'], value=choice_str, inline=False)
     if is_multiple:
         choices, answer = __generate_choices(correct, incorrect)
         correct_str = answer + '. ' + correct
         for choice in choices:
-            body += [
-                (choice[0], choice[1])
-            ]
+            embed.add_field(name=choice[0], value=choice[1])
     else:
         answer = correct[:1]
         correct_str = correct
-    embed = Embed(colour=colour)
-    embed = add_embed_fields(embed, body)
+
     return embed, answer, correct_str, difficulty
 
 

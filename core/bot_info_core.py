@@ -11,7 +11,6 @@ from psutil import virtual_memory
 
 from config import *
 from data_controller.data_utils import get_prefix
-from scripts.discord_functions import add_embed_fields
 from scripts.helpers import comma, get_system_name, \
     get_time_elapsed
 
@@ -93,29 +92,38 @@ def build_info_embed(ctx, bot):
         ram_str = '{0:.2f}GB'.format(ram / 1024)
     total_ram = virtual_memory().total / 1024 / 1024 / 1024
     total_ram_str = '{0:.2f}GB'.format(total_ram)
-    body = [
-        (lan['ram_used'] + '/' + lan['total_ram'],
-         f'{ram_str}/{total_ram_str}'),
-        (lan['uptime'], get_uptime(bot.start_time, lan['days'])),
-        (lan['python_ver'], platform.python_version()),
-        (lan['lib'],
-         'Discord.py v{}.{}.{}'.format(
-             version_info.major, version_info.minor, version_info.micro)),
-        (lan['sys'], get_system_name())
-    ]
-    if DEVS:
-        body += [(lan['devs'], '\n'.join(DEVS))]
-    if HELPERS:
-        body += [(lan['helper'], '\n'.join(HELPERS))]
-    body += [
-        (lan['guilds'], guild_count),
-        (lan['users'], user_count),
-        (lan['text_channels'], text_count),
-        (lan['voice_channels'], voice_count)
-    ]
-    footer = lan['info_footer'].format(get_prefix(bot, ctx.message))
 
     embed = Embed(colour=COLOUR)
     embed.set_author(name=user.name, icon_url='{0.avatar_url}'.format(user))
-    embed.set_footer(text=footer)
-    return add_embed_fields(embed, body)
+    embed.set_footer(
+        text=lan['info_footer'].format(get_prefix(bot, ctx.message)))
+
+    embed.add_field(
+        name=lan['ram_used'] + '/' + lan['total_ram'],
+        value=f'{ram_str}/{total_ram_str}'
+    )
+    embed.add_field(
+        name=lan['uptime'],
+        value=get_uptime(bot.start_time, lan['days'])
+    )
+
+    embed.add_field(name=lan['python_ver'], value=platform.python_version())
+    embed.add_field(
+        name=lan['lib'],
+        value='Discord.py v{}.{}.{}'.format(
+            version_info.major, version_info.minor, version_info.micro
+        )
+    )
+
+    embed.add_field(name=lan['sys'], value=get_system_name())
+
+    if DEVS:
+        embed.add_field(name=lan['devs'], value='\n'.join(DEVS))
+    if HELPERS:
+        embed.add_field(name=lan['helper'], value='\n'.join(HELPERS))
+
+    embed.add_field(name=lan['guilds'], value=guild_count)
+    embed.add_field(name=lan['users'], value=user_count)
+    embed.add_field(name=lan['text_channels'], value=text_count)
+    embed.add_field(name=lan['voice_channels'], value=voice_count)
+    return embed

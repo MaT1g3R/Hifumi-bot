@@ -8,8 +8,8 @@ from logging import CRITICAL, ERROR, WARNING
 from pathlib import Path
 
 from discord import ChannelType, Game, Message
-from discord.ext.commands import Bot, CommandNotFound, CommandOnCooldown, \
-    Context, MissingRequiredArgument
+from discord.ext.commands import BadArgument, Bot, CommandNotFound, \
+    CommandOnCooldown, Context, MissingRequiredArgument
 from websockets.exceptions import ConnectionClosed
 
 from config.settings import DEFAULT_PREFIX, ENABLE_CONSOLE_LOGGING, OWNER
@@ -98,10 +98,10 @@ class Hifumi(Bot):
         """
         handled_exceptions = (
             CommandOnCooldown, NsfwError, BadWordError, ManageRoleError,
-            AdminError, ManageMessageError, MissingRequiredArgument, OwnerError
+            AdminError, ManageMessageError, MissingRequiredArgument, OwnerError,
+            BadArgument
         )
-        if ('Member' in str(exception) and 'not found' in str(exception)) \
-                or isinstance(exception, handled_exceptions):
+        if isinstance(exception, handled_exceptions):
             await self.send_message(
                 context.message.channel,
                 command_error_handler(

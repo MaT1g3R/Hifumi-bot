@@ -9,7 +9,6 @@ from discord.embeds import Embed, EmptyEmbed
 from imdbpie import Imdb
 
 from config import EDAMAM_API
-from scripts.discord_functions import add_embed_fields
 from scripts.helpers import aiohttp_get
 
 
@@ -76,27 +75,27 @@ async def imdb(query, api: Imdb, localize):
         plot = null_check(res.plot_outline)
         poster = res.poster_url
         score = f'{res.rating}/10' if res.rating is not None else 'N/A'
-        body = []
-        if season_count is not None:
-            body.append((localize['seasons'], season_count))
-        if ep_count is not None:
-            body.append((localize['episodes'], ep_count))
-        body += [
-            (localize['release_date'], release),
-            (localize['rated'], rated),
-            (localize['runtime'], runtime_str),
-            (localize['genre'], genre),
-            (localize['director'], director),
-            (localize['writer'], writer),
-            (localize['cast'], cast),
-            (localize['score'], score),
-            (localize['plot_outline'], plot, False)
-        ]
+
         embed = Embed(colour=0xE5BC26)
         embed.set_author(name=title)
         if poster:
             embed.set_image(url=poster)
-        return add_embed_fields(embed, body)
+        if season_count is not None:
+            embed.add_field(name=localize['seasons'], value=season_count)
+        if ep_count is not None:
+            embed.add_field(name=localize['episodes'], value=str(ep_count))
+
+        embed.add_field(name=localize['release_date'], value=release)
+        embed.add_field(name=localize['rated'], value=rated)
+        embed.add_field(name=localize['runtime'], value=runtime_str)
+        embed.add_field(name=localize['genre'], value=genre)
+        embed.add_field(name=localize['director'], value=director)
+        embed.add_field(name=localize['writer'], value=writer)
+        embed.add_field(name=localize['cast'], value=cast)
+        embed.add_field(name=localize['score'], value=score)
+        embed.add_field(name=localize['plot_outline'], value=plot, inline=False)
+
+        return embed
 
     except (JSONDecodeError, IndexError):
         return localize['title_not_found']
@@ -148,15 +147,7 @@ async def recipe_search(query, localize):
     cautions = ', '.join(cautions) if cautions else None
     ingredients = res.get('ingredientLines', None)
     ingredients = '\n'.join(ingredients) if ingredients else None
-    body = [
-        (localize['servings'], servings),
-        (localize['calories'], cal_str),
-        (localize['cautions'], cautions),
-        (localize['diet_labels'], diet_labels),
-        (localize['health_labels'], health_labels),
-        (localize['ingredients'], ingredients, False)
-    ]
-    body = [t for t in body if t[1]]
+
     des = localize['recipe_en'] if localize['language_data']['code'] != 'en' \
         else EmptyEmbed
     colour = int(
@@ -181,4 +172,16 @@ async def recipe_search(query, localize):
         source = res['source']
         recipe_open = localize['recipe_open']
         embed.set_footer(text=f'{recipe_source}{source} | {recipe_open}')
-    return add_embed_fields(embed, body)
+    body = [
+        (localize['servings'], servings),
+        (localize['calories'], cal_str),
+        (localize['cautions'], cautions),
+        (localize['diet_labels'], diet_labels),
+        (localize['health_labels'], health_labels),
+        (localize['ingredients'], ingredients, False)
+    ]
+    for t in body:
+        if t[1]:
+            inline = len(t) == 3 and t[-1]
+            embed.add_field(name=t[0], value=t[1], inline=inline)
+    return embed

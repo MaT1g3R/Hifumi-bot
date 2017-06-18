@@ -4,9 +4,9 @@ A collection of functions that's related to discord
 import re
 from typing import Optional
 
-from discord import Forbidden, HTTPException, Role, Server
+from discord import Channel, Forbidden, HTTPException, Role, Server
 from discord.ext.commands import CommandOnCooldown
-from discord.ext.commands.errors import MissingRequiredArgument
+from discord.ext.commands.errors import BadArgument, MissingRequiredArgument
 from discord.utils import get
 
 from scripts.checks import AdminError, BadWordError, ManageMessageError, \
@@ -21,31 +21,42 @@ def command_error_handler(localize, exception):
     :param exception: the exception raised
     :return: the message to be sent based on the exception type
     """
+    ex_str = str(exception)
+    res = None
     if isinstance(exception, CommandOnCooldown):
-        return localize['time_out'].format(strip_letters(str(exception))[0])
+        res = localize['time_out'].format(strip_letters(str(exception))[0])
     elif isinstance(exception, NsfwError):
-        return localize['nsfw_str']
+        res = localize['nsfw_str']
     elif isinstance(exception, BadWordError):
-        return localize['bad_word'].format(
+        res = localize['bad_word'].format(
             str(exception)) + '\nhttps://imgur.com/8Noy9TH.png'
     elif isinstance(exception, ManageRoleError):
-        return localize['not_manage_role']
+        res = localize['not_manage_role']
     elif isinstance(exception, AdminError):
-        return localize['not_admin']
+        res = localize['not_admin']
     elif isinstance(exception, ManageMessageError):
-        return localize['no_manage_messages']
-    elif 'Member' in str(exception) and 'not found' in str(exception):
+        res = localize['no_manage_messages']
+    elif isinstance(exception, BadArgument):
         regex = re.compile('\".*\"')
-        name = regex.findall(str(exception))[0].strip('"')
-        return localize['member_not_found'].format(name)
-    elif isinstance(exception, MissingRequiredArgument) \
-            and str(exception).startswith('member'):
-        return localize['empty_member']
+        name = regex.findall(ex_str)[0].strip('"')
+        if ex_str.lower().startswith('member'):
+            res = localize['member_not_found'].format(name)
+        elif ex_str.lower().startswith('channel'):
+            res = localize['channel_not_found'].format(name)
+    elif isinstance(exception, MissingRequiredArgument):
+        if ex_str.startswith('member'):
+            res = localize['empty_member']
+        elif ex_str.startswith('channel'):
+            res = localize['empty_channel']
+        # FIXME for the temporary Music cog, change after Music is finished
+        elif ex_str.startswith('song'):
+            res = 'Please provide a song name/link for me to play.'
     elif isinstance(exception, OwnerError):
-        return localize['owner_only']
+        res = localize['owner_only']
+
+    if res:
+        return res
     else:
-        # This case should never happen, since it's should be checked in
-        # bot.on_command_error
         raise exception
 
 
@@ -94,7 +105,8 @@ def clense_prefix(message, prefix: str):
         return message.content[len(prefix):].strip()
 
 
-async def handle_forbidden_http(ex, bot, channel, localize, action):
+async def handle_forbidden_http(
+        ex: Exception, bot, channel: Channel, localize: dict, action: str):
     """
     Exception handling for Forbidden and HTTPException
     :param ex: the exception raised
@@ -128,33 +140,6 @@ def get_name_with_discriminator(member):
     :return: the name of a member with discriminator
     """
     return member.display_name + '#' + member.discriminator
-
-
-def add_embed_fields(embed, body):
-    """
-    Add fileds into a embed.
-    :param embed: the embed.
-    :param body: a list of tuples with length 2 or 3.
-    With the first element be the name of the field,
-    the second element be the value of the field,
-    the third element be a boolean for inline. defaults to True if the element
-    is not present
-    :return: the embed with fields added.
-    """
-    for t in body:
-        embed.add_field(name=t[0], value=t[1], inline=bool(t[-1]))
-    return embed
-
-
-# FIXME Change Server to Guild after lib rewrite
-def role_exist(role_name: str, guild: Server) -> bool:
-    """
-    Check if a role exist in the guild.
-    :param role_name: the role name
-    :param guild: the guild.
-    :return: True if the role exists.
-    """
-    return get(guild.roles, name=role_name) is not None
 
 
 # FIXME Change Server to Guild after lib rewrite

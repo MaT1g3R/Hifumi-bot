@@ -4,8 +4,7 @@ from bot import Hifumi
 from data_controller.data_utils import add_self_role, get_prefix, \
     remove_self_role, self_role_names
 from scripts.checks import has_manage_role
-from scripts.discord_functions import get_server_role, handle_forbidden_http, \
-    role_exist
+from scripts.discord_functions import get_server_role, handle_forbidden_http
 
 
 class Roles:
@@ -47,7 +46,7 @@ class Roles:
             else:
                 await self.bot.remove_roles(ctx.message.author, server_role)
                 await self.bot.say(
-                    localize['role_unrole_no_exist'].format(role)
+                    localize['unrole_me_success'].format(role)
                 )
         except Exception as e:
             action = localize['assign'] if is_add else localize['remove']
@@ -104,7 +103,7 @@ class Roles:
         """
         guild = ctx.message.server
         localize = self.bot.get_language_dict(ctx)
-        if not role_exist(role, guild):
+        if not get_server_role(role, guild):
             await self.bot.say(localize['role_no_exist'])
         elif is_add:
             # FIXME Remove casting after lib rewrite
