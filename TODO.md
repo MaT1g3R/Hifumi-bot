@@ -3,7 +3,7 @@
 - [x] Change the rest of the HTTP requests to use aiohttp.
 - [ ] Refactor the rest of the tests to use pytest.
 - [ ] Rework the config file into json for better write access.
-- [ ] Refactor code related to moderation commands.
+- [x] Refactor code related to moderation commands.
 
 ## 1. Bot manager/launcher
 - Done
