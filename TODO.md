@@ -6,7 +6,7 @@
 - [x] Refactor code related to moderation commands.
 
 ## 1. Bot manager/launcher
-- Done
+- [ ] Rework all functions
 
 ## 2. Bot base and command handler
 - mostly finished, contiune to add onto it if needed
@@ -231,7 +231,7 @@ userinfo            ✕
 - [ ] Make another meme command but with user avatar (For example spoo.py "Fun" category commands or t!beautiful from Tatsumaki)
 - [ ] Make possible a triggered command with the picture of a user (with filters, like blargbot)
 - [ ] Merge cute(x) commands to a new animal command
-- [ ] Message to general channel of bot introduction when bot joins to a new guild, DM to a mod if bot is kicked (promote feedback)
+- [ ] Message to general channel of bot introduction when bot joins to a new guild
 - [x] Modlog
 - [ ] osu! pp calculating for beatmaps
 - [ ] Profile for currency
@@ -239,7 +239,7 @@ userinfo            ✕
 - [x] Recipe finder
 - [ ] Replace GIF command tracker from Giphy to be available also in filters (respectively Giphy, Tenor and Imgur)
 - [ ] Softban function (also with modlog, ban someone and then unban him)
-- [ ] Stats for other games like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
+- [ ] Stats for other games besides osu! like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
 - [ ] Stream Listen.moe via command
 - [ ] Stream notification available too for Twitch, Hitbox and Beam
 - [ ] Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
