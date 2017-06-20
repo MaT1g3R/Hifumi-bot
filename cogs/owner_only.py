@@ -103,7 +103,6 @@ class OwnerOnly:
         """
         Shutdown the bot process
         :param ctx: the discord context
-        :param args: the bash command arguments
         """
         await self.bot.say(localize['shutdown'])
         exit(0)
