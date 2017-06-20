@@ -1,6 +1,6 @@
 from json import loads
 
-from aiohttp import ClientResponseError, ClientSession
+from aiohttp import ClientResponseError
 from discord.embeds import Embed
 from discord.ext import commands
 from imdbpie import Imdb
@@ -9,7 +9,6 @@ from requests import get
 from bot import Hifumi
 from core.utilities_core import imdb, number_fact, recipe_search
 from data_controller.data_utils import get_prefix
-from scripts.helpers import aiohttp_get
 
 
 class Utilities:
@@ -34,7 +33,7 @@ class Utilities:
         localize = self.bot.get_language_dict(ctx)
         url = 'http://api.adviceslip.com/advice'
         try:
-            resp = await aiohttp_get(url, ClientSession(), True)
+            resp = await self.bot.session_manager.get(url)
             resp = await resp.read()
             slip = loads(resp)['slip']
             res = ':information_source: **Advice #{}**: {}'.format(
@@ -68,7 +67,7 @@ class Utilities:
         localize = self.bot.get_language_dict(ctx)
         url = 'http://catfacts-api.appspot.com/api/facts'
         try:
-            resp = await aiohttp_get(url, ClientSession(), True)
+            resp = await self.bot.session_manager.get(url)
             resp = await resp.read()
             res = loads(resp)['facts'][0]
         except ClientResponseError:
@@ -85,7 +84,7 @@ class Utilities:
         """
         localize = self.bot.get_language_dict(ctx)
         num = 'random' if num is None else num
-        res = await number_fact(num, localize)
+        res = await number_fact(num, localize, self.bot.session_manager)
         await self.bot.say(res)
 
     @commands.command(pass_context=True)
@@ -114,7 +113,8 @@ class Utilities:
             ' '.join(query),
             self.bot.get_language_dict(ctx),
             self.bot.config['edamam_app_id'],
-            self.bot.config['edamam_key']
+            self.bot.config['edamam_key'],
+            self.bot.session_manager
         )
         if isinstance(res, Embed):
             await self.bot.say(embed=res)

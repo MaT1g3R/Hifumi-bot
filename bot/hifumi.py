@@ -7,11 +7,14 @@ import traceback
 from logging import CRITICAL, ERROR, WARNING
 from pathlib import Path
 
+from aiohttp import ClientSession
 from discord import ChannelType, Game, HTTPException, Message
 from discord.ext.commands import BadArgument, Bot, CommandNotFound, \
     CommandOnCooldown, Context, MissingRequiredArgument
 from websockets.exceptions import ConnectionClosed
 
+from bot.session_manager import SessionManager
+from config import Config
 from data_controller import *
 from data_controller.data_utils import get_prefix
 from scripts.checks import AdminError, BadWordError, ManageMessageError, \
@@ -25,18 +28,20 @@ class Hifumi(Bot):
     """
     The Hifumi bot class
     """
-    __slots__ = ['shard_id', 'shard_count', 'start_time',
-                 'language', 'default_language', 'logger', 'mention_normal',
-                 'mention_nick', 'conn', 'cur', 'all_emojis', 'config']
+    __slots__ = ['shard_id', 'shard_count', 'start_time', 'language',
+                 'default_language', 'logger', 'mention_normal', 'mention_nick',
+                 'conn', 'cur', 'all_emojis', 'config', 'session_manager']
 
-    def __init__(self, config, shard_id,
-                 default_language='en'):
+    def __init__(
+            self, config: Config,
+            shard_id: int, default_language='en'):
         """
         Initialize the bot object
         :param default_language: the default language of the bot, default is en
         unless you know what you are doing
         """
         self.config = config
+        self.session_manager = None
         self.shard_count = config['shard_count']
         self.shard_id = shard_id
         self.conn = sqlite3.connect(str(DB_PATH))
@@ -76,6 +81,7 @@ class Hifumi(Bot):
         info('Bot ID: ' + self.user.id)
         self.mention_normal = '<@{}>'.format(self.user.id)
         self.mention_nick = '<@!{}>'.format(self.user.id)
+        self.session_manager = SessionManager(ClientSession())
 
         async def __change_presence():
             try:

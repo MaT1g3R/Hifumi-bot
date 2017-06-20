@@ -30,6 +30,7 @@ class Nsfw:
             await self.bot.say(localize['two_term'])
             return
         res, tags = await get_lewd(
+            self.bot.session_manager,
             site, query, localize,
             self.bot.tag_matcher,
             self.bot.config['danbooru_username'],
@@ -102,5 +103,6 @@ class Nsfw:
         Find a random greenteaneko comic
         :param ctx: the discord context
         """
-        res = await greenteaneko(self.bot.get_language_dict(ctx))
+        res = await greenteaneko(
+            self.bot.get_language_dict(ctx), self.bot.session_manager)
         await self.bot.say(res)

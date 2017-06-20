@@ -9,7 +9,6 @@ from platform import platform
 from random import choice
 from typing import Collection, Sequence
 
-from aiohttp import ClientResponseError, ClientSession
 from yaml import YAMLError
 
 from scripts.file_io import read_yaml
@@ -39,6 +38,7 @@ def combine_dicts(dicts):
     """
     if len(dicts) == 0:
         return None
+
     elif len(dicts) == 1:
         return dicts[0]
     elif len(dicts) == 2:
@@ -263,22 +263,3 @@ def flatten(in_) -> list:
         return res
     else:
         return [in_]
-
-
-async def aiohttp_get(url: str, session: ClientSession, close_session: bool):
-    """
-    Make a get request to the url.
-    :param url: the request url.
-    :param session: the aiohttp ClientSession
-    :return: the response if status code is 200
-    :param close_session: To close the session after the request or not.
-    :raises ClientResponseError if the status code isn't 200.
-    """
-    async with session.get(url) as r:
-        if r.status != 200:
-            raise ClientResponseError
-    try:
-        return r
-    finally:
-        if close_session:
-            session.close()

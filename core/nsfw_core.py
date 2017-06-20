@@ -4,12 +4,13 @@ NSFW functions
 from random import choice
 from typing import List, Optional, Tuple
 
-from aiohttp import ClientSession, ClientResponseError
+from aiohttp import ClientResponseError
 from requests import get
 from xmltodict import parse
 
+from bot import SessionManager
 from data_controller.tag_matcher import TagMatcher
-from scripts.helpers import aiohttp_get, flatten
+from scripts.helpers import flatten
 
 __all__ = ['get_lewd', 'greenteaneko']
 
@@ -66,14 +67,15 @@ def __process_queries(
 
 async def __request_lewd(
         tags: List[str], rating: Optional[str], url: str,
-        site: str, session: ClientSession, tag_matcher: TagMatcher) -> tuple:
+        site: str, session_manager: SessionManager,
+        tag_matcher: TagMatcher) -> tuple:
     """
     Make an HTTP request to a lewd site.
     :param tags: the list of tags for the search.
     :param rating: the rating of the search.
     :param url: the request url.
     :param site: the site name.
-    :param session: the aiohttp ClientSession
+    :param session_manager: the aiohttp session manager
     :param tag_matcher: the TagMatcher object.
     :return: a tuple of
     (request response, tags that are in the TagMatcher db,
@@ -90,7 +92,7 @@ async def __request_lewd(
         if res.status_code != 200:
             raise ClientResponseError
     else:
-        res = await aiohttp_get(url + combined, session, False)
+        res = await session_manager.get(url + combined)
     return res, safe_queries, unsafe_queries
 
 
@@ -180,7 +182,7 @@ def __get_site_params(
 
 async def __get_lewd(
         tags: Optional[list], rating: Optional[str], site: str, site_params,
-        tag_matcher: TagMatcher, session: ClientSession = None,
+        tag_matcher: TagMatcher, session_manager: SessionManager = None,
         limit=0, fuzzy=False) -> tuple:
     """
     Get lewds from a site.
@@ -189,18 +191,18 @@ async def __get_lewd(
     :param site: the site name.
     :param site_params: the function call parameters for the site.
     :param tag_matcher: the TagMatcher object.
-    :param session: the aiohttp ClientSesson.
+    :param session_manager: the aiohttp SessionManager.
     :param limit: maximum recursion depth
     :param fuzzy: whether the search was fuzzy or not.
     :return: a tuple of
     (file url, tags used in the search, fuzzy, tags to write to the db)
     """
-    assert session or site == 'gelbooru'
+    assert session_manager or site == 'gelbooru'
     if limit > 2:
         return (None,) * 4
     url, url_formatter, tag_key = site_params
     res, safe_queries, unsafe_queries = await __request_lewd(
-        tags, rating, url, site, session, tag_matcher)
+        tags, rating, url, site, session_manager, tag_matcher)
     post_list = await __parse_result(res, site)
     if post_list:
         file_url, tags_to_write = __parse_post_list(post_list, url_formatter,
@@ -210,16 +212,18 @@ async def __get_lewd(
     if retry:
         return await __get_lewd(
             retry, rating, site, site_params,
-            tag_matcher, session, limit + 1, True
+            tag_matcher, session_manager, limit + 1, True
         )
     return (None,) * 4
 
 
 async def get_lewd(
-        site: str, search_query: tuple, localize: dict,
-        tag_matcher: TagMatcher, user=None, api_key=None) -> tuple:
+        session_manager: SessionManager, site: str, search_query: tuple,
+        localize: dict, tag_matcher: TagMatcher, user=None,
+        api_key=None) -> tuple:
     """
     Get lewd picture you fucking perverts.
+    :param session_manager: the aiohttp SessionManager.
     :param site: the site name.
     :param search_query: the search query.
     :param localize: the localization strings.
@@ -234,12 +238,9 @@ async def get_lewd(
     tags, rating = __parse_query(search_query)
     site_params = __get_site_params(site, api_key, user)
 
-    session = ClientSession() if site != 'gelbooru' else None
     try:
         file_url, searched_tags, fuzzy, tags_to_write = await __get_lewd(
-            tags, rating, site, site_params, tag_matcher, session)
-        if session is not None:
-            session.close()
+            tags, rating, site, site_params, tag_matcher, session_manager)
         if file_url:
             msg = file_url
             if fuzzy:
@@ -254,15 +255,16 @@ async def get_lewd(
         return localize['api_error'].format(site.title()), None
 
 
-async def greenteaneko(localize):
+async def greenteaneko(localize, session_manager: SessionManager):
     """
     Get a random green tea neko comic
+    :param session_manager: the aiohttp SessionManager.
     :param localize: the localization strings
     :return: the green tea neko comic
     """
     url = 'https://rra.ram.moe/i/r?type=nsfw-gtn&nsfw=true'
     try:
-        res = await aiohttp_get(url, ClientSession(), True)
+        res = await session_manager.get(url)
         js = await res.json()
         return 'https://rra.ram.moe{}\n{}'.format(
             js['path'], localize['gtn_artist'])

@@ -11,6 +11,7 @@ Hifumi, a multifunctional Discord bot.
 from collections import namedtuple
 
 from bot.hifumi import Hifumi
+from bot.session_manager import SessionManager
 
 __title__ = 'Hifumi'
 __author__ = ['Underforest#1284', 'InternalLight#9391', 'ラブアローシュート#6728']
@@ -29,4 +30,4 @@ version_info = VersionInfo(
 
 __all__ = ['__title__', '__author__', '__author_plain__', '__helper__',
            '__helper_plain__', '__license__', '__copyright__', '__version__',
-           'version_info', 'Hifumi']
+           'version_info', 'Hifumi', 'SessionManager']

@@ -49,7 +49,8 @@ class TriviaGame:
         kwargs = await self.__get_kwargs()
         if kwargs is None:
             return
-        trivia_data = await self.__get_trivia_data(kwargs)
+        trivia_data = await self.__get_trivia_data(
+            kwargs, self.bot.session_manager.session)
         if not trivia_data:
             return
         if not await self.__process_bet(kwargs):
@@ -121,13 +122,13 @@ class TriviaGame:
                 self.localize['trivia_bad_args'].format(self.prefix)
             )
 
-    async def __get_trivia_data(self, kwargs):
+    async def __get_trivia_data(self, kwargs, session: ClientSession):
         """
         Get the trivia data from kwargs
         :return: the trivia data
         """
         try:
-            trivia_data = await _get_trivia_data(kwargs, self.api)
+            trivia_data = await _get_trivia_data(kwargs, self.api, session)
         except ClientResponseError:
             trivia_data = None
         if trivia_data is None:
@@ -234,11 +235,12 @@ def _no_args(message):
             return 'trivia_abort', False
 
 
-async def _get_trivia_data(kwargs, api: Trivia):
+async def _get_trivia_data(kwargs, api: Trivia, session: ClientSession):
     """
     Get the trivia data from the api
     :param kwargs: the kwargs parsed from user input args
     :param api: the trivia api
+    :param session: the aiohttp ClientSession
     :return: the api response
     """
     category = kwargs['category'] if 'category' in kwargs else None
@@ -246,7 +248,7 @@ async def _get_trivia_data(kwargs, api: Trivia):
     diffculty = kwargs['diffculty'] if 'diffculty' in kwargs else None
 
     res = await api.request_async(
-        ClientSession(), True, 1, category, diffculty, type_)
+        session, False, 1, category, diffculty, type_)
     return res if res['response_code'] == 0 else None
 
 

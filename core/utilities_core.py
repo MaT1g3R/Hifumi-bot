@@ -4,18 +4,19 @@ Functions for Utilities commands
 from json import JSONDecodeError
 from random import randint
 
-from aiohttp import ClientResponseError, ClientSession
+from aiohttp import ClientResponseError
 from discord.embeds import Embed, EmptyEmbed
 from imdbpie import Imdb
 
-from scripts.helpers import aiohttp_get
+from bot import SessionManager
 
 
-async def number_fact(num, localize):
+async def number_fact(num, localize, session_manager: SessionManager):
     """
     Find a fact about a number
     :param num: the number
     :param localize: the localization strings
+    :param session_manager: the SessionManager
     :return: a string representation for the fact
     """
     header = localize['num_fact_random'] if num is None \
@@ -29,7 +30,7 @@ async def number_fact(num, localize):
         return bad_num_msg
     url = f'http://numbersapi.com/{num}?json=true'
     try:
-        res = await aiohttp_get(url, ClientSession(), True)
+        res = await session_manager.get(url)
         res = await res.json()
         return header.format(res['number']) + res['text'] if res['found'] \
             else not_found_msg
@@ -100,20 +101,23 @@ async def imdb(query, api: Imdb, localize):
         return localize['title_not_found']
 
 
-async def recipe_search(query, localize, edamam_app_id, edamam_key):
+async def recipe_search(
+        query, localize, edamam_app_id, edamam_key,
+        session_manager: SessionManager):
     """
     Search for a food recipe
     :param query: the search query
     :param localize: the localization strings
     :param edamam_app_id: the edamam app id
     :param edamam_key: the edamam api key
+    :param session_manager: the SessionManager
     :return: a discord embed object of the recipe
     """
     url = f'https://api.edamam.com/search?' \
           f'app_id={edamam_app_id}&app_key={edamam_key}&q={query}&to=1&' \
           f'returns=label'
     try:
-        response = await aiohttp_get(url, ClientSession(), True)
+        response = await session_manager.get(url)
         js = await response.json()
         res = js['hits'][0]['recipe']
     except IndexError:
