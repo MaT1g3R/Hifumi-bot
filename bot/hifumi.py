@@ -7,7 +7,7 @@ import traceback
 from logging import CRITICAL, ERROR, WARNING
 from pathlib import Path
 
-from discord import ChannelType, Game, Message
+from discord import ChannelType, Game, HTTPException, Message
 from discord.ext.commands import BadArgument, Bot, CommandNotFound, \
     CommandOnCooldown, Context, MissingRequiredArgument
 from websockets.exceptions import ConnectionClosed
@@ -114,7 +114,7 @@ class Hifumi(Bot):
             return
         else:
             try:
-                raise from exception
+                raise exception from exception
             except Exception as e:
                 tb = traceback.format_exc()
                 triggered = context.message.content
@@ -147,6 +147,8 @@ class Hifumi(Bot):
                 ctx.message.channel,
                 self.get_language_dict(ctx)['ex_error'].format(ig + tb)
             )
+        except HTTPException:
+            pass
         except Exception as e:
             msg = str(e) + '\n' + str(tb)
             self.logger.log(CRITICAL, msg)

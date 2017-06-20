@@ -1,6 +1,6 @@
 # TODO
 # High Priority!!
-- [ ] Fix issue #4
+- [x] Fix issue #4
 - [ ] Reduce the amout of Aiohttp ClientSession throughout the bot.
 
 ## 1. Bot manager/launcher
