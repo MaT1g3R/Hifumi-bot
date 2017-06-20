@@ -4,7 +4,6 @@ from aiohttp import ClientResponseError
 from discord.embeds import Embed
 from discord.ext import commands
 from imdbpie import Imdb
-from requests import get
 
 from bot import Hifumi
 from core.utilities_core import imdb, number_fact, recipe_search
@@ -147,26 +146,3 @@ class Utilities:
     @commands.command()
     async def weather(self):
         raise NotImplementedError
-
-    # FIXME Remove this method when the api can be used with Aiohttp
-    @staticmethod
-    async def __yes_no(localize):
-        """
-        Helper method for yesno
-        :param localize: localization strings
-        :return: the result
-        """
-        url = 'https://yesno.wtf/api'
-        res = get(url)
-        if res.status_code == 200:
-            return res.json()['image']
-        else:
-            return localize['api_error'].format('yesno')
-
-    @commands.command(pass_context=True)
-    async def yesno(self, ctx):
-        """
-        Simple yesno command
-        """
-        localize = self.bot.get_language_dict(ctx)
-        await self.bot.say(await self.__yes_no(localize))

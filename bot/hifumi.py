@@ -41,7 +41,7 @@ class Hifumi(Bot):
         unless you know what you are doing
         """
         self.config = config
-        self.session_manager = None
+        self.session_manager: SessionManager = None
         self.shard_count = config['shard_count']
         self.shard_id = shard_id
         self.conn = sqlite3.connect(str(DB_PATH))
@@ -120,13 +120,13 @@ class Hifumi(Bot):
             return
         else:
             try:
-                raise exception from exception
-            except Exception as e:
+                raise exception
+            except:
                 tb = traceback.format_exc()
                 triggered = context.message.content
-                ex_type = type(e).__name__
+                ex_type = type(exception).__name__
                 four_space = ' ' * 4
-                str_ex = str(e)
+                str_ex = str(exception)
                 msg = '\n{0}Triggered message: {1}\n' \
                       '{0}Type: {2}\n' \
                       '{0}Exception: {3}\n\n{4}' \

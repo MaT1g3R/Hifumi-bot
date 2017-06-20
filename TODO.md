@@ -64,6 +64,7 @@ tickle              ✕
 * serverinfo/userinfo/avatar/birthday/nicknames moved to its own category
 * fact commands made into command group
 * dog facts removed due to no good api  
+* yesno removed because shit api
 
 ```
 advice              ✔
@@ -78,7 +79,6 @@ time                ✕
 twitch              ✕
 urban               ✕
 weather             ✕
-yesno               ✔
 ```
 
 #### Roles :white_check_mark:
