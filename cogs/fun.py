@@ -22,18 +22,25 @@ class Fun:
         self.bot = bot
         
     @commands.command(pass_context=True)  
-        async def garfield(self, ctx):
+        async def garfield(self, ctx, *args):
         """
         Gets a random Garfield comic
         :param ctx: the discord context object
         """
         firstdate = int(time.mktime(date(1978, 6, 19).timetuple()))
         todaydate = int(time.mktime(date.today().timetuple()))
+        todayyear = time.strftime('%Y', time.gmtime(today))
         res = randint(firstdate, todaydate)
         res_year = time.strftime('%Y', time.gmtime(res))
         res_date = time.strftime('%Y-%m-%d', time.gmtime(res))
         archive = "https://d1ejxu6vysztl5.cloudfront.net"
         
-        await self.bot.say(archive + "/comics/garfield/" + 
-                           res_year + "/" + res_date + ".gif")
+        if args is "latest":
+            await self.bot.say("https://d1ejxu6vysztl5.cloudfront.net/" +
+                               "comics/garfield/" + todayyear + "/" +
+                               todaydate + ".gif")
+        else:
+            await self.bot.say("https://d1ejxu6vysztl5.cloudfront.net/" +
+                           "comics/garfield/" + res_year + "/" +
+                           res_date + ".gif")
         
