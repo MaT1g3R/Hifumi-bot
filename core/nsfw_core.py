@@ -251,7 +251,7 @@ async def get_lewd(
         else:
             return localize['nsfw_sorry'], None
     except ClientResponseError:
-        return localize['nsfw_error'].format(site.title()), None
+        return localize['api_error'].format(site.title()), None
 
 
 async def greenteaneko(localize):
@@ -267,4 +267,4 @@ async def greenteaneko(localize):
         return 'https://rra.ram.moe{}\n{}'.format(
             js['path'], localize['gtn_artist'])
     except ClientResponseError:
-        return localize['nsfw_error'].format('rra.ram.moe')
+        return localize['api_error'].format('rra.ram.moe')

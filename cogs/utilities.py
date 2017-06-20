@@ -1,6 +1,6 @@
-from asyncio import sleep
 from json import loads
 
+from aiohttp import ClientResponseError, ClientSession
 from discord.embeds import Embed
 from discord.ext import commands
 from imdbpie import Imdb
@@ -9,6 +9,7 @@ from requests import get
 from bot import Hifumi
 from core.utilities_core import imdb, number_fact, recipe_search
 from data_controller.data_utils import get_prefix
+from scripts.helpers import aiohttp_get
 
 
 class Utilities:
@@ -25,17 +26,23 @@ class Utilities:
         self.bot = bot
         self.imdb_api = Imdb()
 
-    @commands.command()
-    async def advice(self):
+    @commands.command(pass_context=True)
+    async def advice(self, ctx):
         """
         Say a random advice lol
         """
-        slip = loads(get('http://api.adviceslip.com/advice').content)['slip']
-        await self.bot.say(
-            ':information_source: **Advice #{}**: {}'.format(
+        localize = self.bot.get_language_dict(ctx)
+        url = 'http://api.adviceslip.com/advice'
+        try:
+            resp = await aiohttp_get(url, ClientSession(), True)
+            resp = await resp.read()
+            slip = loads(resp)['slip']
+            res = ':information_source: **Advice #{}**: {}'.format(
                 slip['slip_id'], slip['advice']
             )
-        )
+        except ClientResponseError:
+            res = localize['api_error'].format('Adviceslip')
+        await self.bot.say(res)
 
     @commands.group(pass_context=True)
     async def fact(self, ctx):
@@ -53,14 +60,20 @@ class Utilities:
                 )
             )
 
-    @fact.command()
-    async def cat(self):
+    @fact.command(pass_context=True)
+    async def cat(self, ctx):
         """
         Say a random cat fact
         """
-        await self.bot.say(
-            get('http://catfacts-api.appspot.com/api/facts').json()['facts'][0]
-        )
+        localize = self.bot.get_language_dict(ctx)
+        url = 'http://catfacts-api.appspot.com/api/facts'
+        try:
+            resp = await aiohttp_get(url, ClientSession(), True)
+            resp = await resp.read()
+            res = loads(resp)['facts'][0]
+        except ClientResponseError:
+            res = localize['api_error'].format('Catfacts')
+        await self.bot.say(res)
 
     @fact.command(pass_context=True)
     @commands.cooldown(rate=1, per=1)
@@ -71,15 +84,9 @@ class Utilities:
         :param num: the number
         """
         localize = self.bot.get_language_dict(ctx)
-        header = localize['num_fact_random'] if num is None \
-            else localize['num_fact_found']
         num = 'random' if num is None else num
-        await self.bot.say(
-            number_fact(
-                num, localize['num_fact_not_found'],
-                localize['num_fact_str'], header
-            )
-        )
+        res = await number_fact(num, localize)
+        await self.bot.say(res)
 
     @commands.command(pass_context=True)
     async def imdb(self, ctx, *query):
@@ -88,7 +95,7 @@ class Utilities:
         :param ctx: the discord context
         :param query: the search query
         """
-        res = imdb(
+        res = await imdb(
             ' '.join(query), self.imdb_api, self.bot.get_language_dict(ctx)
         )
         if isinstance(res, Embed):
@@ -103,7 +110,12 @@ class Utilities:
         :param ctx: the discord context
         :param query: the search query
         """
-        res = recipe_search(' '.join(query), self.bot.get_language_dict(ctx))
+        res = await recipe_search(
+            ' '.join(query),
+            self.bot.get_language_dict(ctx),
+            self.bot.config['edamam_app_id'],
+            self.bot.config['edamam_key']
+        )
         if isinstance(res, Embed):
             await self.bot.say(embed=res)
         else:
@@ -114,31 +126,47 @@ class Utilities:
         """
         Set a reminder and notify the user when time is up
         """
-        t = int(t)
-        await sleep(t)
-        await self.bot.say(ctx)
-        await self.bot.say(t)
+        raise NotImplementedError
 
     @commands.command()
     async def strawpoll(self):
-        pass
+        raise NotImplementedError
 
     @commands.command()
     async def time(self):
-        pass
+        raise NotImplementedError
 
     @commands.command()
     async def twitch(self):
-        pass
+        raise NotImplementedError
 
     @commands.command()
     async def urban(self):
-        pass
+        raise NotImplementedError
 
     @commands.command()
     async def weather(self):
-        pass
+        raise NotImplementedError
 
-    @commands.command()
-    async def yesno(self):
-        pass
+    # FIXME Remove this method when the api can be used with Aiohttp
+    @staticmethod
+    async def __yes_no(localize):
+        """
+        Helper method for yesno
+        :param localize: localization strings
+        :return: the result
+        """
+        url = 'https://yesno.wtf/api'
+        res = get(url)
+        if res.status_code == 200:
+            return res.json()['image']
+        else:
+            return localize['api_error'].format('yesno')
+
+    @commands.command(pass_context=True)
+    async def yesno(self, ctx):
+        """
+        Simple yesno command
+        """
+        localize = self.bot.get_language_dict(ctx)
+        await self.bot.say(await self.__yes_no(localize))

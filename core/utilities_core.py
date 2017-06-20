@@ -4,40 +4,40 @@ Functions for Utilities commands
 from json import JSONDecodeError
 from random import randint
 
+from aiohttp import ClientResponseError, ClientSession
 from discord.embeds import Embed, EmptyEmbed
 from imdbpie import Imdb
-from requests import get
 
-from config import EDAMAM_API
-from scripts.discord_functions import add_embed_fields
+from scripts.helpers import aiohttp_get
 
 
-def number_fact(num, not_found_msg, bad_num_msg, header):
+async def number_fact(num, localize):
     """
     Find a fact about a number
     :param num: the number
-    :param not_found_msg: message if fact is not found
-    :param bad_num_msg: message if the number isnt valid
-    :param header: the header for the return string
+    :param localize: the localization strings
     :return: a string representation for the fact
     """
+    header = localize['num_fact_random'] if num is None \
+        else localize['num_fact_found']
+    bad_num_msg = localize['num_fact_str']
+    not_found_msg = localize['num_fact_not_found']
     try:
         if num != 'random':
             num = int(num)
     except ValueError:
         return bad_num_msg
     url = f'http://numbersapi.com/{num}?json=true'
-    while True:
-        try:
-            res = get(url).json()
-            break
-        except JSONDecodeError:
-            continue
-    return header.format(res['number']) + res['text'] if res['found'] \
-        else not_found_msg
+    try:
+        res = await aiohttp_get(url, ClientSession(), True)
+        res = await res.json()
+        return header.format(res['number']) + res['text'] if res['found'] \
+            else not_found_msg
+    except ClientResponseError:
+        return localize['api_error'].format('Numbers Fact')
 
 
-def imdb(query, api: Imdb, localize):
+async def imdb(query, api: Imdb, localize):
     """
     Send an api request to imdb using the search query
     :param query: the search query
@@ -45,6 +45,7 @@ def imdb(query, api: Imdb, localize):
     :param localize: the localization strings
     :return: the result
     """
+    # FIXME: Use Aiohttp instead of this api wrapper
     try:
         names = lambda x: ', '.join((p.name for p in x)) if x else 'N/A'
         null_check = lambda x: x if x and not isinstance(x, int) else 'N/A'
@@ -73,46 +74,52 @@ def imdb(query, api: Imdb, localize):
         plot = null_check(res.plot_outline)
         poster = res.poster_url
         score = f'{res.rating}/10' if res.rating is not None else 'N/A'
-        body = []
-        if season_count is not None:
-            body.append((localize['seasons'], season_count))
-        if ep_count is not None:
-            body.append((localize['episodes'], ep_count))
-        body += [
-            (localize['release_date'], release),
-            (localize['rated'], rated),
-            (localize['runtime'], runtime_str),
-            (localize['genre'], genre),
-            (localize['director'], director),
-            (localize['writer'], writer),
-            (localize['cast'], cast),
-            (localize['score'], score),
-            (localize['plot_outline'], plot, False)
-        ]
+
         embed = Embed(colour=0xE5BC26)
         embed.set_author(name=title)
         if poster:
             embed.set_image(url=poster)
-        return add_embed_fields(embed, body)
+        if season_count is not None:
+            embed.add_field(name=localize['seasons'], value=season_count)
+        if ep_count is not None:
+            embed.add_field(name=localize['episodes'], value=str(ep_count))
+
+        embed.add_field(name=localize['release_date'], value=release)
+        embed.add_field(name=localize['rated'], value=rated)
+        embed.add_field(name=localize['runtime'], value=runtime_str)
+        embed.add_field(name=localize['genre'], value=genre)
+        embed.add_field(name=localize['director'], value=director)
+        embed.add_field(name=localize['writer'], value=writer)
+        embed.add_field(name=localize['cast'], value=cast)
+        embed.add_field(name=localize['score'], value=score)
+        embed.add_field(name=localize['plot_outline'], value=plot, inline=False)
+
+        return embed
 
     except (JSONDecodeError, IndexError):
         return localize['title_not_found']
 
 
-def recipe_search(query, localize):
+async def recipe_search(query, localize, edamam_app_id, edamam_key):
     """
     Search for a food recipe
     :param query: the search query
     :param localize: the localization strings
+    :param edamam_app_id: the edamam app id
+    :param edamam_key: the edamam api key
     :return: a discord embed object of the recipe
     """
     url = f'https://api.edamam.com/search?' \
-          f'app_id={EDAMAM_API[0]}&app_key={EDAMAM_API[1]}&q={query}&to=1&' \
+          f'app_id={edamam_app_id}&app_key={edamam_key}&q={query}&to=1&' \
           f'returns=label'
     try:
-        res = get(url).json()['hits'][0]['recipe']
+        response = await aiohttp_get(url, ClientSession(), True)
+        js = await response.json()
+        res = js['hits'][0]['recipe']
     except IndexError:
         return localize['recipe_not_found']
+    except ClientResponseError:
+        return localize['api_error'].format('Edamam')
 
     servings = res.get('yield', None)
     if servings and servings % 1 == 0:
@@ -141,15 +148,7 @@ def recipe_search(query, localize):
     cautions = ', '.join(cautions) if cautions else None
     ingredients = res.get('ingredientLines', None)
     ingredients = '\n'.join(ingredients) if ingredients else None
-    body = [
-        (localize['servings'], servings),
-        (localize['calories'], cal_str),
-        (localize['cautions'], cautions),
-        (localize['diet_labels'], diet_labels),
-        (localize['health_labels'], health_labels),
-        (localize['ingredients'], ingredients, False)
-    ]
-    body = [t for t in body if t[1]]
+
     des = localize['recipe_en'] if localize['language_data']['code'] != 'en' \
         else EmptyEmbed
     colour = int(
@@ -174,4 +173,16 @@ def recipe_search(query, localize):
         source = res['source']
         recipe_open = localize['recipe_open']
         embed.set_footer(text=f'{recipe_source}{source} | {recipe_open}')
-    return add_embed_fields(embed, body)
+    body = [
+        (localize['servings'], servings),
+        (localize['calories'], cal_str),
+        (localize['cautions'], cautions),
+        (localize['diet_labels'], diet_labels),
+        (localize['health_labels'], health_labels),
+        (localize['ingredients'], ingredients, False)
+    ]
+    for t in body:
+        if t[1]:
+            inline = len(t) == 3 and t[-1]
+            embed.add_field(name=t[0], value=t[1], inline=inline)
+    return embed

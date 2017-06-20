@@ -3,7 +3,6 @@ import time
 from discord.ext import commands
 
 from bot import Hifumi
-from config import *
 from core.bot_info_core import build_info_embed
 from data_controller.data_utils import get_prefix, set_language
 from scripts.checks import is_admin
@@ -39,7 +38,9 @@ class BotInfo:
         :param ctx: the discord context object
         """
         base = self.bot.get_language_dict(ctx)['support']
-        await self.bot.say(base.format(SUPPORT, TWITTER, WEBSITE))
+        f = lambda s: self.bot.config[s]
+        await self.bot.say(
+            base.format(f('support'), f('twitter'), f('website')))
 
     @commands.command(pass_context=True)
     async def donate(self, ctx):
@@ -86,7 +87,10 @@ class BotInfo:
         :param ctx: the discord context object
         """
         await self.bot.say(
-            self.bot.get_language_dict(ctx)['invite'].format(INVITE))
+            self.bot.get_language_dict(ctx)['invite'].format(
+                self.bot.config['invite']
+            )
+        )
 
     @commands.group(pass_context=True, no_pm=True)
     async def language(self, ctx):

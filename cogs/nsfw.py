@@ -1,7 +1,6 @@
 from discord.ext import commands
 
 from bot import Hifumi
-from config import DANBOORU_API, DANBOORU_USERNAME
 from core.nsfw_core import *
 from scripts.checks import is_nsfw, no_badword
 
@@ -33,7 +32,8 @@ class Nsfw:
         res, tags = await get_lewd(
             site, query, localize,
             self.bot.tag_matcher,
-            DANBOORU_USERNAME, DANBOORU_API
+            self.bot.config['danbooru_username'],
+            self.bot.config['danbooru_key']
         )
         await self.bot.say(res)
         if tags:

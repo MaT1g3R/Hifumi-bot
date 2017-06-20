@@ -8,11 +8,10 @@ from logging import CRITICAL, ERROR, WARNING
 from pathlib import Path
 
 from discord import ChannelType, Game, Message
-from discord.ext.commands import Bot, CommandNotFound, CommandOnCooldown, \
-    Context, MissingRequiredArgument
+from discord.ext.commands import BadArgument, Bot, CommandNotFound, \
+    CommandOnCooldown, Context, MissingRequiredArgument
 from websockets.exceptions import ConnectionClosed
 
-from config.settings import DEFAULT_PREFIX, ENABLE_CONSOLE_LOGGING, OWNER
 from data_controller import *
 from data_controller.data_utils import get_prefix
 from scripts.checks import AdminError, BadWordError, ManageMessageError, \
@@ -26,45 +25,47 @@ class Hifumi(Bot):
     """
     The Hifumi bot class
     """
-    __slots__ = ['default_prefix', 'shard_id', 'shard_count', 'start_time',
+    __slots__ = ['shard_id', 'shard_count', 'start_time',
                  'language', 'default_language', 'logger', 'mention_normal',
-                 'mention_nick', 'conn', 'cur', 'all_emojis']
+                 'mention_nick', 'conn', 'cur', 'all_emojis', 'config']
 
-    def __init__(self, shard_count=1, shard_id=0,
+    def __init__(self, config, shard_id,
                  default_language='en'):
         """
         Initialize the bot object
-        :param shard_count: the shard count, default is 1
-        :param shard_id: shard id, default is 0
         :param default_language: the default language of the bot, default is en
         unless you know what you are doing
         """
-        super().__init__(
-            command_prefix=get_prefix,
-            shard_count=shard_count,
-            shard_id=shard_id
-        )
+        self.config = config
+        self.shard_count = config['shard_count']
+        self.shard_id = shard_id
         self.conn = sqlite3.connect(str(DB_PATH))
         self.cur = self.conn.cursor()
         self.tag_matcher = TagMatcher(self.conn, self.cur)
         self.data_manager = DataManager(self.conn, self.cur)
-        self.default_prefix = DEFAULT_PREFIX
-        self.shard_id = shard_id
-        self.shard_count = shard_count
         self.start_time = int(time.time())
         self.language = read_language(Path('./data/language'))
         self.default_language = default_language
         self.logger = setup_logging(
             self.start_time, Path('./data/logs')
         )
-        self.mention_normal = ''
-        self.mention_nick = ''
+        self.mention_normal = None
+        self.mention_nick = None
         with Path('./data/emojis.txt').open() as f:
             self.all_emojis = f.read().splitlines()
             f.close()
+        super().__init__(
+            command_prefix=get_prefix,
+            shard_count=self.shard_count,
+            shard_id=self.shard_id
+        )
 
     def __del__(self):
         self.conn.close()
+
+    @property
+    def default_prefix(self):
+        return self.config['prefix']
 
     async def on_ready(self):
         """
@@ -87,7 +88,7 @@ class Hifumi(Bot):
                 await __change_presence()
 
         await __change_presence()
-        if ENABLE_CONSOLE_LOGGING:
+        if self.config['enable_console_logging']:
             self.logger.addHandler(get_console_handler())
 
     async def on_command_error(self, exception, context):
@@ -98,10 +99,10 @@ class Hifumi(Bot):
         """
         handled_exceptions = (
             CommandOnCooldown, NsfwError, BadWordError, ManageRoleError,
-            AdminError, ManageMessageError, MissingRequiredArgument, OwnerError
+            AdminError, ManageMessageError, MissingRequiredArgument, OwnerError,
+            BadArgument
         )
-        if ('Member' in str(exception) and 'not found' in str(exception)) \
-                or isinstance(exception, handled_exceptions):
+        if isinstance(exception, handled_exceptions):
             await self.send_message(
                 context.message.channel,
                 command_error_handler(
@@ -114,23 +115,23 @@ class Hifumi(Bot):
         else:
             try:
                 raise exception
-            except:
+            except Exception as e:
                 tb = traceback.format_exc()
-            triggered = context.message.content
-            ex_type = type(exception).__name__
-            four_space = ' ' * 4
-            str_ex = str(exception)
-            msg = '\n{0}Triggered message: {1}\n' \
-                  '{0}Type: {2}\n' \
-                  '{0}Exception: {3}\n\n{4}' \
-                .format(four_space, triggered, ex_type, str_ex, tb)
-            self.logger.log(WARNING, msg)
-            await self.send_message(
-                context.message.channel,
-                self.get_language_dict(context)['ex_warn'].format(
-                    triggered, ex_type, str_ex
+                triggered = context.message.content
+                ex_type = type(e).__name__
+                four_space = ' ' * 4
+                str_ex = str(e)
+                msg = '\n{0}Triggered message: {1}\n' \
+                      '{0}Type: {2}\n' \
+                      '{0}Exception: {3}\n\n{4}' \
+                    .format(four_space, triggered, ex_type, str_ex, tb)
+                self.logger.log(WARNING, msg)
+                await self.send_message(
+                    context.message.channel,
+                    self.get_language_dict(context)['ex_warn'].format(
+                        triggered, ex_type, str_ex
+                    )
                 )
-            )
 
     async def on_error(self, event_method, *args, **kwargs):
         """
@@ -149,7 +150,9 @@ class Hifumi(Bot):
         except Exception as e:
             msg = str(e) + '\n' + str(tb)
             self.logger.log(CRITICAL, msg)
-            for dev in [await self.get_user_info(i) for i in OWNER]:
+            # FIXME Remove cast to str after lib rewrite
+            for dev in [await self.get_user_info(str(i))
+                        for i in self.config['owner']]:
                 await self.send_message(
                     dev,
                     'An exception ocurred while the '
@@ -173,17 +176,16 @@ class Hifumi(Bot):
         # TODO Implement command black list
         await super().process_commands(message)
 
-    def start_bot(self, cogs: list, token):
+    def start_bot(self, cogs: list):
         """
         Start the bot
         :param cogs: a list of cogs
-        :param token: the bot token
         """
         # TODO remove default help when custom help is finished
         # self.remove_command('help')
         for cog in cogs:
             self.add_cog(cog)
-        self.run(token)
+        self.run(self.config['token'])
 
     def get_language_dict(self, ctx_msg):
         """

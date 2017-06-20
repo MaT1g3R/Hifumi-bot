@@ -47,7 +47,7 @@ class Moderation:
             reason = ' '.join(args)
             if 0 <= delete_message_days <= 7:
                 await ban_kick(
-                    self.bot, ctx, member, delete_message_days, reason
+                    self.bot, ctx, member, reason, True, delete_message_days
                 )
             else:
                 await self.bot.say(bad_num_msg)
@@ -66,7 +66,7 @@ class Moderation:
                 self.bot.get_language_dict(ctx)['pls_provide_reason']
             )
         else:
-            await ban_kick(self.bot, ctx, member, None, ' '.join(reason))
+            await ban_kick(self.bot, ctx, member, ' '.join(reason), False)
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(has_manage_message)
@@ -167,7 +167,7 @@ class Moderation:
             await self.bot.say(localize['mod_log_info'].format(
                 get_prefix(self.bot, ctx.message)))
 
-    async def __set_rm_modlog(self, ctx, is_set):
+    async def __modify_modlog(self, ctx, is_set):
         """
         Helper method to set/remove the modlog.
         :param ctx: the discord context.
@@ -192,7 +192,7 @@ class Moderation:
         Set the current channel as a mod log channel
         :param ctx: the discord context
         """
-        await self.__set_rm_modlog(ctx, True)
+        await self.__modify_modlog(ctx, True)
 
     @modlog.command(pass_context=True)
     async def remove(self, ctx):
@@ -200,4 +200,4 @@ class Moderation:
         Remove the current channel from mod log channels
         :param ctx: the discord context
         """
-        await self.__set_rm_modlog(ctx, False)
+        await self.__modify_modlog(ctx, False)
