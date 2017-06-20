@@ -18,7 +18,7 @@ def setup_logging(start_time, path: Path):
     :return: the logger object
     """
     logger = logging.getLogger('discord')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.WARNING)
     logger.addHandler(get_file_handler(path, start_time))
     return logger
 
