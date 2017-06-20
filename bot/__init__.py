@@ -24,7 +24,7 @@ __version__ = '0.1.1'
 VersionInfo = namedtuple('VersionInfo', 'major minor micro releaselevel serial')
 
 version_info = VersionInfo(
-    major=0, minor=1, micro=1, releaselevel='alpha', serial=0
+    major=0, minor=1, micro=1, releaselevel='alpha', serial=1
 )
 
 __all__ = ['__title__', '__author__', '__author_plain__', '__helper__',
