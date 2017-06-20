@@ -4,9 +4,8 @@ NSFW functions
 from random import choice
 from typing import List, Optional, Tuple
 
-from aiohttp import ClientResponseError
-from requests import get
-from xmltodict import parse
+from aiohttp import ClientResponse, ClientResponseError
+from demjson import decode
 
 from bot import SessionManager
 from data_controller.tag_matcher import TagMatcher
@@ -85,18 +84,11 @@ async def __request_lewd(
     safe_queries, unsafe_queries = __process_queries(
         site, tags, tag_matcher)
     combined = __combine(rating, '%20', safe_queries, unsafe_queries)
-
-    # FIXME: gelbooru doesn't play nice with aiohttp
-    if site == 'gelbooru':
-        res = get(url + combined)
-        if res.status_code != 200:
-            raise ClientResponseError
-    else:
-        res = await session_manager.get(url + combined)
+    res = await session_manager.get(url + combined)
     return res, safe_queries, unsafe_queries
 
 
-async def __parse_result(response, site: str) -> list:
+async def __parse_result(response: ClientResponse, site: str) -> list:
     """
     Parse the HTTP response of a search and return the post list.
     :param response: the HTTP response.
@@ -104,9 +96,15 @@ async def __parse_result(response, site: str) -> list:
     :return: The list of posts.
     """
     if site == 'gelbooru':
-        res = parse(response.text)['posts']
-        if 'post' in res and res['post']:
-            return res['post']
+        # FIXME I don't even
+        broken_json = ''.join([s.decode() for s in response.content._buffer])
+        k = broken_json.rfind('}')
+        broken_json = broken_json[:k + 1]
+        if broken_json:
+            broken_json += ']'
+            return decode(broken_json)
+        else:
+            return []
     else:
         return await response.json()
 
@@ -161,21 +159,21 @@ def __get_site_params(
         'yandere': 'https://yande.re//post.json?tags=',
         'e621': 'https://e621.net/post/index.json?&tags=',
         'gelbooru': 'https://gelbooru.com//index.php?'
-                    'page=dapi&s=post&q=index&tags='
+                    'page=dapi&s=post&q=index&json=1&tags='
     }[site]
     url_formatter = {
         'danbooru': lambda x: 'https://danbooru.donmai.us' + x['file_url'],
         'konachan': lambda x: 'https:' + x['file_url'],
         'yandere': lambda x: x['file_url'],
         'e621': lambda x: x['file_url'],
-        'gelbooru': lambda x: 'https:' + x['@file_url']
+        'gelbooru': lambda x: 'https:' + x['file_url']
     }[site]
     tag_key = {
         'danbooru': 'tag_string',
         'konachan': 'tags',
         'yandere': 'tags',
         'e621': 'tags',
-        'gelbooru': '@tags'
+        'gelbooru': 'tags'
     }[site]
     return request_url, url_formatter, tag_key
 
