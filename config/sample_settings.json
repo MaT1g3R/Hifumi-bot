@@ -23,5 +23,6 @@
   "danbooru_key": "",
   "wolke_api": "",
   "edamam_app_id": "",
-  "edamam_key": ""
+  "edamam_key": "",
+  "openweathermap_api": ""
 }
