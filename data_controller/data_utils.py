@@ -38,10 +38,11 @@ def get_prefix(bot, message):
     :param message: the discord message.
     :return: the command prefix.
     """
-    guild = message.server
-    if not guild:
+    try:
+        return bot.data_manager.get_prefix(
+            int(message.server.id)) or bot.default_prefix
+    except AttributeError:
         return bot.default_prefix
-    return bot.data_manager.get_prefix(int(guild.id)) or bot.default_prefix
 
 
 def change_balance(data_manager: DataManager, user_id: int, delta: int):

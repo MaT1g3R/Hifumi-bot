@@ -26,8 +26,7 @@ class Config:
         """ Set self[key] to value. """
         edit = False
         try:
-            old = self.__content[key]
-            if value != old:
+            if value != self.__content[key]:
                 edit = True
         except KeyError:
             edit = True
