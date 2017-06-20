@@ -1,9 +1,7 @@
 # TODO
 # High Priority!!
-- [x] Change the rest of the HTTP requests to use aiohttp.
-- [x] Refactor the rest of the tests to use pytest.
-- [x] Rework the config file into json for better write access.
-- [x] Refactor code related to moderation commands.
+- [ ] Fix issue #4
+- [ ] Reduce the amout of Aiohttp ClientSession throughout the bot.
 
 ## 1. Bot manager/launcher
 - [ ] Rework all functions
