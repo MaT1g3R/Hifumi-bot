@@ -53,7 +53,7 @@ class OwnerOnly:
                 for s in str_out:
                     if token in s: 
                         s = s.replace(token, "You will not know, baka >_<")
-                await self.bot.send_message(message.channel, s)
+                    await self.bot.send_message(message.channel, s)
             else:
                 await self.bot.send_message(
                     message.channel, localize['owner_only']
