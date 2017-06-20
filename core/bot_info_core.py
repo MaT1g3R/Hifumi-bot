@@ -9,7 +9,6 @@ from discord import ChannelType, version_info
 from discord.embeds import Embed
 from psutil import virtual_memory
 
-from config import *
 from data_controller.data_utils import get_prefix
 from scripts.helpers import comma, get_system_name, \
     get_time_elapsed
@@ -93,7 +92,7 @@ def build_info_embed(ctx, bot):
     total_ram = virtual_memory().total / 1024 / 1024 / 1024
     total_ram_str = '{0:.2f}GB'.format(total_ram)
 
-    embed = Embed(colour=COLOUR)
+    embed = Embed(colour=int(bot.config['colour'], base=16))
     embed.set_author(name=user.name, icon_url='{0.avatar_url}'.format(user))
     embed.set_footer(
         text=lan['info_footer'].format(get_prefix(bot, ctx.message)))
@@ -117,10 +116,12 @@ def build_info_embed(ctx, bot):
 
     embed.add_field(name=lan['sys'], value=get_system_name())
 
-    if DEVS:
-        embed.add_field(name=lan['devs'], value='\n'.join(DEVS))
-    if HELPERS:
-        embed.add_field(name=lan['helper'], value='\n'.join(HELPERS))
+    devs = bot.config['devs']
+    if devs:
+        embed.add_field(name=lan['devs'], value='\n'.join(devs))
+    helpers = bot.config['helpers']
+    if helpers:
+        embed.add_field(name=lan['helper'], value='\n'.join(helpers))
 
     embed.add_field(name=lan['guilds'], value=guild_count)
     embed.add_field(name=lan['users'], value=user_count)

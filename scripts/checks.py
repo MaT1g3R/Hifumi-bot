@@ -1,10 +1,17 @@
 """
 Checks for commands
 """
+
 from discord import ChannelType
 from discord.ext.commands import CommandError
 
-from config import *
+# A list of bad words to comply with discord TOS, DON'T edit this
+BAD_WORD = ['loli', 'l0l1', 'lol1', 'l0li', '7071', 'lolii', 'looli', 'lolli',
+            'shota', 'sh07a', 'sh0ta', 'chota', 'ch0ta', 'shot4', 'sh0t4',
+            '5hota', '5h0ta', '5h0t4', '7oli', '70li', '707i', 'l071', 'hifumi',
+            'takimoto', 'child', 'children', 'cp', 'preteen', 'teen', 'gore',
+            'g0r3', 'g0re', 'ch1ld', 'kid', 'k1d', 'kiddo', 'ロリ', 'ロリコン',
+            'pico', 'ショタコン', 'ショタ']
 
 
 class NsfwError(CommandError):
@@ -96,11 +103,11 @@ def has_manage_message(ctx):
 
 def is_owner(ctx):
     """
-    Check if the user is the bot owner
     :param ctx: the discord context
     :return: True if the user is the bot owner
     """
-    id_ = ctx.message.author.id
-    if id_ in OWNER:
+    # FIXME Remove casting after lib rewrite
+    id_ = int(ctx.message.author.id)
+    if id_ in ctx.bot.config['owner']:
         return True
     raise OwnerError

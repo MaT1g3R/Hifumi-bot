@@ -111,7 +111,11 @@ class Utilities:
         :param query: the search query
         """
         res = await recipe_search(
-            ' '.join(query), self.bot.get_language_dict(ctx))
+            ' '.join(query),
+            self.bot.get_language_dict(ctx),
+            self.bot.config['edamam_app_id'],
+            self.bot.config['edamam_key']
+        )
         if isinstance(res, Embed):
             await self.bot.say(embed=res)
         else:

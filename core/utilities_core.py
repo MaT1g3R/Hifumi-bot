@@ -8,7 +8,6 @@ from aiohttp import ClientResponseError, ClientSession
 from discord.embeds import Embed, EmptyEmbed
 from imdbpie import Imdb
 
-from config import EDAMAM_API
 from scripts.helpers import aiohttp_get
 
 
@@ -101,15 +100,17 @@ async def imdb(query, api: Imdb, localize):
         return localize['title_not_found']
 
 
-async def recipe_search(query, localize):
+async def recipe_search(query, localize, edamam_app_id, edamam_key):
     """
     Search for a food recipe
     :param query: the search query
     :param localize: the localization strings
+    :param edamam_app_id: the edamam app id
+    :param edamam_key: the edamam api key
     :return: a discord embed object of the recipe
     """
     url = f'https://api.edamam.com/search?' \
-          f'app_id={EDAMAM_API[0]}&app_key={EDAMAM_API[1]}&q={query}&to=1&' \
+          f'app_id={edamam_app_id}&app_key={edamam_key}&q={query}&to=1&' \
           f'returns=label'
     try:
         response = await aiohttp_get(url, ClientSession(), True)

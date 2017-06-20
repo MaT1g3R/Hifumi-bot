@@ -13,7 +13,6 @@ from discord.ext import commands
 from requests import ConnectionError, RequestException, get
 
 from bot import Hifumi
-from config import OWNER
 from core.owner_only_core import bash_script, handle_eval, setavatar
 from data_controller.data_utils import get_prefix
 from scripts.checks import is_owner
@@ -41,7 +40,8 @@ class OwnerOnly:
         prefix = get_prefix(self.bot, message)
         if check_message_startwith(self.bot, message, '{}eval'.format(prefix)):
             localize = self.bot.get_language_dict(message)
-            if str(message.author.id) in OWNER:
+            # FIXME Remove casting after lib rewrite
+            if int(message.author.id) in self.bot.config['owner']:
                 args = clense_prefix(message, '{}eval'.format(prefix))
                 res, success = handle_eval(args)
                 str_out = ['```Python\n' + s.replace('`', chr(0x1fef)) + '\n```'

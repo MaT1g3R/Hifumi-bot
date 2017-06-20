@@ -1,6 +1,6 @@
 {
   "private_instance": false,
-  "shard_count": null,
+  "shard_count": 1,
   "token": "",
   "prefix": "~",
   "support": "",
