@@ -41,7 +41,7 @@ class Hifumi(Bot):
         unless you know what you are doing
         """
         self.config = config
-        self.session_manager: SessionManager = None
+        self.session_manager = None
         self.shard_count = config['shard_count']
         self.shard_id = shard_id
         self.conn = sqlite3.connect(str(DB_PATH))
