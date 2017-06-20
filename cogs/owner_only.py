@@ -51,7 +51,7 @@ class OwnerOnly:
                     'bash_fail']
                 await self.bot.send_message(message.channel, header)
                 for s in str_out:
-                    if token in s: 
+                    if token in s:
                         s = s.replace(token, "You will not know, baka >_<")
                     await self.bot.send_message(message.channel, s)
             else:
@@ -75,7 +75,7 @@ class OwnerOnly:
         header = localize['bash_success'] if success else localize['bash_fail']
         await self.bot.say(header)
         for s in str_out:
-            if token in s: 
+            if token in s:
                 s = s.replace(token, "You will not know, baka >_<")
             await self.bot.say(s)
 
@@ -104,5 +104,7 @@ class OwnerOnly:
         Shutdown the bot process
         :param ctx: the discord context
         """
+        localize = self.bot.get_language_dict(ctx)
         await self.bot.say(localize['shutdown'])
+        await self.bot.logout
         exit(0)
