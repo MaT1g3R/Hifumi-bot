@@ -1,3 +1,4 @@
+'''
 from discord.ext import commands
 
 from bot import Hifumi
@@ -44,3 +45,4 @@ class Fun:
                            "comics/garfield/" + res_year + "/" +
                            res_date + ".gif")
         
+'''
