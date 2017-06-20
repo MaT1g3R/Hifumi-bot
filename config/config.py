@@ -13,7 +13,7 @@ class Config:
         Initialize the instance of this class.
         """
         self.__path = Path(Path(__file__).parent.joinpath('settings.json'))
-        with self.__path.open() as f:
+        with self.__path.open(encoding='utf-8') as f:
             self.__content = load(f)
 
     def __getitem__(self, item):
@@ -32,5 +32,5 @@ class Config:
             edit = True
         if edit:
             self.__content[key] = value
-            with self.__path.open('w+') as f:
+            with self.__path.open('w+', encoding='utf-8') as f:
                 dump(self.__content, f, indent=2)

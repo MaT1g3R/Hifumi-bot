@@ -49,8 +49,8 @@ class Hifumi(Bot):
         self.logger = setup_logging(
             self.start_time, Path('./data/logs')
         )
-        self.mention_normal = None
-        self.mention_nick = None
+        self.mention_normal = ''
+        self.mention_nick = ''
         with Path('./data/emojis.txt').open() as f:
             self.all_emojis = f.read().splitlines()
             f.close()

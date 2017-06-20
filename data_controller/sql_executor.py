@@ -102,7 +102,7 @@ def _get_tags(cursor: Cursor) -> Dict[str, List[str]]:
     :param cursor: the sqlite3 cursor.
     :return: A dict of tags, mapped as {site: tags}
     """
-    cursor.execute('SELECT * FROM main.nsfw_tags')
+    cursor.execute('SELECT * FROM nsfw_tags')
     res = {}
     for t in cursor.fetchall():
         if len(t) == 2 and all(t):
