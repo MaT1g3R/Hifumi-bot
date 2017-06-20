@@ -96,3 +96,14 @@ class OwnerOnly:
                 await setavatar(self.bot, localize, ctx.message.channel, avatar)
             except (RequestException, ConnectionError):
                 await self.bot.say(localize['avatar_fail'])
+
+    @commands.command(pass_context=True)
+    @commands.check(is_owner)
+    async def shutdown(self, ctx):
+        """
+        Shutdown the bot process
+        :param ctx: the discord context
+        :param args: the bash command arguments
+        """
+        await self.bot.say(localize['shutdown'])
+        exit(0)
