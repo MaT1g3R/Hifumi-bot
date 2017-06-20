@@ -114,7 +114,7 @@ class Hifumi(Bot):
             return
         else:
             try:
-                raise exception
+                raise from exception
             except Exception as e:
                 tb = traceback.format_exc()
                 triggered = context.message.content
@@ -160,7 +160,7 @@ class Hifumi(Bot):
                     '"Troubleshooting" section in '
                     'documentation, come to our support '
                     'server or open an issue in Git repo.'
-                    "\n```py" + msg + "```"
+                    "\n```py\n" + msg + "```"
                 )
 
     async def process_commands(self, message):
