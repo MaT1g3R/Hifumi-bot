@@ -38,6 +38,7 @@ class OwnerOnly:
         :param message: the message
         """
         prefix = get_prefix(self.bot, message)
+        token = self.bot.config['token']
         if check_message_startwith(self.bot, message, '{}eval'.format(prefix)):
             localize = self.bot.get_language_dict(message)
             # FIXME Remove casting after lib rewrite
@@ -50,6 +51,8 @@ class OwnerOnly:
                     'bash_fail']
                 await self.bot.send_message(message.channel, header)
                 for s in str_out:
+                    if token in s: 
+                        s = s.replace(token, "You will not know, baka >_<")
                     await self.bot.send_message(message.channel, s)
             else:
                 await self.bot.send_message(
@@ -64,6 +67,7 @@ class OwnerOnly:
         :param ctx: the discord context
         :param args: the bash command arguments
         """
+        token = self.bot.config['token']
         localize = self.bot.get_language_dict(ctx)
         result, success = bash_script(list(args))
         str_out = ['```\n' + s.replace('`', chr(0x1fef)) + '\n```'
@@ -71,6 +75,8 @@ class OwnerOnly:
         header = localize['bash_success'] if success else localize['bash_fail']
         await self.bot.say(header)
         for s in str_out:
+            if token in s: 
+                s = s.replace(token, "You will not know, baka >_<")
             await self.bot.say(s)
 
     @commands.command(pass_context=True)
