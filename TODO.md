@@ -224,6 +224,7 @@ userinfo            ✕
 - [ ] Google searching, as well as images and videos
 - [ ] Hackban (ban users outside the server via user ID) and individual unban as well
 - [ ] Invite blocker and mention spam protection
+- [ ] Imgur command
 - [ ] Level up system (a.k.a. XP system), I'll explain this later if doing that feature someday
 - [ ] Love Live! school idols information because why not (this <a href="https://github.com/SchoolIdolTomodachi/SchoolIdolAPI">API</a>)
 - [ ] Make a waifu command (search random Google pictures for the bot character, this can be specified in settings.py; in the public version the command should be "~hifumi")
@@ -236,11 +237,11 @@ userinfo            ✕
 - [ ] Profile for currency
 - [ ] Raffle (pretty simple, just send a message with random user of the server, useful for raffles or giveaways)
 - [x] Recipe finder
-- [ ] Replace GIF command tracker from Giphy to be available also in filters (respectively Giphy, Tenor and Imgur)
 - [ ] Softban function (also with modlog, ban someone and then unban him)
 - [ ] Stats for other games besides osu! like Overwatch, Steam profile, World of Warships, CSGO, LOL, etc.
 - [ ] Stream Listen.moe via command
 - [ ] Stream notification available too for Twitch, Hitbox and Beam
+- [ ] Tag commands back but with a "HifumiLang" system, I'll expalin this too when doing the future someday
 - [ ] Text converting than just leetspeak (leetspeak, zalgo, katakana, etc.)
 - [ ] Toggle DM sending for Hifumi
 - [ ] Translation command return
