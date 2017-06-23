@@ -18,3 +18,5 @@ data/\.DS_Store
 /data/hifumi_db
 
 config/settings\.json
+
+config/settings\.yml
