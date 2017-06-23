@@ -173,7 +173,7 @@ class DataManager:
         :param user_id: the user id.
         :param balance: the balance to set to.
         """
-        assert balance >= 0
+        assert 0 <= balance < 9223372036854775807
         row = await self.__get_user_row(user_id)
         await row.set_balance(balance)
 
