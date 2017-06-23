@@ -1,6 +1,10 @@
 from asyncpg import Connection, connect
 
-__all__ = ['_clear_db', '_get_connection', 'schema']
+from config import Config
+
+__all__ = ['_clear_db', '_get_connection', 'SCHEMA']
+__config = Config().postgres()
+SCHEMA = __config['schema']['testing']
 
 
 async def _clear_db(conn: Connection):
@@ -16,10 +20,10 @@ async def _clear_db(conn: Connection):
     '''
     table_names = [
         list(v.values())[0] for v in
-        [r for r in await conn.fetch(tables, schema())]
+        [r for r in await conn.fetch(tables, SCHEMA)]
     ]
     for table in table_names:
-        await conn.execute(f'TRUNCATE {schema()}.{table}')
+        await conn.execute(f'TRUNCATE {SCHEMA}.{table}')
 
 
 async def _get_connection() -> Connection:
@@ -27,19 +31,8 @@ async def _get_connection() -> Connection:
     Get a asyncpg Connection object
     :return: the Connection object
     """
-    kwagrs = __get_kwargs()
-    conn = await connect(**kwagrs)
+    conn = await connect(
+        host=__config['host'], port=__config['port'], user=__config['user'],
+        database=__config['database'], password=__config['password']
+    )
     return conn
-
-
-def __get_kwargs(*args, **kwargs) -> dict:
-    """
-    Get the kwargs to connect to the db.
-    """
-    # TODO Finish this
-    raise NotImplementedError
-
-
-def schema():
-    # TODO Finish this
-    raise NotImplementedError

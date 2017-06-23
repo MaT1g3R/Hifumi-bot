@@ -1,46 +1,98 @@
 Bot:
-  token: ""               # The bot token.
-  prefix: "~"             # The default bot prefix.
-  devs:                   # List of bot developer names.
-    - "ラブアローシュート#6728"
-    - "Underforest#1284"
-  helpers:                # List of bot helper names.
-    - "Wolke#6746"
-  owners:                 # List of bot owner's discord ids, as integers.
-    -
-  colour: 0xff0000        # The colour used for information embeds.
-  private: false          # Whether the bot is a private instance or not.
-  shard count: 1          # The shard count for the bot. 1000 guilds per shard is recommended.
-  console logging: true   # To log to the console or not.
-  safe shutdown: false    # Enable safe shutdown or not.
-  auto update: true       # Automaticlly update the bot or not.
+  # The bot token.
+  token: ""
+
+  # The default bot prefix.
+  prefix: "~"
+
+  # List of bot developer names.
+  devs:
+  - "ラブアローシュート#6728"
+  - "Underforest#1284"
+
+  # List of bot helper names.
+  helpers:
+  - "Wolke#6746"
+
+  # List of bot owner's discord ids, as integers.
+  owners:
+  -
+
+  colour: 0xff0000  # A hexadecimal colour used for embeds.
+
+  # Whether the bot is a private instance or not.
+  private: false
+
+  # The shard count for the bot. 1000 guilds per shard is recommended.
+  shard count: 1
+
+  # True to enable console logging.
+  console logging: true
+
+  # True to enable safe shutdown.
+  safe shutdown: false
+
+  # True to automaticlly update the bot.
+  auto update: true
+
 Bot extra:
-  waifu name: "takimoto_hifumi"             # A valid danbooru tag to represent bot's character.
-  support: "http://discord.gg/FtDbNrd"      # Bot's support guild.
-  twitter: "https://twitter.com/HifumiBot"  # Bot twitter page.
-  website: "http://www.hifumibot.xyz"       # Bot website.
-  invite: "http://www.hifumibot.xyz/invite" # Bot invite link.
+  # A valid danbooru tag to represent bot's character.
+  waifu name: "takimoto_hifumi"
+
+  # Bot's support guild.
+  support: "http://discord.gg/FtDbNrd"
+
+  # Bot twitter page.
+  twitter: "https://twitter.com/HifumiBot"
+
+  # Bot website.
+  website: "http://www.hifumibot.xyz"
+
+  # Bot invite link.
+  invite: "http://www.hifumibot.xyz/invite"
+
 Bot lists:
   abal discord list: ""
   discord bots dot org: ""
   carbonitex:
     compliant: false
     key: ""
+
 API keys:
-  danbooru:           # Danbooru username and api key. More info here: https://danbooru.donmai.us/wiki_pages/43568
+  # Danbooru username and api key. More info here: https://danbooru.donmai.us/wiki_pages/43568
+  danbooru:
     username: ""
     key: ""
-  wolkeapi: ""        # Wolkeapi key. More info here: discord.gg/y5MPvUC
-  edamam:             # Edamam app id and key. More info here: https://www.edamam.com/
+
+  # Wolkeapi key. More info here: discord.gg/y5MPvUC
+  wolkeapi: ""
+
+  # Edamam app id and key. More info here: https://www.edamam.com/
+  edamam:
     app id: ""
     key: ""
-  openweathermap: ""  # OpenWeatherMap api key. More info here: https://openweathermap.org/api
-Postgres:       # Config for the Postgres database.
-  host: ""      # Database host address or a path to the directory containing database server UNIX socket.
-  port: ""      # Connection port number.
-  user: ""      # The name of the database role used for authentication.
-  database: ""  # The name of the database.
-  password: ""  # Password used for authentication.
-  schema:       # Schema names testing and production schemas.
+
+  # OpenWeatherMap api key. More info here: https://openweathermap.org/api
+  openweathermap: ""
+
+# Config for the Postgres database.
+Postgres:
+  # Database host address or a path to the directory containing database server UNIX socket.
+  host: ""
+
+  # Connection port number.
+  port: ""
+
+  # The name of the database role used for authentication.
+  user: ""
+
+  # The name of the database.
+  database: ""
+
+  # Password used for authentication.
+  password: ""
+
+  # Schema names testing and production schemas.
+  schema:
     testing: "testing"
     production: "production"

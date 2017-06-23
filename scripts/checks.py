@@ -108,6 +108,6 @@ def is_owner(ctx):
     """
     # FIXME Remove casting after lib rewrite
     id_ = int(ctx.message.author.id)
-    if id_ in ctx.bot.config['owner']:
+    if id_ in ctx.bot.config['Bot']['owners']:
         return True
     raise OwnerError

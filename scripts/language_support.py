@@ -4,8 +4,8 @@ A collection of functions to deal with language support
 
 from pathlib import Path
 
-from scripts.file_io import read_all_files, read_json
-from scripts.helpers import suplement_dict
+from scripts.file_io import load_json
+from scripts.helpers import read_all_files, suplement_dict
 
 
 def read_language(path: Path):
@@ -14,13 +14,16 @@ def read_language(path: Path):
     :param path: the path that points to the language folder
     :return: all language files in a dict
     """
-    language = {f.name[:-5]: read_json(f.open(encoding='utf-8'), False)
-                for f in read_all_files(path)
-                if f.name.endswith('.json')}
+    language = {
+        f.name[:-5]: load_json(f, encoding='utf-8')
+        for f in read_all_files(path)
+        if f.name.endswith('.json')
+    }
     for key, val in language.items():
         if key != 'en':
             new_val = suplement_dict(language['en'], val)
             language[key] = new_val
+
     return language
 
 

@@ -7,11 +7,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from platform import platform
 from random import choice
-from typing import Collection, Sequence
-
-from yaml import YAMLError
-
-from scripts.file_io import read_yaml
+from typing import Collection, List, Sequence
 
 
 def combine_dicts(dicts):
@@ -181,57 +177,6 @@ def assert_types(values: Sequence, types, ignore_none: bool):
             assert (v is None and ignore_none) or isinstance(v, t)
 
 
-def assert_inputs(types, ignore_none: bool):
-    """
-    Decorator to assert length and types of the input to the db
-    :param types: the expected types
-    :param ignore_none: see assert_types
-    """
-
-    def dec(func: callable):
-        def wrap(*args):
-            assert_types(args[-1], types, ignore_none)
-            func(*args)
-
-        return wrap
-
-    return dec
-
-
-def assert_outputs(types, ignore_none: bool):
-    """
-    Decorator to assert the output of a request to the db
-    :param types: the expected types
-    :param ignore_none: see assert_types
-    """
-
-    def dec(func: callable):
-        def wrap(*args):
-            res = func(*args)
-            if res is not None:
-                assert_types(res, types, ignore_none)
-            return res
-
-        return wrap
-
-    return dec
-
-
-def get_config() -> dict:
-    """
-    Return the configurations.
-    """
-    path = Path('../config/settings.yml')
-    if not path.is_file():
-        return {}
-    with path.open() as f:
-        try:
-            return read_yaml(f)
-        except YAMLError:
-            f.close()
-            return {}
-
-
 def random_word(length: int, source: Collection):
     """
     Generate a random word.
@@ -263,3 +208,13 @@ def flatten(in_) -> list:
         return res
     else:
         return [in_]
+
+
+def read_all_files(path: Path) -> List[Path]:
+    """
+    Reads all files in a folder
+    :param path: the path to the folder
+    :return: All path of the files
+    :rtype: list
+    """
+    return [Path(Path.joinpath(f)) for f in path.iterdir() if f.is_file()]
