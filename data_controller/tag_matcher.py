@@ -1,8 +1,7 @@
 from difflib import get_close_matches
-from sqlite3 import Connection, Cursor
 from typing import List, Optional, Union
 
-from data_controller.sql_executor import _get_tags, _write_tags
+from data_controller.postgres import Postgres
 
 
 class TagMatcher:
@@ -11,16 +10,16 @@ class TagMatcher:
     with exsiting tags in the db.
     """
 
-    def __init__(self, connection: Connection, cursor: Cursor):
+    def __init__(self, postgres: Postgres, tags: dict):
         """
         Initialize an instance of this class.
-        :param connection: the sqlite3 connection.
-        :param cursor: the sqlite3 cursor.
+        :param postgres: the postgres controller.
+        :param tags: the list of tags in the db on startup.
         """
-        self.__connection, self.__cursor = connection, cursor
-        self.__tags = _get_tags(cursor)
+        self.__postgres = postgres
+        self.__tags = tags
 
-    def add_tags(self, site: str, tags: Union[str, List[str]]):
+    async def add_tags(self, site: str, tags: Union[str, List[str]]):
         """
         Add tag(s) to the db.
         :param site: the site of the tag.
@@ -38,8 +37,7 @@ class TagMatcher:
                     self.__tags[site].append(tag)
                     written = True
         if written:
-            _write_tags(
-                self.__connection, self.__cursor, site, self.__tags[site])
+            await self.__postgres.set_tags(site, self.__tags[site])
 
     def match_tag(self, site: str, tag: str) -> Optional[str]:
         """
@@ -50,7 +48,9 @@ class TagMatcher:
         """
         if site not in self.__tags:
             return
-        res = get_close_matches(tag, self.__tags[site], 1)
+        if self.tag_exist(site, tag):
+            return tag
+        res = get_close_matches(tag, self.__tags[site], 1, cutoff=0.5)
         return res[0] if res else None
 
     def tag_exist(self, site: str, tag: str) -> bool:

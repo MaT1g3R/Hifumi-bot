@@ -12,7 +12,7 @@ from scripts.discord_functions import get_server_role
 from scripts.language_support import generate_language_entry
 
 
-def set_language(bot, ctx, language: str) -> str:
+async def set_language(bot, ctx, language: str) -> str:
     """
     Set the language for the guild, and return the message
     :param bot: bot
@@ -22,7 +22,7 @@ def set_language(bot, ctx, language: str) -> str:
     """
     # FIXME Remove casting after library rewrite
     guild_id = int(ctx.message.server.id)
-    bot.data_manager.set_language(guild_id, language)
+    await bot.data_manager.set_language(guild_id, language)
     localize = bot.get_language_dict(ctx)
     language_data = localize['language_data']
     translators = language_data['translators']
@@ -31,7 +31,7 @@ def set_language(bot, ctx, language: str) -> str:
     )
 
 
-def get_prefix(bot, message):
+async def get_prefix(bot, message):
     """
     Get the command prefix based on a discord message.
     :param bot: the bot.
@@ -39,13 +39,13 @@ def get_prefix(bot, message):
     :return: the command prefix.
     """
     try:
-        return bot.data_manager.get_prefix(
+        return await bot.data_manager.get_prefix(
             int(message.server.id)) or bot.default_prefix
     except AttributeError:
         return bot.default_prefix
 
 
-def change_balance(data_manager: DataManager, user_id: int, delta: int):
+async def change_balance(data_manager: DataManager, user_id: int, delta: int):
     """
     Change the balance of a user.
     :param data_manager: the data manager.
@@ -53,14 +53,14 @@ def change_balance(data_manager: DataManager, user_id: int, delta: int):
     :param delta: the amout to change.
     :raises LowBalanceError: if the user doesnt have enough balance.
     """
-    current_balance = data_manager.get_user_balance(user_id) or 0
+    current_balance = await data_manager.get_user_balance(user_id) or 0
     new_balance = current_balance + delta
     if new_balance < 0:
         raise LowBalanceError(str(current_balance))
-    data_manager.set_user_balance(user_id, new_balance)
+    await data_manager.set_user_balance(user_id, new_balance)
 
 
-def transfer_balance(
+async def transfer_balance(
         data_manager: DataManager, from_id: int, to_id, amount: int) -> tuple:
     """
     Transfer balance from one user to another.
@@ -79,40 +79,44 @@ def transfer_balance(
     if amount < 0:
         raise NegativeTransferError
     if amount > 0:
-        change_balance(data_manager, from_id, -amount)
-        change_balance(data_manager, to_id, amount)
-    return (data_manager.get_user_balance(from_id),
-            data_manager.get_user_balance(to_id))
+        await change_balance(data_manager, from_id, -amount)
+        await change_balance(data_manager, to_id, amount)
+    return (await data_manager.get_user_balance(from_id),
+            await data_manager.get_user_balance(to_id))
 
 
-def add_self_role(data_manager: DataManager, guild_id: int, role):
+async def add_self_role(data_manager: DataManager, guild_id: int, role):
     """
     Add a self role to the guild role list.
     :param data_manager: the data manager.
     :param guild_id: the guild id.
     :param role: the role name.
     """
-    lst = data_manager.get_roles(guild_id) or []
+    lst = await data_manager.get_roles(guild_id) or []
     if role not in lst:
         lst.append(role)
-        data_manager.set_roles(guild_id, lst)
+        await data_manager.set_roles(guild_id, lst)
 
 
-def remove_self_role(data_manager: DataManager, guild_id: int, role):
+async def remove_self_role(data_manager: DataManager, guild_id: int, role):
     """
     Remove a self role from the guild role list.
     :param data_manager: the data manager.
     :param guild_id: the guild id.
     :param role: the role name.
     """
-    lst = data_manager.get_roles(guild_id) or []
-    if role in lst:
+    lst = await data_manager.get_roles(guild_id) or []
+    try:
         lst.remove(role)
-        data_manager.set_roles(guild_id, lst)
+    except ValueError:
+        pass
+    else:
+        await data_manager.set_roles(guild_id, lst)
 
 
 # FIXME Change Server to Guild after lib rewrite
-def self_role_names(guild: Server, data_manager: DataManager) -> List[str]:
+async def self_role_names(
+        guild: Server, data_manager: DataManager) -> List[str]:
     """
     Get the role list of the server
 
@@ -124,20 +128,15 @@ def self_role_names(guild: Server, data_manager: DataManager) -> List[str]:
     """
     # FIXME Remove casting after lib rewrite
     guild_id = int(guild.id)
-    lst = data_manager.get_roles(guild_id) or []
-    edit = False
+    lst = await data_manager.get_roles(guild_id) or []
     # Check for any non-existing roles and remove them from the db
-    for i in range(len(lst)):
-        role = lst[i]
-        if not get_server_role(role, guild):
-            edit = True
-            lst.remove(role)
-    if edit:
-        data_manager.set_roles(guild_id, lst)
-    return lst
+    new = [r for r in lst if get_server_role(r, guild)]
+    if new != lst:
+        await data_manager.set_roles(guild_id, new)
+    return new
 
 
-def get_modlog(data_manager: DataManager, guild):
+async def get_modlog(data_manager: DataManager, guild):
     """
     Get the mod log channel of a server, remove it from the db if the
     channel no longer exists
@@ -146,9 +145,9 @@ def get_modlog(data_manager: DataManager, guild):
     :return: the mod log channel id
     """
     # FIXME Remove casting after library rewrite
-    modlog = data_manager.get_mod_log(int(guild.id))
+    modlog = await data_manager.get_mod_log(int(guild.id))
     guild_channel = get(guild.channels, id=str(modlog))
     if guild_channel:
         return guild_channel
     else:
-        data_manager.set_mod_log(int(guild.id), None)
+        await data_manager.set_mod_log(int(guild.id), None)

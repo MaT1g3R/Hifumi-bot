@@ -1,20 +1,45 @@
-from pathlib import Path
+from asyncpg import Connection, connect
 
-_db_path = str(Path(__file__).parent.joinpath('test_data').joinpath('mock_db'))
+__all__ = ['_clear_db', '_get_connection', 'schema']
 
 
-def _clear_db(conn, cur):
+async def _clear_db(conn: Connection):
     """
     Helper function to delete all rows from all tables from the db
-    :param conn: the sqlite3 connection.
-    :param cur: the sqlite3 cursor.
+    :param conn: the Postgres connection.
     """
-    cur.execute('SELECT name FROM sqlite_master WHERE type=?', ('table',))
-    all_tables = [t[0] for t in cur.fetchall() if t[0]]
-    for name in all_tables:
-        cur.execute(f'DELETE FROM {name}')
-    conn.commit()
-    conn.close()
+    tables = '''
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema=$1
+    AND table_type='BASE TABLE'
+    '''
+    table_names = [
+        list(v.values())[0] for v in
+        [r for r in await conn.fetch(tables, schema())]
+    ]
+    for table in table_names:
+        await conn.execute(f'TRUNCATE {schema()}.{table}')
 
 
-__all__ = ['_db_path', '_clear_db']
+async def _get_connection() -> Connection:
+    """
+    Get a asyncpg Connection object
+    :return: the Connection object
+    """
+    kwagrs = __get_kwargs()
+    conn = await connect(**kwagrs)
+    return conn
+
+
+def __get_kwargs(*args, **kwargs) -> dict:
+    """
+    Get the kwargs to connect to the db.
+    """
+    # TODO Finish this
+    raise NotImplementedError
+
+
+def schema():
+    # TODO Finish this
+    raise NotImplementedError
