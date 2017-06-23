@@ -1,8 +1,9 @@
 # TODO
 # High Priority!!
-- [ ] Migrate the databse to Postgres.
+- [x] Migrate the databse to Postgres.
 - [x] Fix issue #4
 - [x] Reduce the amout of Aiohttp ClientSession throughout the bot.
+- [ ] Use YAML for config files.
 
 ## 1. Bot manager/launcher
 - [ ] Rework all functions
