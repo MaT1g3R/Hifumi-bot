@@ -62,7 +62,7 @@ def generate_info(*, guilds, members, channels, voice, logged_in):
     }
 
 
-def build_info_embed(ctx, bot):
+async def build_info_embed(ctx, bot):
     """
     build the info embed
     :param ctx: the discord context object
@@ -77,7 +77,7 @@ def build_info_embed(ctx, bot):
         logged_in=bot.is_logged_in
     )
     user = bot.user
-    lan = bot.get_language_dict(ctx)
+    lan = await bot.get_language_dict(ctx)
 
     ram = stats['ram']
     guild_count = comma(stats['guild_count'])
@@ -92,10 +92,10 @@ def build_info_embed(ctx, bot):
     total_ram = virtual_memory().total / 1024 / 1024 / 1024
     total_ram_str = '{0:.2f}GB'.format(total_ram)
 
-    embed = Embed(colour=int(bot.config['colour'], base=16))
+    embed = Embed(colour=bot.config['Bot']['colour'])
     embed.set_author(name=user.name, icon_url='{0.avatar_url}'.format(user))
     embed.set_footer(
-        text=lan['info_footer'].format(get_prefix(bot, ctx.message)))
+        text=lan['info_footer'].format(await get_prefix(bot, ctx.message)))
 
     embed.add_field(
         name=lan['ram_used'] + '/' + lan['total_ram'],
@@ -116,10 +116,10 @@ def build_info_embed(ctx, bot):
 
     embed.add_field(name=lan['sys'], value=get_system_name())
 
-    devs = bot.config['devs']
+    devs = bot.config['Bot']['devs']
     if devs:
         embed.add_field(name=lan['devs'], value='\n'.join(devs))
-    helpers = bot.config['helpers']
+    helpers = bot.config['Bot']['helpers']
     if helpers:
         embed.add_field(name=lan['helper'], value='\n'.join(helpers))
 

@@ -27,10 +27,10 @@ class Currency:
         :param ctx: the discord context
         """
         await self.bot.say(
-            daily(
+            await daily(
                 self.bot.data_manager,
                 int(ctx.message.author.id),
-                self.bot.get_language_dict(ctx))
+                await self.bot.get_language_dict(ctx))
         )
 
     @commands.command(pass_context=True)
@@ -49,9 +49,11 @@ class Currency:
             member_id = int(member.id)
             localize_key = 'balance_other'
             name = member.display_name
-        balance = self.bot.data_manager.get_user_balance(member_id) or 0
+        balance = await self.bot.data_manager.get_user_balance(member_id) or 0
         await self.bot.say(
-            self.bot.get_language_dict(ctx)[localize_key].format(name, balance)
+            (await self.bot.get_language_dict(ctx))[localize_key].format(
+                name, balance
+            )
         )
 
     @commands.command(pass_context=True, no_pm=True)
@@ -62,7 +64,7 @@ class Currency:
         :param member: the target member for the transfer
         :param amount: the amout for the transfer
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await  self.bot.get_language_dict(ctx)
         try:
             amount = round(float(amount))
             if amount <= 0:
@@ -71,7 +73,7 @@ class Currency:
             await self.bot.say(localize['currency_bad_num'])
         else:
             await self.bot.say(
-                transfer(
+                await transfer(
                     self.bot.data_manager, ctx.message.author,
                     member, amount, localize
                 )
@@ -85,7 +87,7 @@ class Currency:
         :param ctx: the discord context
         :param amount: the amount of bet
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         try:
             amount = round(float(amount))
             if amount <= 0:
@@ -94,10 +96,9 @@ class Currency:
             await self.bot.say(localize['currency_bad_num'])
             return
 
-        localize = self.bot.get_language_dict(ctx)
         user_id = int(ctx.message.author.id)
         try:
-            change_balance(self.bot.data_manager, user_id, -amount)
+            await change_balance(self.bot.data_manager, user_id, -amount)
         except LowBalanceError as e:
             await self.bot.say(localize['low_balance'].format(str(e)))
             return
@@ -111,7 +112,7 @@ class Currency:
             self.bot, msg, q1, q2, q3, n1, n2, n3
         )
         await self.bot.say(
-            determine_slot_result(
+            await determine_slot_result(
                 self.bot.data_manager, user_id,
                 localize, r1, r2, r3, amount
             )

@@ -29,7 +29,7 @@ class BotInfo:
         Displays the bot info
         :param ctx: the discord context object
         """
-        await self.bot.say(embed=build_info_embed(ctx, self.bot))
+        await self.bot.say(embed=await build_info_embed(ctx, self.bot))
 
     @commands.command(pass_context=True)
     async def support(self, ctx):
@@ -37,8 +37,8 @@ class BotInfo:
         Says the support server for the bot
         :param ctx: the discord context object
         """
-        base = self.bot.get_language_dict(ctx)['support']
-        f = lambda s: self.bot.config[s]
+        base = (await self.bot.get_language_dict(ctx))['support']
+        f = lambda s: str(self.bot.config['Bot extra'][s])
         await self.bot.say(
             base.format(f('support'), f('twitter'), f('website')))
 
@@ -48,7 +48,7 @@ class BotInfo:
         Display the donate message
         :param ctx: the discord context object
         """
-        await self.bot.say(self.bot.get_language_dict(ctx)['donate'])
+        await self.bot.say((await self.bot.get_language_dict(ctx))['donate'])
 
     @commands.command(pass_context=True)
     async def git(self, ctx):
@@ -56,7 +56,7 @@ class BotInfo:
         Display the git repo
         :param ctx: the discord context object
         """
-        await self.bot.say(self.bot.get_language_dict(ctx)['git'])
+        await self.bot.say((await self.bot.get_language_dict(ctx))['git'])
 
     # TODO Finish help command
     # @commands.command(pass_context=True)
@@ -87,7 +87,7 @@ class BotInfo:
         :param ctx: the discord context object
         """
         await self.bot.say(
-            self.bot.get_language_dict(ctx)['invite'].format(
+            (await self.bot.get_language_dict(ctx))['invite'].format(
                 self.bot.config['invite']
             )
         )
@@ -99,11 +99,11 @@ class BotInfo:
         :param ctx: the discord context object
         """
         if ctx.invoked_subcommand is None:
-            localize = self.bot.get_language_dict(ctx)
+            localize = await self.bot.get_language_dict(ctx)
             await self.bot.say(
                 localize['language'].format(
                     generate_language_entry(localize['language_data']),
-                    get_prefix(self.bot, ctx.message),
+                    await get_prefix(self.bot, ctx.message),
                     self.bot.default_language
                 )
             )
@@ -116,7 +116,7 @@ class BotInfo:
         """
         await self.bot.say(
             generate_language_list(
-                self.bot.language, self.bot.get_language_key(ctx)
+                self.bot.language, await self.bot.get_language_key(ctx)
             )
         )
 
@@ -126,17 +126,17 @@ class BotInfo:
         :param ctx: the discord context.
         :param language: the language to set to.
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         if language not in self.bot.language:
             await self.bot.say(
                 localize['lan_no_exist'].format(
                     language,
-                    get_prefix(self.bot, ctx.message)
+                    await get_prefix(self.bot, ctx.message)
                 )
             )
         else:
             await self.bot.say(
-                set_language(self.bot, ctx, language)
+                await set_language(self.bot, ctx, language)
             )
 
     @language.command(pass_context=True, no_pm=True, name='set')
@@ -165,9 +165,10 @@ class BotInfo:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
+            localize = await self.bot.get_language_dict(ctx)
             await self.bot.say(
-                self.bot.get_language_dict(ctx)['prefix'].format(
-                    get_prefix(self.bot, ctx.message),
+               localize['prefix'].format(
+                    await get_prefix(self.bot, ctx.message),
                     self.bot.default_prefix
                 )
             )
@@ -178,7 +179,7 @@ class BotInfo:
         :param ctx: the discord context.
         :param prefix: the prefix to set to.
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         if not prefix:
             await self.bot.say(localize['prefix_empty'])
             return
@@ -189,7 +190,9 @@ class BotInfo:
                 or prefix.startswith('<@'):
             await self.bot.say(localize['prefix_bad_start'])
             return
-        self.bot.data_manager.set_prefix(int(ctx.message.server.id), prefix)
+        await self.bot.data_manager.set_prefix(
+            int(ctx.message.server.id), prefix
+        )
         await self.bot.say(localize['set_prefix'].format(prefix))
 
     @prefix.command(pass_context=True, no_pm=True, name='set')

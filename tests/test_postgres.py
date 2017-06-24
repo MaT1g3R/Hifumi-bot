@@ -23,8 +23,8 @@ async def test_guild_row(postgres):
     """
     Test _get_guild_row, _write_guild_row
     """
-    guild_id = 1
-    vals = (guild_id, '?', 'en', 2, ['3', '5', '7'])
+    guild_id = '1'
+    vals = (guild_id, '?', 'en', '2', ['3', '5', '7'])
     wrong_vals = (guild_id, '?', 'en', '2', '[3,5,7]')
     none_vals = (guild_id, None, None, None, None)
 
@@ -49,15 +49,15 @@ async def test_guild_row(postgres):
     finally:
         assert await postgres.get_guild(guild_id) == vals
 
-    assert not any(await postgres.get_guild(100))
+    assert not any(await postgres.get_guild('100'))
 
 
 async def test_member_row(postgres):
     """
     Test _get_member_row, _write_member_row
     """
-    member_id, guild_id = 1, 1
-    wrong_member, wrong_guild = 2, 2
+    member_id, guild_id = '1', '1'
+    wrong_member, wrong_guild = '2', '2'
     warns = 3
     none_warn = (member_id, guild_id, None)
     expected = (member_id, guild_id, warns)
@@ -88,7 +88,7 @@ async def test_user_row(postgres):
     """
     Test _get_user_row, _write_user_row
     """
-    user_id = 1
+    user_id = '1'
     balance = 100
     daily = datetime.now()
     none_val = (user_id, 0, None)
@@ -111,7 +111,7 @@ async def test_user_row(postgres):
     finally:
 
         assert await postgres.get_user(user_id) == expected
-    assert not any(await postgres.get_user(user_id + 1))
+    assert not any(await postgres.get_user(user_id + '1'))
 
 
 async def test_tags(postgres):

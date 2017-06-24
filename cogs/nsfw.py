@@ -25,20 +25,21 @@ class Nsfw:
         :param site: the site name.
         :param query: the search quries.
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         if len(query) > 2 and site == 'danbooru':
             await self.bot.say(localize['two_term'])
             return
+        dan = self.bot.config['API keys']['danbooru']
         res, tags = await get_lewd(
             self.bot.session_manager,
             site, query, localize,
             self.bot.tag_matcher,
-            self.bot.config['danbooru_username'],
-            self.bot.config['danbooru_key']
+            str(dan['username']),
+            str(dan['key'])
         )
         await self.bot.say(res)
         if tags:
-            self.bot.tag_matcher.add_tags(site, tags)
+            await self.bot.tag_matcher.add_tags(site, tags)
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
@@ -104,5 +105,5 @@ class Nsfw:
         :param ctx: the discord context
         """
         res = await greenteaneko(
-            self.bot.get_language_dict(ctx), self.bot.session_manager)
+            await self.bot.get_language_dict(ctx), self.bot.session_manager)
         await self.bot.say(res)

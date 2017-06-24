@@ -1,8 +1,11 @@
 """
 Utility functions to interact with the database
 """
+from asyncio import sleep
+from logging import WARNING
 from typing import List
 
+from asyncpg import InterfaceError
 from discord import Server
 from discord.utils import get
 
@@ -23,7 +26,7 @@ async def set_language(bot, ctx, language: str) -> str:
     # FIXME Remove casting after library rewrite
     guild_id = int(ctx.message.server.id)
     await bot.data_manager.set_language(guild_id, language)
-    localize = bot.get_language_dict(ctx)
+    localize = await bot.get_language_dict(ctx)
     language_data = localize['language_data']
     translators = language_data['translators']
     return localize['lan_set_success'].format(
@@ -38,11 +41,24 @@ async def get_prefix(bot, message):
     :param message: the discord message.
     :return: the command prefix.
     """
+
+    async def reslove(_bot, id_):
+        try:
+            res = await _bot.data_manager.get_prefix(id_)
+            return res
+        except InterfaceError as e:
+            await sleep(0.1)
+            _bot.logger.log(WARNING, str(e))
+            res = await reslove(_bot, id_)
+            return res
+
     try:
-        return await bot.data_manager.get_prefix(
-            int(message.server.id)) or bot.default_prefix
+        server_id = int(message.server.id)
     except AttributeError:
         return bot.default_prefix
+    else:
+        r = await reslove(bot, server_id)
+        return r if r else bot.default_prefix
 
 
 async def change_balance(data_manager: DataManager, user_id: int, delta: int):
@@ -106,12 +122,8 @@ async def remove_self_role(data_manager: DataManager, guild_id: int, role):
     :param role: the role name.
     """
     lst = await data_manager.get_roles(guild_id) or []
-    try:
-        lst.remove(role)
-    except ValueError:
-        pass
-    else:
-        await data_manager.set_roles(guild_id, lst)
+    new = [s for s in lst if s != role]
+    await data_manager.set_roles(guild_id, new)
 
 
 # FIXME Change Server to Guild after lib rewrite

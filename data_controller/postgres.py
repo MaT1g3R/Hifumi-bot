@@ -7,9 +7,9 @@ from asyncpg.prepared_stmt import PreparedStatement
 from scripts.helpers import assert_types
 
 # Types expected for the different tables
-_guild_types = (int, str, str, int, list)
-_member_types = (int, int, int)
-_user_types = (int, int, datetime)
+_guild_types = (str, str, str, str, list)
+_member_types = (str, str, int)
+_user_types = (str, int, datetime)
 _tag_types = (str, str)
 
 
@@ -94,7 +94,7 @@ class Postgres:
             'DO NOTHING'.format(schema)
         )
 
-    async def get_guild(self, guild_id: int) -> tuple:
+    async def get_guild(self, guild_id: str) -> tuple:
         """
         Get guild row by id.
         :param guild_id: the guild id.
@@ -113,7 +113,7 @@ class Postgres:
         assert_types(values, _guild_types, True)
         await self.__set_guild.fetch(*values)
 
-    async def get_member(self, member_id: int, guild_id: int) -> tuple:
+    async def get_member(self, member_id: str, guild_id: str) -> tuple:
         """
         Get a member row.
         :param member_id: the member id.
@@ -135,7 +135,7 @@ class Postgres:
         assert_types(values, _member_types, True)
         await self.__set_member.fetch(*values)
 
-    async def get_user(self, user_id: int) -> tuple:
+    async def get_user(self, user_id: str) -> tuple:
         """
         Get a user row.
         :param user_id: the user id. 

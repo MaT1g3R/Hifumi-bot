@@ -29,7 +29,7 @@ class Utilities:
         """
         Say a random advice lol
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         url = 'http://api.adviceslip.com/advice'
         try:
             resp = await self.bot.session_manager.get(url)
@@ -51,9 +51,10 @@ class Utilities:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
+            localize = await self.bot.get_language_dict(ctx)
             await self.bot.say(
-                self.bot.get_language_dict(ctx)['fact_list'].format(
-                    get_prefix(self.bot, ctx.message),
+                localize['fact_list'].format(
+                    await get_prefix(self.bot, ctx.message),
                     '\n'.join(tuple(self.fact.commands.keys()))
                 )
             )
@@ -63,7 +64,7 @@ class Utilities:
         """
         Say a random cat fact
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         url = 'http://catfacts-api.appspot.com/api/facts'
         try:
             resp = await self.bot.session_manager.get(url)
@@ -81,7 +82,7 @@ class Utilities:
         :param ctx: the discord context
         :param num: the number
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         num = 'random' if num is None else num
         res = await number_fact(num, localize, self.bot.session_manager)
         await self.bot.say(res)
@@ -94,7 +95,8 @@ class Utilities:
         :param query: the search query
         """
         res = await imdb(
-            ' '.join(query), self.imdb_api, self.bot.get_language_dict(ctx)
+            ' '.join(query), self.imdb_api,
+            await self.bot.get_language_dict(ctx)
         )
         if isinstance(res, Embed):
             await self.bot.say(embed=res)
@@ -108,11 +110,12 @@ class Utilities:
         :param ctx: the discord context
         :param query: the search query
         """
+        e = self.bot.config['API keys']['edamam']
         res = await recipe_search(
             ' '.join(query),
-            self.bot.get_language_dict(ctx),
-            self.bot.config['edamam_app_id'],
-            self.bot.config['edamam_key'],
+            await self.bot.get_language_dict(ctx),
+            str(e['app id']),
+            str(e['key']),
             self.bot.session_manager
         )
         if isinstance(res, Embed):

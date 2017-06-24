@@ -53,6 +53,7 @@ class _GuildRow(_Row):
         Set up this instance's data.
         :param guild_id: the guild id.
         """
+        guild_id = str(guild_id)
         row = await self._postgres.get_guild(guild_id)
         if row[0] is None:
             row = (guild_id,) + row[1:]
@@ -67,7 +68,7 @@ class _GuildRow(_Row):
 
     @property
     def guild_id(self) -> int:
-        return self._row[0]
+        return int(self._row[0])
 
     @property
     def prefix(self) -> str:
@@ -79,7 +80,8 @@ class _GuildRow(_Row):
 
     @property
     def mod_log(self) -> int:
-        return self._row[3]
+        if self._row[3]:
+            return int(self._row[3])
 
     @property
     def roles(self) -> list:
@@ -92,7 +94,7 @@ class _GuildRow(_Row):
         await self._set(2, language)
 
     async def set_mod_log(self, mod_log: int):
-        await self._set(3, mod_log)
+        await self._set(3, str(mod_log))
 
     async def set_roles(self, roles: List[str]):
         await self._set(4, roles)
@@ -116,6 +118,7 @@ class _MemberRow(_Row):
         :param member_id: the member id.
         :param guild_id: the guild id of that member.
         """
+        member_id, guild_id = str(member_id), str(guild_id)
         row = await self._postgres.get_member(member_id, guild_id)
         if row[0] is None and row[1] is None:
             row = (member_id, guild_id) + row[2:]
@@ -136,11 +139,11 @@ class _MemberRow(_Row):
 
     @property
     def member_id(self) -> int:
-        return self._row[0]
+        return int(self._row[0])
 
     @property
     def guild_id(self) -> int:
-        return self._row[1]
+        return int(self._row[1])
 
     @property
     def warns(self) -> int:
@@ -167,6 +170,7 @@ class _UserRow(_Row):
         Set up this instance's data.
         :param user_id: the user id
         """
+        user_id = str(user_id)
         row = await self._postgres.get_user(user_id)
         if row[0] is None:
             row = (user_id,) + row[1:]
@@ -181,7 +185,7 @@ class _UserRow(_Row):
 
     @property
     def user_id(self) -> int:
-        return self._row[0]
+        return int(self._row[0])
 
     @property
     def balance(self) -> int:

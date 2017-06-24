@@ -27,10 +27,10 @@ class Roles:
         :param role: the role name
         :param is_add: True to assign role, False to rm role
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         guild = ctx.message.server
         server_role = get_server_role(role, guild)
-        role_lst = self_role_names(guild, self.bot.data_manager)
+        role_lst = await self_role_names(guild, self.bot.data_manager)
         if not server_role:
             await self.bot.say(localize['role_unrole_no_exist'])
             return
@@ -75,9 +75,10 @@ class Roles:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
+            localize = await self.bot.get_language_dict(ctx)
             await self.bot.say(
-                self.bot.get_language_dict(ctx)['selfrole_bad_command'].format(
-                    get_prefix(self.bot, ctx.message)
+                localize['selfrole_bad_command'].format(
+                    await get_prefix(self.bot, ctx.message)
                 )
             )
 
@@ -86,8 +87,8 @@ class Roles:
         """
         Display the selfrole list for the server
         """
-        lst = self_role_names(ctx.message.server, self.bot.data_manager)
-        localize = self.bot.get_language_dict(ctx)
+        lst = await self_role_names(ctx.message.server, self.bot.data_manager)
+        localize = await self.bot.get_language_dict(ctx)
         if lst:
             res = localize['has_role_list'] + '```' + '\n'.join(lst) + '```'
         else:
@@ -102,16 +103,16 @@ class Roles:
         :param is_add: True to add, False to remove
         """
         guild = ctx.message.server
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         if not get_server_role(role, guild):
             await self.bot.say(localize['role_no_exist'])
         elif is_add:
             # FIXME Remove casting after lib rewrite
-            add_self_role(self.bot.data_manager, int(guild.id), role)
+            await add_self_role(self.bot.data_manager, int(guild.id), role)
             await self.bot.say(localize['role_add_success'].format(role))
         else:
             # FIXME Remove casting after lib rewrite
-            remove_self_role(self.bot.data_manager, int(guild.id), role)
+            await remove_self_role(self.bot.data_manager, int(guild.id), role)
             await self.bot.say(localize['role_remove_success'].format(role))
 
     @selfrole.command(pass_context=True)

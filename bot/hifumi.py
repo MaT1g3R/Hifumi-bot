@@ -1,13 +1,14 @@
 """
 The Hifumi bot object
 """
-import sqlite3
-import time
+
 import traceback
 from logging import CRITICAL, ERROR, WARNING
 from pathlib import Path
+from time import time
 
 from aiohttp import ClientSession
+from asyncpg import connect
 from discord import ChannelType, Game, HTTPException, Message
 from discord.ext.commands import BadArgument, Bot, CommandNotFound, \
     CommandOnCooldown, Context, MissingRequiredArgument
@@ -17,6 +18,7 @@ from bot.session_manager import SessionManager
 from config import Config
 from data_controller import *
 from data_controller.data_utils import get_prefix
+from data_controller.postgres import get_postgres
 from scripts.checks import AdminError, BadWordError, ManageMessageError, \
     ManageRoleError, NsfwError, OwnerError
 from scripts.discord_functions import command_error_handler
@@ -30,27 +32,25 @@ class Hifumi(Bot):
     """
     __slots__ = ['shard_id', 'shard_count', 'start_time', 'language',
                  'default_language', 'logger', 'mention_normal', 'mention_nick',
-                 'conn', 'cur', 'all_emojis', 'config', 'session_manager']
+                 'all_emojis', 'config', 'session_manager']
 
-    def __init__(
-            self, config: Config,
-            shard_id: int, default_language='en'):
+    def __init__(self, config: Config, shard_id: int, loop, default_lan='en'):
         """
-        Initialize the bot object
-        :param default_language: the default language of the bot, default is en
-        unless you know what you are doing
+        Initialize the bot object.
+        :param config: the Config object.
+        :param shard_id: the shard id.
+        :param loop: the asyncio event loop.
+        :param default_lan: the default language.
         """
         self.config = config
-        self.session_manager = None
-        self.shard_count = config['shard_count']
+        self.session_manager: SessionManager = None
+        self.shard_count = config['Bot']['shard count']
         self.shard_id = shard_id
-        self.conn = sqlite3.connect(str(DB_PATH))
-        self.cur = self.conn.cursor()
-        self.tag_matcher = TagMatcher(self.conn, self.cur)
-        self.data_manager = DataManager(self.conn, self.cur)
-        self.start_time = int(time.time())
+        self.tag_matcher = None
+        self.data_manager = None
+        self.start_time = int(time())
         self.language = read_language(Path('./data/language'))
-        self.default_language = default_language
+        self.default_language = default_lan
         self.logger = setup_logging(
             self.start_time, Path('./data/logs')
         )
@@ -62,15 +62,26 @@ class Hifumi(Bot):
         super().__init__(
             command_prefix=get_prefix,
             shard_count=self.shard_count,
-            shard_id=self.shard_id
+            shard_id=self.shard_id,
+            loop=loop
         )
-
-    def __del__(self):
-        self.conn.close()
 
     @property
     def default_prefix(self):
-        return self.config['prefix']
+        return str(self.config['Bot']['prefix'])
+
+    async def set_postgres(self):
+        pg = self.config.postgres()
+        conn = await connect(
+            host=pg['host'], port=pg['port'], user=pg['user'],
+            database=pg['database'], password=pg['password']
+        )
+        post = await get_postgres(conn, pg['schema']['production'])
+        self.data_manager = DataManager(post)
+        self.tag_matcher = TagMatcher(
+            post, await post.get_tags())
+        info('Connected to database: {}.{}'.format(
+            pg['database'], pg['schema']['production']))
 
     async def on_ready(self):
         """
@@ -94,7 +105,7 @@ class Hifumi(Bot):
                 await __change_presence()
 
         await __change_presence()
-        if self.config['enable_console_logging']:
+        if self.config['Bot']['console logging']:
             self.logger.addHandler(get_console_handler())
 
     async def on_command_error(self, exception, context):
@@ -103,6 +114,7 @@ class Hifumi(Bot):
         :param exception: the expection raised
         :param context: the context of the command
         """
+        localize = await self.get_language_dict(context)
         handled_exceptions = (
             CommandOnCooldown, NsfwError, BadWordError, ManageRoleError,
             AdminError, ManageMessageError, MissingRequiredArgument, OwnerError,
@@ -111,9 +123,7 @@ class Hifumi(Bot):
         if isinstance(exception, handled_exceptions):
             await self.send_message(
                 context.message.channel,
-                command_error_handler(
-                    self.get_language_dict(context), exception
-                )
+                command_error_handler(localize, exception)
             )
         elif isinstance(exception, CommandNotFound):
             # Ignore this case
@@ -134,7 +144,7 @@ class Hifumi(Bot):
                 self.logger.log(WARNING, msg)
                 await self.send_message(
                     context.message.channel,
-                    self.get_language_dict(context)['ex_warn'].format(
+                    localize['ex_warn'].format(
                         triggered, ex_type, str_ex
                     )
                 )
@@ -147,11 +157,13 @@ class Hifumi(Bot):
         ig = 'Ignoring exception in {}\n'.format(event_method)
         tb = traceback.format_exc()
         self.logger.log(ERROR, '\n' + ig + '\n' + tb)
+
         try:
             ctx = args[1]
+            localize = await self.get_language_dict(ctx)
             await self.send_message(
                 ctx.message.channel,
-                self.get_language_dict(ctx)['ex_error'].format(ig + tb)
+                localize['ex_error'].format(ig + tb)
             )
         except HTTPException:
             pass
@@ -160,7 +172,7 @@ class Hifumi(Bot):
             self.logger.log(CRITICAL, msg)
             # FIXME Remove cast to str after lib rewrite
             for dev in [await self.get_user_info(str(i))
-                        for i in self.config['owner']]:
+                        for i in self.config['Bot']['owners']]:
                 await self.send_message(
                     dev,
                     'An exception ocurred while the '
@@ -179,12 +191,12 @@ class Hifumi(Bot):
         """
         if message.author.bot:
             return
-        prefix = get_prefix(self, message)
+        prefix = await get_prefix(self, message)
         name = message.content.split(' ')[0][len(prefix):]
         # TODO Implement command black list
         await super().process_commands(message)
 
-    def start_bot(self, cogs: list):
+    async def start_bot(self, cogs: list):
         """
         Start the bot
         :param cogs: a list of cogs
@@ -193,18 +205,19 @@ class Hifumi(Bot):
         # self.remove_command('help')
         for cog in cogs:
             self.add_cog(cog)
-        self.run(self.config['token'])
+        await self.set_postgres()
+        await self.start(self.config['Bot']['token'])
 
-    def get_language_dict(self, ctx_msg):
+    async def get_language_dict(self, ctx_msg) -> dict:
         """
         Get the language of the given context
         :param ctx_msg: the discord context object, or a message object
         :return: the language dict
         :rtype: dict
         """
-        return self.language[self.get_language_key(ctx_msg)]
+        return self.language[await self.get_language_key(ctx_msg)]
 
-    def get_language_key(self, ctx_msg):
+    async def get_language_key(self, ctx_msg):
         """
         Get the language key of the context
         :param ctx_msg: the discord context object, or a message object
@@ -218,7 +231,7 @@ class Hifumi(Bot):
             raise TypeError
         channel = message.channel
         if channel.type == ChannelType.text:
-            lan = self.data_manager.get_language(int(message.server.id))
+            lan = await self.data_manager.get_language(int(message.server.id))
             return lan or self.default_language
         else:
             return self.default_language

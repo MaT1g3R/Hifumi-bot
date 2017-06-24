@@ -19,7 +19,8 @@ class TriviaGame:
     A class to handle the trivia command
     """
     __slots__ = ['api', 'bot', 'args', 'channel', 'author', 'conn', 'cur',
-                 'localize', 'bet', 'prefix', 'data_manager', 'user_id']
+                 'localize', 'bet', 'prefix', 'data_manager', 'user_id',
+                 '__localize']
 
     def __init__(self, ctx, bot: Hifumi, args, api: Trivia):
         """
@@ -37,13 +38,18 @@ class TriviaGame:
         self.channel = ctx.message.channel
         self.author = ctx.message.author
         self.user_id = int(self.author.id)
-        self.localize = bot.get_language_dict(ctx)
+        self.__localize = bot.get_language_dict(ctx)
+        self.localize = None
         self.bet = 0
+
+    async def __setup(self):
+        self.localize = await self.localize
 
     async def play(self):
         """
         Play the trivia game
         """
+        await self.__setup()
         if not self.args and not await self.__handle_no_args():
             return
         kwargs = await self.__get_kwargs()
@@ -68,7 +74,7 @@ class TriviaGame:
             )
             if self.bet > 0:
                 await self.bot.say(
-                    _handle_bet(
+                    await _handle_bet(
                         data_manager=self.data_manager,
                         correct=correct,
                         difficulty=difficulty,
@@ -79,7 +85,7 @@ class TriviaGame:
                 )
         except Exception as e:
             if self.bet > 0:
-                change_balance(self.data_manager, self.user_id, self.bet)
+                await change_balance(self.data_manager, self.user_id, self.bet)
             raise e
 
     async def __handle_no_args(self):
@@ -312,7 +318,7 @@ def _format_trivia(trivia_data, localize):
     return embed, answer, correct_str, difficulty
 
 
-def _handle_bet(**kwargs):
+async def _handle_bet(**kwargs):
     """
     Handle the trivia outcome if the user placed a bet
     :param kwargs: see below for details
@@ -338,8 +344,9 @@ def _handle_bet(**kwargs):
         }[difficulty]
         price = round(amount * multiplier)
         delta = price
-        change_balance(data_manager, user_id, amount + price)
+        await change_balance(data_manager, user_id, amount + price)
     else:
         delta = amount
     key = 'trivia_correct_balance' if correct else 'trivia_wrong_balance'
-    return localize[key].format(delta, data_manager.get_user_balance(user_id))
+    return localize[key].format(
+        delta, await data_manager.get_user_balance(user_id))

@@ -30,7 +30,7 @@ class Moderation:
         :param args: if args[0] is an interger it will be resolved as
         delete_message_days, else delete_message_days will be 0
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         bad_num_msg = localize['delete_message_days']
         no_reason = localize['pls_provide_reason']
         try:
@@ -62,9 +62,8 @@ class Moderation:
         :param reason: the kick reason
         """
         if not reason:
-            await self.bot.say(
-                self.bot.get_language_dict(ctx)['pls_provide_reason']
-            )
+            localize = await self.bot.get_language_dict(ctx)
+            await self.bot.say(localize['pls_provide_reason'])
         else:
             await ban_kick(self.bot, ctx, member, ' '.join(reason), False)
 
@@ -77,7 +76,8 @@ class Moderation:
         :param ctx: the discord context object
         :param number: the amount of messages to be deleted
         """
-        bad_num_msg = self.bot.get_language_dict(ctx)['clean_message_bad_num']
+        localize = await self.bot.get_language_dict(ctx)
+        bad_num_msg = localize['clean_message_bad_num']
         if number is None:
             await self.bot.say(bad_num_msg)
         else:
@@ -85,6 +85,20 @@ class Moderation:
                 await clean_msg(ctx, self.bot, int(number))
             except ValueError:
                 await self.bot.say(bad_num_msg)
+
+    async def __mute(self, ctx, is_mute, member, reason):
+        """
+        Helper method to mute/unmute a member.
+        :param ctx: the context.
+        :param is_mute: True to mute, False to unmute.
+        :param member: the member.
+        :param reason: the reason.
+        """
+        if not reason:
+            localize = await self.bot.get_language_dict(ctx)
+            await self.bot.say(localize['pls_provide_reason'])
+        else:
+            await mute_unmute(ctx, self.bot, member, is_mute, ' '.join(reason))
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(has_manage_role)
@@ -94,12 +108,7 @@ class Moderation:
         :param ctx: the discord context object
         :param member: the member to be muted
         """
-        if not reason:
-            await self.bot.say(
-                self.bot.get_language_dict(ctx)['pls_provide_reason']
-            )
-        else:
-            await mute_unmute(ctx, self.bot, member, True, ' '.join(reason))
+        await self.__mute(ctx, True, member, reason)
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(has_manage_role)
@@ -109,12 +118,21 @@ class Moderation:
         :param ctx: the discord context object
         :param member: the member to be unmuted
         """
+        await self.__mute(ctx, False, member, reason)
+
+    async def __warn(self, ctx, is_warn, member: Member, *reason):
+        """
+        Helper method to warn/pardon someone.
+        :param ctx: the context.
+        :param is_warn: True to warn, False to pardon.
+        :param member: the member.
+        :param reason: the reason.
+        """
         if not reason:
-            await self.bot.say(
-                self.bot.get_language_dict(ctx)['pls_provide_reason']
-            )
+            localize = await self.bot.get_language_dict(ctx)
+            await self.bot.say(localize['pls_provide_reason'])
         else:
-            await mute_unmute(ctx, self.bot, member, False, ' '.join(reason))
+            await warn_pardon(self.bot, ctx, ' '.join(reason), member, is_warn)
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
@@ -125,12 +143,7 @@ class Moderation:
         :param member: the member to be warned
         :param reason: the warn reason
         """
-        if not reason:
-            await self.bot.say(
-                self.bot.get_language_dict(ctx)['pls_provide_reason']
-            )
-        else:
-            await warn_pardon(self.bot, ctx, ' '.join(reason), member, True)
+        await self.__warn(ctx, True, member, reason)
 
     @commands.command(pass_context=True, no_pm=True)
     @commands.check(is_admin)
@@ -141,12 +154,7 @@ class Moderation:
         :param member: the member to be warned
         :param reason: the warn reason
         """
-        if not reason:
-            await self.bot.say(
-                self.bot.get_language_dict(ctx)['pls_provide_reason']
-            )
-        else:
-            await warn_pardon(self.bot, ctx, ' '.join(reason), member, False)
+        await self.__warn(ctx, False, member, reason)
 
     @commands.group(pass_context=True, no_pm=True)
     @commands.check(is_admin)
@@ -157,15 +165,15 @@ class Moderation:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
-            localize = self.bot.get_language_dict(ctx)
-            modlog = get_modlog(self.bot.data_manager, ctx.message.server)
+            localize = await self.bot.get_language_dict(ctx)
+            modlog = await get_modlog(self.bot.data_manager, ctx.message.server)
             if modlog:
                 await self.bot.say(
                     localize['mod_log_channel'].format(modlog.name))
             else:
                 await self.bot.say(localize['mod_log_empty'])
             await self.bot.say(localize['mod_log_info'].format(
-                get_prefix(self.bot, ctx.message)))
+                await get_prefix(self.bot, ctx.message)))
 
     async def __modify_modlog(self, ctx, is_set):
         """
@@ -174,15 +182,15 @@ class Moderation:
         :param is_set: True to set, False to remove
         """
         # FIXME Remove casting when library rewrite is finished
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         guild_id = int(ctx.message.server.id)
         channel = ctx.message.channel
         channel_id = int(channel.id)
         if is_set:
-            self.bot.data_manager.set_mod_log(guild_id, channel_id)
+            await self.bot.data_manager.set_mod_log(guild_id, channel_id)
             key = 'mod_log_set'
         else:
-            self.bot.data_manager.set_mod_log(guild_id, None)
+            await self.bot.data_manager.set_mod_log(guild_id, None)
             key = 'mod_log_rm'
         await self.bot.say(localize[key].format(channel.name))
 

@@ -3,14 +3,14 @@ Functions for currency commands
 """
 from collections import deque
 from random import randint, sample
-from time import time
 
+from datetime import datetime
 from data_controller import DataManager, LowBalanceError
 from data_controller.data_utils import change_balance, transfer_balance
 from scripts.helpers import get_time_elapsed
 
 
-def daily(data_manager: DataManager, user_id: int, localize):
+async def daily(data_manager: DataManager, user_id: int, localize):
     """
     Function to handle daily command
     :param data_manager: the data manager.
@@ -18,24 +18,25 @@ def daily(data_manager: DataManager, user_id: int, localize):
     :param localize: the localization strings
     :return: the daily command message
     """
-    current_daily = data_manager.get_user_daily(user_id)
+    current_daily = await data_manager.get_user_daily(user_id)
     first_time = current_daily is None
     delta = 500 if first_time else 200
-
+    now = datetime.now()
     if not first_time:
-        time_delta = int(time() - current_daily)
-        if time_delta < 86400:
-            hours, minutes, seconds = get_time_elapsed(time_delta, 86400)[1:]
+        time_delta = now - current_daily
+        if time_delta.days < 1:
+            __, hours, minutes, seconds = get_time_elapsed(
+                time_delta.total_seconds(), 86400)
             return localize['daily_come_back'].format(hours, minutes, seconds)
 
-    data_manager.set_user_daily(user_id, int(time()))
-    change_balance(data_manager, user_id, delta)
+    await data_manager.set_user_daily(user_id, now)
+    await change_balance(data_manager, user_id, delta)
     res_str = localize['daily_first_time'] if first_time \
         else localize['daily_success']
     return res_str.format(delta)
 
 
-def transfer(
+async def transfer(
         data_manager: DataManager, sender,
         reciver, amount: int, localize: dict) -> str:
     """
@@ -48,7 +49,7 @@ def transfer(
     :return: the result message
     """
     try:
-        new_sender, new_reciver = transfer_balance(
+        new_sender, new_reciver = await transfer_balance(
             data_manager, int(sender.id), int(reciver.id), amount)
         return localize['transfer_success'].format(
             amount, reciver.display_name, new_sender, new_reciver
@@ -103,7 +104,7 @@ async def roll_slots(bot, msg, q1, q2, q3, n1, n2, n3):
     return q1[0], q2[0], q3[0]
 
 
-def determine_slot_result(
+async def determine_slot_result(
         data_manager: DataManager, user_id: int, localize, r1, r2, r3, amount):
     """
     determine the slot game result and give/take away money from the user
@@ -118,13 +119,13 @@ def determine_slot_result(
     """
     if r1 == r2 == r3:
         delta = amount * 3
-        change_balance(data_manager, user_id, delta)
+        await change_balance(data_manager, user_id, delta)
         res = localize['slots_win'].format(delta - amount)
     elif r1 != r2 and r1 != r3 and r2 != r3:
         res = localize['slots_loose'].format(amount)
     else:
         res = localize['slots_draw']
-        change_balance(data_manager, user_id, amount)
+        await change_balance(data_manager, user_id, amount)
     return res + '\n' + localize['new_balance'].format(
-        data_manager.get_user_balance(user_id)
+        await data_manager.get_user_balance(user_id)
     )

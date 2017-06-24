@@ -114,7 +114,7 @@ async def mute_unmute(ctx, bot: Hifumi, member: Member,
     """
     # FIXME change server to guild when rewrite is finished
     guild = ctx.message.server
-    localize = bot.get_language_dict(ctx)
+    localize = await bot.get_language_dict(ctx)
     action = localize['mute'] if is_mute else localize['unmute']
     if is_mute and member.id == bot.user.id:
         await bot.say(localize['go_away'])

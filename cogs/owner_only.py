@@ -8,9 +8,8 @@ restart             ✕
 shutdown            ✕
 blacklist           ✕
 """
-
+from aiohttp import ClientResponseError
 from discord.ext import commands
-from requests import ConnectionError, RequestException, get
 
 from bot import Hifumi
 from core.owner_only_core import bash_script, handle_eval, setavatar
@@ -37,12 +36,12 @@ class OwnerOnly:
         Events for reading messages
         :param message: the message
         """
-        prefix = get_prefix(self.bot, message)
-        token = self.bot.config['token']
+        prefix = await get_prefix(self.bot, message)
+        token = str(self.bot.config['Bot']['token'])
         if check_message_startwith(self.bot, message, '{}eval'.format(prefix)):
-            localize = self.bot.get_language_dict(message)
+            localize = await self.bot.get_language_dict(message)
             # FIXME Remove casting after lib rewrite
-            if int(message.author.id) in self.bot.config['owner']:
+            if int(message.author.id) in self.bot.config['Bot']['owner']:
                 args = clense_prefix(message, '{}eval'.format(prefix))
                 res, success = handle_eval(args)
                 str_out = ['```Python\n' + s.replace('`', chr(0x1fef)) + '\n```'
@@ -67,8 +66,8 @@ class OwnerOnly:
         :param ctx: the discord context
         :param args: the bash command arguments
         """
-        token = self.bot.config['token']
-        localize = self.bot.get_language_dict(ctx)
+        token = str(self.bot.config['Bot']['token'])
+        localize = await self.bot.get_language_dict(ctx)
         result, success = bash_script(list(args))
         str_out = ['```\n' + s.replace('`', chr(0x1fef)) + '\n```'
                    for s in result]
@@ -87,14 +86,15 @@ class OwnerOnly:
         :param ctx: the discord context
         :param url: the url to the picture
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         if url is None:
             await self.bot.say(localize['avatar_fail'])
         else:
             try:
-                avatar = get(url).content
+                avatar = await self.bot.session_manager.get(url)
+                avatar = avatar.content
                 await setavatar(self.bot, localize, ctx.message.channel, avatar)
-            except (RequestException, ConnectionError):
+            except ClientResponseError:
                 await self.bot.say(localize['avatar_fail'])
 
     @commands.command(pass_context=True)
@@ -104,7 +104,7 @@ class OwnerOnly:
         Shutdown the bot process
         :param ctx: the discord context
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = await self.bot.get_language_dict(ctx)
         await self.bot.say(localize['shutdown'])
         await self.bot.logout
         exit(0)
