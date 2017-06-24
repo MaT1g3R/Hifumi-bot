@@ -41,7 +41,7 @@ class OwnerOnly:
         if check_message_startwith(self.bot, message, '{}eval'.format(prefix)):
             localize = await self.bot.get_language_dict(message)
             # FIXME Remove casting after lib rewrite
-            if int(message.author.id) in self.bot.config['Bot']['owner']:
+            if int(message.author.id) in self.bot.config['Bot']['owners']:
                 args = clense_prefix(message, '{}eval'.format(prefix))
                 res, success = handle_eval(args)
                 str_out = ['```Python\n' + s.replace('`', chr(0x1fef)) + '\n```'

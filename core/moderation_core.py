@@ -25,7 +25,7 @@ async def ban_kick(bot: Hifumi, ctx, member: Member, reason: str,
     user, not used for kick.
     :param reason: the reason the member is ban/kicked
     """
-    localize = bot.get_language_dict(ctx)
+    localize = await bot.get_language_dict(ctx)
     action = localize['ban'] if is_ban else localize['kick']
     action_past = localize['banned'] if is_ban else localize['kicked']
     if member == ctx.message.author:
@@ -55,7 +55,7 @@ async def clean_msg(ctx, bot: Hifumi, count: int):
     :param count: number of messages to be cleaned
     """
     count += 1
-    localize = bot.get_language_dict(ctx)
+    localize = await bot.get_language_dict(ctx)
     if count < 2 or count > 100:
         await bot.say(localize['clean_message_bad_num'])
         return
@@ -182,7 +182,7 @@ async def send_mod_log(ctx, bot: Hifumi, action: str, member: Member,
     :param reason: the reason of the action
     :param warn_count: the total warning count on the user
     """
-    localize = bot.get_language_dict(ctx)
+    localize = await bot.get_language_dict(ctx)
     # FIXME Remove type casting when library rewrite is finished
     mod_log = bot.data_manager.get_mod_log(int(ctx.message.server.id))
     if mod_log:
@@ -204,7 +204,7 @@ async def warn_pardon(bot: Hifumi, ctx, reason: str, member: Member,
     :param member: the warn/pardon target
     :param is_warn: True for warn, False for pardon
     """
-    localize = bot.get_language_dict(ctx)
+    localize = await bot.get_language_dict(ctx)
     author = ctx.message.author
     author = get_name_with_discriminator(author)
     # FIXME Remove casting when library rewrite is finished
