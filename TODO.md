@@ -1,9 +1,8 @@
 # TODO
 # High Priority!!
-- [x] Migrate the databse to Postgres.
-- [x] Fix issue #4
-- [x] Reduce the amout of Aiohttp ClientSession throughout the bot.
-- [x] Use YAML for config files.
+- [ ] Fix isssue #8
+- [ ] Make the bot report errors to an error log channel that can be set in configs.
+- [ ] Refactor [this](https://github.com/hifumibot/hifumibot/blob/91fc02b8d26271a5b60b61a5916451ae2b54a3a2/bot/hifumi.py)
 
 ## 1. Bot manager/launcher
 - [ ] Rework all functions
