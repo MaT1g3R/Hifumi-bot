@@ -14,9 +14,9 @@ pytestmark = pytest.mark.asyncio
 @pytest.fixture(scope='function')
 async def postgres():
     conn = await _get_connection()
-    pos = await get_postgres(conn, SCHEMA)
-    yield pos
     await _clear_db(conn)
+    pos = await get_postgres(conn, SCHEMA)
+    return pos
 
 
 async def test_guild_row(postgres):

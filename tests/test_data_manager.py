@@ -17,9 +17,9 @@ pytestmark = pytest.mark.asyncio
 @pytest.fixture(scope='function')
 async def manager():
     conn = await _get_connection()
-    pos = await get_postgres(conn, SCHEMA)
-    yield DataManager(pos)
     await _clear_db(conn)
+    pos = await get_postgres(conn, SCHEMA)
+    return DataManager(pos)
 
 
 async def __simple_test(

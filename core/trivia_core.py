@@ -20,7 +20,7 @@ class TriviaGame:
     """
     __slots__ = ['api', 'bot', 'args', 'channel', 'author', 'conn', 'cur',
                  'localize', 'bet', 'prefix', 'data_manager', 'user_id',
-                 '__localize']
+                 'ctx']
 
     def __init__(self, ctx, bot: Hifumi, args, api: Trivia):
         """
@@ -32,18 +32,19 @@ class TriviaGame:
         """
         self.api = api
         self.bot = bot
+        self.ctx = ctx
         self.data_manager = bot.data_manager
-        self.prefix = get_prefix(bot, ctx.message)
+        self.prefix = None
         self.args = args
         self.channel = ctx.message.channel
         self.author = ctx.message.author
         self.user_id = int(self.author.id)
-        self.__localize = bot.get_language_dict(ctx)
         self.localize = None
         self.bet = 0
 
     async def __setup(self):
-        self.localize = await self.localize
+        self.localize = await self.bot.get_language_dict(self.ctx)
+        self.prefix = await get_prefix(self.bot, self.ctx.message)
 
     async def play(self):
         """
