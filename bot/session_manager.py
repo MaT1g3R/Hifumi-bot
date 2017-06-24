@@ -32,6 +32,6 @@ class SessionManager:
         """
         async with self.session.get(
                 url, allow_redirects=allow_redirects, **kwargs) as r:
-            if r.status == 200:
+            if 200 <= r.status < 300:
                 return r
             raise ClientResponseError
