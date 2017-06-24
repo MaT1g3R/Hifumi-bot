@@ -43,7 +43,7 @@ class Hifumi(Bot):
         :param default_lan: the default language.
         """
         self.config = config
-        self.session_manager: SessionManager = None
+        self.session_manager = None
         self.shard_count = config['Bot']['shard count']
         self.shard_id = shard_id
         self.tag_matcher = None
@@ -131,12 +131,12 @@ class Hifumi(Bot):
         else:
             try:
                 raise exception
-            except:
+            except Exception as e:
                 tb = traceback.format_exc()
                 triggered = context.message.content
-                ex_type = type(exception).__name__
+                ex_type = type(e).__name__
                 four_space = ' ' * 4
-                str_ex = str(exception)
+                str_ex = str(e)
                 msg = '\n{0}Triggered message: {1}\n' \
                       '{0}Type: {2}\n' \
                       '{0}Exception: {3}\n\n{4}' \
