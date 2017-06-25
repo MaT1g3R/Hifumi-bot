@@ -5,7 +5,7 @@ Hifumi
 Hifumi, a multifunctional Discord bot.
 
 :copyright: (c) 2017 Hifumi - the Discord Bot Project
-:license: GPL 3.0, see LICENSE for more details.
+:license: Apache License 2.0, see LICENSE for more details.
 
 """
 from collections import namedtuple
@@ -23,7 +23,7 @@ __author__ = ['Underforest#1284', 'InternalLight#9391', 'ラブアローシュ�
 __author_plain__ = ['Underforest', 'InternalLight', 'MaT1g3R']
 __helper__ = ['Wolke#6746']
 __helper_plain__ = ['DasWolke']
-__license__ = 'GNU General Public License v3.0'
+__license__ = 'Apache License 2.0'
 __copyright__ = 'Copyright 2017 Hifumi - the Discord Bot Project'
 __version__ = '.'.join([str(i) for i in list(version_info)[:3]])
 
