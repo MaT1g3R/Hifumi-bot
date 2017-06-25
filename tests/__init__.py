@@ -35,4 +35,5 @@ async def _get_connection() -> Connection:
         host=__config['host'], port=__config['port'], user=__config['user'],
         database=__config['database'], password=__config['password']
     )
+    await _clear_db(conn)
     return conn

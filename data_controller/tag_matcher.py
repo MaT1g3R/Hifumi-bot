@@ -50,7 +50,7 @@ class TagMatcher:
             return
         if self.tag_exist(site, tag):
             return tag
-        res = get_close_matches(tag, self.__tags[site], 1, cutoff=0.5)
+        res = get_close_matches(tag, self.__tags[site], 1, cutoff=0.4)
         return res[0] if res else None
 
     def tag_exist(self, site: str, tag: str) -> bool:

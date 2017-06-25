@@ -21,34 +21,34 @@ __default_user = ('1', 100, datetime.now())
 @pytest.fixture(scope='function')
 async def guild_row():
     conn = await _get_connection()
-    await _clear_db(conn)
     pos = await get_postgres(conn, SCHEMA)
     await pos.set_guild(__default_guild)
     r0 = await get_guild_row(pos, 0)
     r1 = await get_guild_row(pos, 1)
-    return r0, r1, pos
+    yield r0, r1, pos
+    await _clear_db(conn)
 
 
 @pytest.fixture(scope='function')
 async def member_row():
     conn = await _get_connection()
-    await _clear_db(conn)
     pos = await get_postgres(conn, SCHEMA)
     await pos.set_member(__default_member)
     r0 = await get_member_row(pos, 0, 0)
     r1 = await get_member_row(pos, 1, 1)
-    return r0, r1, pos
+    yield r0, r1, pos
+    await _clear_db(conn)
 
 
 @pytest.fixture(scope='function')
 async def user_row():
     conn = await _get_connection()
-    await _clear_db(conn)
     pos = await get_postgres(conn, SCHEMA)
     await pos.set_user(__default_user)
     r0 = await get_user_row(pos, 0)
     r1 = await get_user_row(pos, 1)
-    return r0, r1, pos
+    yield r0, r1, pos
+    await _clear_db(conn)
 
 
 async def test_guild_properties(guild_row):

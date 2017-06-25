@@ -10,6 +10,7 @@ blacklist           ✕
 """
 from aiohttp import ClientResponseError
 from discord.ext import commands
+from requests import get
 
 from bot import Hifumi
 from core.owner_only_core import bash_script, handle_eval, setavatar
@@ -91,8 +92,7 @@ class OwnerOnly:
             await self.bot.say(localize['avatar_fail'])
         else:
             try:
-                avatar = await self.bot.session_manager.get(url)
-                avatar = avatar.content
+                avatar = get(url).content
                 await setavatar(self.bot, localize, ctx.message.channel, avatar)
             except ClientResponseError:
                 await self.bot.say(localize['avatar_fail'])

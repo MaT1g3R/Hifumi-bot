@@ -6,11 +6,12 @@ class SessionManager:
     An aiohttp client session manager.
     """
 
-    def __init__(self, session: ClientSession):
+    def __init__(self, session: ClientSession, logger):
         """
         Initialize the instance of this class.
         """
         self.session = session
+        self.logger = logger
 
     def __del__(self):
         """

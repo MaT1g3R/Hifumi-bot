@@ -92,7 +92,7 @@ class Hifumi(Bot):
         info('Bot ID: ' + self.user.id)
         self.mention_normal = '<@{}>'.format(self.user.id)
         self.mention_nick = '<@!{}>'.format(self.user.id)
-        self.session_manager = SessionManager(ClientSession())
+        self.session_manager = SessionManager(ClientSession(), self.logger)
 
         async def __change_presence():
             try:

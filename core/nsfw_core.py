@@ -1,11 +1,13 @@
 """
 NSFW functions
 """
+from logging import WARN
 from random import choice
+from traceback import format_exc
 from typing import List, Optional, Tuple
 
-from aiohttp import ClientResponse, ClientResponseError
-from demjson import decode
+from aiohttp import ClientConnectionError, ClientResponse, ClientResponseError
+from requests import get
 
 from bot import SessionManager
 from data_controller.tag_matcher import TagMatcher
@@ -88,25 +90,17 @@ async def __request_lewd(
     return res, safe_queries, unsafe_queries
 
 
-async def __parse_result(response: ClientResponse, site: str) -> list:
+async def __parse_result(response: ClientResponse, logger) -> list:
     """
     Parse the HTTP response of a search and return the post list.
     :param response: the HTTP response.
-    :param site: the site name.
     :return: The list of posts.
     """
-    if site == 'gelbooru':
-        # FIXME I don't even
-        broken_json = ''.join([s.decode() for s in response.content._buffer])
-        k = broken_json.rfind('}')
-        broken_json = broken_json[:k + 1]
-        if broken_json:
-            broken_json += ']'
-            return decode(broken_json)
-        else:
-            return []
-    else:
+    try:
         return await response.json()
+    except ClientConnectionError:
+        logger.log(WARN, format_exc())
+        return get(response._url).json()
 
 
 def __parse_post_list(
@@ -180,7 +174,7 @@ def __get_site_params(
 
 async def __get_lewd(
         tags: Optional[list], rating: Optional[str], site: str, site_params,
-        tag_matcher: TagMatcher, session_manager: SessionManager = None,
+        tag_matcher: TagMatcher, session_manager: SessionManager,
         limit=0, fuzzy=False) -> tuple:
     """
     Get lewds from a site.
@@ -201,7 +195,9 @@ async def __get_lewd(
     url, url_formatter, tag_key = site_params
     res, safe_queries, unsafe_queries = await __request_lewd(
         tags, rating, url, site, session_manager, tag_matcher)
-    post_list = await __parse_result(res, site)
+
+    post_list = await __parse_result(res, session_manager.logger)
+
     if post_list:
         file_url, tags_to_write = __parse_post_list(post_list, url_formatter,
                                                     tag_key)
