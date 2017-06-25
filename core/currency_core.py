@@ -2,9 +2,9 @@
 Functions for currency commands
 """
 from collections import deque
+from datetime import datetime
 from random import randint, sample
 
-from datetime import datetime
 from data_controller import DataManager, LowBalanceError
 from data_controller.data_utils import change_balance, transfer_balance
 from scripts.helpers import get_time_elapsed
@@ -27,7 +27,8 @@ async def daily(data_manager: DataManager, user_id: int, localize):
         if time_delta.days < 1:
             __, hours, minutes, seconds = get_time_elapsed(
                 time_delta.total_seconds(), 86400)
-            return localize['daily_come_back'].format(hours, minutes, seconds)
+            return localize['daily_come_back'].format(
+                int(hours), int(minutes), int(seconds))
 
     await data_manager.set_user_daily(user_id, now)
     await change_balance(data_manager, user_id, delta)
