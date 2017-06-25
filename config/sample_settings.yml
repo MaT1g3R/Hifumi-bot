@@ -51,6 +51,9 @@ Bot extra:
   # Bot invite link.
   invite: "http://www.hifumibot.xyz/invite"
 
+  # Error log channel id, must be an integer or null.
+  error log: null
+
 Bot lists:
   abal discord list: ""
   discord bots dot org: ""
