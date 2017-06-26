@@ -148,7 +148,7 @@ class TriviaGame:
         bet = kwargs['amount'] if 'amount' in kwargs else 0
         if bet > 0:
             try:
-                change_balance(self.data_manager, self.user_id, -bet)
+                await change_balance(self.data_manager, self.user_id, -bet)
                 self.bet = bet
                 return True
             except LowBalanceError as e:
