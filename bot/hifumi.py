@@ -2,26 +2,24 @@
 The Hifumi bot object
 """
 
-import traceback
-from logging import CRITICAL, ERROR, WARNING
+from logging import CRITICAL, ERROR, WARN
 from pathlib import Path
 from time import time
+from traceback import format_exc
+from typing import Union
 
 from aiohttp import ClientSession
-from asyncpg import connect
-from discord import ChannelType, Game, HTTPException, Message
-from discord.ext.commands import BadArgument, Bot, CommandNotFound, \
-    CommandOnCooldown, Context, MissingRequiredArgument
-from websockets.exceptions import ConnectionClosed
+from discord import Channel, ChannelType, ConnectionClosed, Game, Message, \
+    Object
+from discord.ext.commands import Bot, CommandNotFound, \
+    Context
 
+from bot.hifumi_functions import command_error_handler, format_command_error, \
+    format_traceback, get_data_manager
 from bot.session_manager import SessionManager
 from config import Config
-from data_controller import *
 from data_controller.data_utils import get_prefix
-from data_controller.postgres import get_postgres
-from scripts.checks import AdminError, BadWordError, ManageMessageError, \
-    ManageRoleError, NsfwError, OwnerError
-from scripts.discord_functions import command_error_handler
+from scripts.discord_functions import get_name_with_discriminator
 from scripts.language_support import read_language
 from scripts.logger import get_console_handler, info, setup_logging
 
@@ -70,41 +68,16 @@ class Hifumi(Bot):
     def default_prefix(self):
         return str(self.config['Bot']['prefix'])
 
-    async def set_postgres(self):
-        pg = self.config.postgres()
-        conn = await connect(
-            host=pg['host'], port=pg['port'], user=pg['user'],
-            database=pg['database'], password=pg['password']
-        )
-        post = await get_postgres(conn, pg['schema']['production'])
-        self.data_manager = DataManager(post)
-        self.tag_matcher = TagMatcher(
-            post, await post.get_tags())
-        info('Connected to database: {}.{}'.format(
-            pg['database'], pg['schema']['production']))
-
     async def on_ready(self):
         """
         Event for the bot is ready
         """
-        g = '{}help'.format(self.default_prefix)
-        info('Logged in as ' + self.user.name + '#' + self.user.discriminator)
+        await self.try_change_presence(f'{self.default_prefix}help', True)
+        info(f'Logged in as {get_name_with_discriminator(self.user)}')
         info('Bot ID: ' + self.user.id)
         self.mention_normal = '<@{}>'.format(self.user.id)
         self.mention_nick = '<@!{}>'.format(self.user.id)
         self.session_manager = SessionManager(ClientSession(), self.logger)
-
-        async def __change_presence():
-            try:
-                await self.wait_until_ready()
-                await self.change_presence(game=Game(name=g))
-            except ConnectionClosed as e:
-                self.logger.warning(str(e))
-                await self.logout()
-                await self.login()
-                await __change_presence()
-
-        await __change_presence()
         if self.config['Bot']['console logging']:
             self.logger.addHandler(get_console_handler())
 
@@ -114,40 +87,33 @@ class Hifumi(Bot):
         :param exception: the expection raised
         :param context: the context of the command
         """
-        localize = await self.get_language_dict(context)
-        handled_exceptions = (
-            CommandOnCooldown, NsfwError, BadWordError, ManageRoleError,
-            AdminError, ManageMessageError, MissingRequiredArgument, OwnerError,
-            BadArgument
-        )
-        if isinstance(exception, handled_exceptions):
-            await self.send_message(
-                context.message.channel,
-                command_error_handler(localize, exception)
-            )
-        elif isinstance(exception, CommandNotFound):
-            # Ignore this case
+        if isinstance(exception, CommandNotFound):
+            # Ignore this case.
             return
+        localize = await self.get_language_dict(context)
+        channel = context.message.channel
+        # FIXME temporary hack
+        if 'NotImplementedError' in str(exception):
+            s = ("**This command is under construction**\n\n"
+                 "As of June 17, 2017, due to technical problems with the "
+                 "previous Hifumi version, all commands and databases has been "
+                 "wiped and Hifumi was switched to a newer rewrite. "
+                 "This command, as many others, will be back soon and we are "
+                 "sorry about this. If you wish more information, "
+                 "join to our server and check announcements.\n\n"
+                 "Cheers from the Hifumi's developer team~")
+            await self.send_message(channel, s)
+            return
+        try:
+            res = command_error_handler(localize, exception)
+        except Exception as e:
+            tb = format_exc()
+            msg = format_command_error(e, context)
+            self.logger.log(WARN, f'\n{msg}\n\n{tb}')
+            await self.send_message(channel, localize['ex_warn'].format(msg))
+            await self.send_traceback(tb, '**WARNING**')
         else:
-            try:
-                raise exception
-            except Exception as e:
-                tb = traceback.format_exc()
-                triggered = context.message.content
-                ex_type = type(e).__name__
-                four_space = ' ' * 4
-                str_ex = str(e)
-                msg = '\n{0}Triggered message: {1}\n' \
-                      '{0}Type: {2}\n' \
-                      '{0}Exception: {3}\n\n{4}' \
-                    .format(four_space, triggered, ex_type, str_ex, tb)
-                self.logger.log(WARNING, msg)
-                await self.send_message(
-                    context.message.channel,
-                    localize['ex_warn'].format(
-                        triggered, ex_type, str_ex
-                    )
-                )
+            await self.send_message(channel, res)
 
     async def on_error(self, event_method, *args, **kwargs):
         """
@@ -155,33 +121,25 @@ class Hifumi(Bot):
         Check :func:`discord.on_error` for more details.
         """
         ig = 'Ignoring exception in {}\n'.format(event_method)
-        tb = traceback.format_exc()
-        self.logger.log(ERROR, '\n' + ig + '\n' + tb)
-
+        tb = format_exc()
+        log_msg = f'\n{ig}\n{tb}'
+        header = f'**CRITICAL**\n{ig}'
+        lvl = CRITICAL
         try:
             ctx = args[1]
-            localize = await self.get_language_dict(ctx)
-            await self.send_message(
-                ctx.message.channel,
-                localize['ex_error'].format(ig + tb)
-            )
-        except HTTPException:
+            channel = ctx.message.channel
+            assert isinstance(ctx, Context)
+            assert isinstance(channel, Channel)
+        except (IndexError, AssertionError, AttributeError):
             pass
-        except Exception as e:
-            msg = str(e) + '\n' + str(tb)
-            self.logger.log(CRITICAL, msg)
-            # FIXME Remove cast to str after lib rewrite
-            for dev in [await self.get_user_info(str(i))
-                        for i in self.config['Bot']['owners']]:
-                await self.send_message(
-                    dev,
-                    'An exception ocurred while the '
-                    'bot was running. For help, check '
-                    '"Troubleshooting" section in '
-                    'documentation, come to our support '
-                    'server or open an issue in Git repo.'
-                    "\n```py\n" + msg + "```"
-                )
+        else:
+            header = f'**ERROR**\n{ig}'
+            lvl = ERROR
+            localize = await self.get_language_dict(ctx)
+            await self.send_message(channel, localize['ex_error'])
+        finally:
+            self.logger.log(lvl, log_msg)
+            await self.send_traceback(tb, header)
 
     async def process_commands(self, message):
         """
@@ -196,6 +154,37 @@ class Hifumi(Bot):
         # TODO Implement command black list
         await super().process_commands(message)
 
+    async def send_traceback(self, tb, header):
+        """
+        Send traceback to the error log channel.
+        :param tb: the traceback.
+        :param header: the header for the error.
+        """
+        # FIXME Remove cast to str after lib rewrite
+        id_ = str(self.config['Bot']['error log'])
+        c = Object(id_)
+        await self.send_message(c, header)
+        for s in format_traceback(tb):
+            await self.send_message(c, s)
+
+    async def try_change_presence(self, game: str, retry: bool):
+        """
+        Try changing presence of the bot.
+        :param game: the game name.
+        :param retry: True to enable retry. Will log out the bot.
+        """
+        try:
+            await self.wait_until_ready()
+            await self.change_presence(game=Game(name=game))
+        except ConnectionClosed as e:
+            if retry:
+                self.logger.log(WARN, str(e))
+                await self.logout()
+                await self.login(self.config['Bot']['token'])
+                await self.try_change_presence(game, retry)
+            else:
+                raise e
+
     async def start_bot(self, cogs: list):
         """
         Start the bot
@@ -205,7 +194,8 @@ class Hifumi(Bot):
         # self.remove_command('help')
         for cog in cogs:
             self.add_cog(cog)
-        await self.set_postgres()
+        self.data_manager, self.tag_matcher = await get_data_manager(
+            self.config.postgres())
         await self.start(self.config['Bot']['token'])
 
     async def get_language_dict(self, ctx_msg) -> dict:
@@ -217,7 +207,7 @@ class Hifumi(Bot):
         """
         return self.language[await self.get_language_key(ctx_msg)]
 
-    async def get_language_key(self, ctx_msg):
+    async def get_language_key(self, ctx_msg: Union[Context, Message]):
         """
         Get the language key of the context
         :param ctx_msg: the discord context object, or a message object
@@ -225,13 +215,13 @@ class Hifumi(Bot):
         """
         if isinstance(ctx_msg, Context):
             message = ctx_msg.message
-        elif isinstance(ctx_msg, Message):
+        else:
             message = ctx_msg
-        else:
-            raise TypeError
-        channel = message.channel
-        if channel.type == ChannelType.text:
-            lan = await self.data_manager.get_language(int(message.server.id))
-            return lan or self.default_language
-        else:
+        try:
+            type_ = message.channel.type
+            if type_ == ChannelType.text:
+                lan = await self.data_manager.get_language(
+                    int(message.server.id))
+                return lan or self.default_language
+        except AttributeError:
             return self.default_language

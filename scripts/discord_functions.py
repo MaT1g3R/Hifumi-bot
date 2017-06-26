@@ -1,63 +1,10 @@
 """
 A collection of functions that's related to discord
 """
-import re
 from typing import Optional
 
 from discord import Channel, Forbidden, HTTPException, Role, Server
-from discord.ext.commands import CommandOnCooldown
-from discord.ext.commands.errors import BadArgument, MissingRequiredArgument
 from discord.utils import get
-
-from scripts.checks import AdminError, BadWordError, ManageMessageError, \
-    ManageRoleError, NsfwError, OwnerError
-from scripts.helpers import strip_letters
-
-
-def command_error_handler(localize, exception):
-    """
-    A function that handles command errors
-    :param localize: the localization strings
-    :param exception: the exception raised
-    :return: the message to be sent based on the exception type
-    """
-    ex_str = str(exception)
-    res = None
-    if isinstance(exception, CommandOnCooldown):
-        res = localize['time_out'].format(strip_letters(str(exception))[0])
-    elif isinstance(exception, NsfwError):
-        res = localize['nsfw_str']
-    elif isinstance(exception, BadWordError):
-        res = localize['bad_word'].format(
-            str(exception)) + '\nhttps://imgur.com/8Noy9TH.png'
-    elif isinstance(exception, ManageRoleError):
-        res = localize['not_manage_role']
-    elif isinstance(exception, AdminError):
-        res = localize['not_admin']
-    elif isinstance(exception, ManageMessageError):
-        res = localize['no_manage_messages']
-    elif isinstance(exception, BadArgument):
-        regex = re.compile('\".*\"')
-        name = regex.findall(ex_str)[0].strip('"')
-        if ex_str.lower().startswith('member'):
-            res = localize['member_not_found'].format(name)
-        elif ex_str.lower().startswith('channel'):
-            res = localize['channel_not_found'].format(name)
-    elif isinstance(exception, MissingRequiredArgument):
-        if ex_str.startswith('member'):
-            res = localize['empty_member']
-        elif ex_str.startswith('channel'):
-            res = localize['empty_channel']
-        # FIXME for the temporary Music cog, change after Music is finished
-        elif ex_str.startswith('song'):
-            res = 'Please provide a song name/link for me to play.'
-    elif isinstance(exception, OwnerError):
-        res = localize['owner_only']
-
-    if res:
-        return res
-    else:
-        raise exception
 
 
 def check_message(bot, message, expected):
