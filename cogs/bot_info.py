@@ -116,7 +116,7 @@ class BotInfo:
         """
         await self.bot.say(
             generate_language_list(
-                self.bot.language, await self.bot.get_language_key(ctx)
+                self.bot.language, self.bot.get_language_key(ctx)
             )
         )
 

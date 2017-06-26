@@ -1,5 +1,6 @@
 from discord.ext import commands
 
+
 class Tags:
     """
     Tags cog
@@ -12,95 +13,95 @@ class Tags:
         :param bot: the discord bot object
         """
         self.bot = bot
-    
+
     @commands.command(name='8ball')
     async def _8ball(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def accordingtodevin(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def choose(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def coinflip(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def animal(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def joke(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def garfield(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def gif(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def imgur(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def hifumi(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def waifu(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def love(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def meme(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def rate(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def reverse(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def rip(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def roll(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def rps(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def say(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def sayd(self):
         raise NotImplementedError
-        
+
     @commands.command()
     async def triggered(self):
         raise NotImplementedError
-        
+
     @commands.command()
     async def xkcd(self):
         raise NotImplementedError
-        
+
     @commands.command()
     async def yomomma(self):
         raise NotImplementedError

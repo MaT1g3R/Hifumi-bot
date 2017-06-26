@@ -345,4 +345,4 @@ async def _handle_bet(**kwargs):
         delta = amount
     key = 'trivia_correct_balance' if correct else 'trivia_wrong_balance'
     return localize[key].format(
-        delta, await data_manager.get_user_balance(user_id))
+        delta, data_manager.get_user_balance(user_id))

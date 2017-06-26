@@ -1,3 +1,4 @@
+from asyncio import sleep
 from collections import deque
 from datetime import datetime
 from typing import Dict, List, Optional, Sequence
@@ -26,10 +27,43 @@ def _parse_record(record: Record) -> Optional[tuple]:
         return None
 
 
+def execute_task(high):
+    """
+    A decorator to ensure only one task in class Postgres is being executed
+    at once.
+    :param high: the importance of the task. True for high, Fasle for low.
+    """
+
+    def dec(coro):
+        async def wraps(*args):
+            f = coro(*args)
+            postgres = args[0]
+            postgres.queue_task(f, high)
+            if high:
+                while not postgres.high_priority_q[0] is f:
+                    await sleep(0.1)
+                assert f is postgres.high_priority_q[0]
+            else:
+                while not (postgres.low_priority_q[0] is f
+                           and len(postgres.high_priority_q) == 0):
+                    await sleep(0.1)
+                assert f is postgres.low_priority_q[0]
+            res = await f
+            if high:
+                postgres.high_priority_q.popleft()
+            else:
+                postgres.low_priority_q.popleft()
+            return res
+
+        return wraps
+
+    return dec
+
+
 class Postgres:
     """
-    A Postgres database controller, this is not meant to be accessed directly with
-    the bot. For bot use, please use the DataManager class.
+    A Postgres database controller, this is not meant to be accessed directly
+    with the bot. For bot use, please use the DataManager class.
     """
 
     def __init__(self, conn: Connection, schema):
@@ -51,6 +85,17 @@ class Postgres:
         self.schema = schema
         self.high_priority_q = deque()
         self.low_priority_q = deque()
+
+    def queue_task(self, coro, high):
+        """
+        Queue a task into one of the two task queues.
+        :param coro: the coroutine to be queued.
+        :param high: True to send to high importance queue.
+        """
+        if high:
+            self.high_priority_q.append(coro)
+        else:
+            self.low_priority_q.append(coro)
 
     async def prepare(self):
         """
@@ -93,34 +138,41 @@ class Postgres:
 
         self.__get_tags = await f('SELECT * FROM {}.nsfw_tags'.format(schema))
 
+    @execute_task(True)
     async def get_guild(self, guild_id: str) -> tuple:
         """
         Get guild row by id.
         :param guild_id: the guild id.
         :return: the guild row.
         """
+
         res = (_parse_record(await self.__get_guild.fetchrow(guild_id)) or
                (None,) * len(_guild_types))
         assert_types(res, _guild_types, True)
         return res
 
+    @execute_task(True)
     async def get_all_guild(self) -> List[tuple]:
         """
         Get all guild rows in the db.
         :return: A list of guild rows
         """
+
         sql = 'SELECT * FROM {}.guild_info'.format(self.schema)
         res = await self.__conn.fetch(sql)
         return [_parse_record(r) for r in res]
 
+    @execute_task(True)
     async def set_guild(self, values: Sequence):
         """
         Set a guild row.
         :param values: the values of that row.
         """
+
         assert_types(values, _guild_types, True)
         await self.__set_guild.fetch(*values)
 
+    @execute_task(True)
     async def get_member(self, member_id: str, guild_id: str) -> tuple:
         """
         Get a member row.
@@ -128,6 +180,7 @@ class Postgres:
         :param guild_id: the guild id.
         :return: the member row.
         """
+
         res = (
             _parse_record(await self.__get_member.fetchrow(member_id, guild_id))
             or (None,) * len(_member_types)
@@ -135,6 +188,7 @@ class Postgres:
         assert_types(res, _member_types, True)
         return res
 
+    @execute_task(True)
     async def get_all_member(self) -> List[tuple]:
         """
         Get all member rows from the db.
@@ -144,6 +198,7 @@ class Postgres:
         res = await self.__conn.fetch(sql)
         return [_parse_record(r) for r in res]
 
+    @execute_task(True)
     async def set_member(self, values: Sequence):
         """
         Set a member row.
@@ -152,6 +207,7 @@ class Postgres:
         assert_types(values, _member_types, True)
         await self.__set_member.fetch(*values)
 
+    @execute_task(True)
     async def get_user(self, user_id: str) -> tuple:
         """
         Get a user row.
@@ -163,15 +219,17 @@ class Postgres:
         assert_types(res, _user_types, True)
         return res
 
+    @execute_task(True)
     async def get_all_user(self) -> List[tuple]:
         """
-
-        :return:
+        Get all user row.
+        :return: a list of all user rows.
         """
         sql = 'SELECT * FROM {}.user_info'.format(self.schema)
         res = await self.__conn.fetch(sql)
         return [_parse_record(r) for r in res]
 
+    @execute_task(True)
     async def set_user(self, values: Sequence):
         """
         Set a user row.
@@ -180,6 +238,7 @@ class Postgres:
         assert_types(values, _user_types, True)
         await self.__set_user.fetch(*values)
 
+    @execute_task(False)
     async def get_tags(self) -> Dict[str, List[str]]:
         """
         Get all tags stored in the DB.
@@ -197,6 +256,7 @@ class Postgres:
                     res[k] = [v]
         return res
 
+    @execute_task(False)
     async def set_tags(self, site: str, tags: List[str]):
         """
         Set(Append) tags for a site.

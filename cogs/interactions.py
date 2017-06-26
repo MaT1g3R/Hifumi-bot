@@ -1,5 +1,6 @@
 from discord.ext import commands
 
+
 class Interactions:
     """
     Interactions cog
@@ -12,7 +13,7 @@ class Interactions:
         :param bot: the discord bot object
         """
         self.bot = bot
-    
+
     @commands.command()
     async def cry(self):
         raise NotImplementedError
@@ -20,7 +21,7 @@ class Interactions:
     @commands.command()
     async def cuddle(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def hug(self):
         raise NotImplementedError
@@ -48,7 +49,7 @@ class Interactions:
     @commands.command()
     async def slap(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def stare(self):
         raise NotImplementedError
@@ -60,7 +61,7 @@ class Interactions:
     @commands.command()
     async def smug(self):
         raise NotImplementedError
-        
+
     @commands.command()
     async def lewd(self):
         raise NotImplementedError

@@ -49,7 +49,7 @@ class Currency:
             member_id = int(member.id)
             localize_key = 'balance_other'
             name = member.display_name
-        balance = await self.bot.data_manager.get_user_balance(member_id) or 0
+        balance = self.bot.data_manager.get_user_balance(member_id) or 0
         await self.bot.say(
             (self.bot.get_language_dict(ctx))[localize_key].format(
                 name, balance
@@ -64,7 +64,7 @@ class Currency:
         :param member: the target member for the transfer
         :param amount: the amout for the transfer
         """
-        localize = await  self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         try:
             amount = round(float(amount))
             if amount <= 0:
