@@ -35,8 +35,8 @@ async def __simple_test(
     id1 = ids[1] if isinstance(ids[1], tuple) else (ids[1],)
     setter_args0 = [i for i in id0] + [values[0]]
     setter_args1 = [i for i in id1] + [values[1]]
-    g0 = await getter(*id0)
-    g1 = await getter(*id1)
+    g0 = getter(*id0)
+    g1 = getter(*id1)
     res0 = g0 is None
     res1 = g1 is None
     if not res0 or not res1:
@@ -48,8 +48,8 @@ async def __simple_test(
     yield res1
 
     await setter(*setter_args0)
-    g0 = await getter(*id0)
-    g1 = await getter(*id1)
+    g0 = getter(*id0)
+    g1 = getter(*id1)
     res0 = g0 == values[0]
     res1 = g1 != values[0]
     if not res0 or not res1:
@@ -62,8 +62,8 @@ async def __simple_test(
     yield res1
 
     await setter(*setter_args1)
-    g0 = await getter(*id0)
-    g1 = await getter(*id1)
+    g0 = getter(*id0)
+    g1 = getter(*id1)
     res0 = g1 == values[1]
     res1 = g0 != values[1]
     if not res0 or not res1:
@@ -173,7 +173,7 @@ async def test_roles(manager):
     else:
         assert False
     finally:
-        assert await manager.get_roles(id0) == roles0
+        assert manager.get_roles(id0) == roles0
 
 
 async def test_warns(manager):
@@ -198,8 +198,8 @@ async def test_warns(manager):
     else:
         assert False
     finally:
-        assert warns[0] == await manager.get_member_warns(member_ids[0],
-                                                          guild_ids[0])
+        assert warns[0] == manager.get_member_warns(
+            member_ids[0], guild_ids[0])
 
 
 async def test_balance(manager):
@@ -222,7 +222,7 @@ async def test_balance(manager):
     else:
         assert False
     finally:
-        assert balance[0] == await manager.get_user_balance(user_ids[0])
+        assert balance[0] == manager.get_user_balance(user_ids[0])
 
 
 async def test_daily(manager):

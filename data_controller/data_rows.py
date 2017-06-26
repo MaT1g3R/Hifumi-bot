@@ -6,7 +6,8 @@ from typing import List
 
 from data_controller.postgres import Postgres
 
-__all__ = ['_GuildRow', '_MemberRow', '_UserRow']
+__all__ = ['_GuildRow', '_MemberRow', '_UserRow', 'get_guild_row',
+           'get_member_row', 'get_user_row']
 
 
 class _Row:
@@ -163,3 +164,22 @@ class _UserRow(_Row):
 
     async def set_daily(self, daily: datetime):
         await self._set(2, daily)
+
+
+def get_guild_row(postgres: Postgres, guild_id: int, row_val=None):
+    default = (str(guild_id), None, None, None, None)
+    res = row_val or default
+    return _GuildRow(postgres, res)
+
+
+def get_member_row(postgres: Postgres, member_id: int, guild_id: int,
+                   row_val=None):
+    default = (str(member_id), str(guild_id), None)
+    res = row_val or default
+    return _MemberRow(postgres, res)
+
+
+def get_user_row(postgres: Postgres, user_id: int, row_val=None):
+    default = (str(user_id), None, None)
+    res = row_val or default
+    return _UserRow(postgres, res)

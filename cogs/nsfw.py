@@ -25,7 +25,7 @@ class Nsfw:
         :param site: the site name.
         :param query: the search quries.
         """
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         if len(query) > 2 and site == 'danbooru':
             await self.bot.say(localize['two_term'])
             return
@@ -105,5 +105,5 @@ class Nsfw:
         :param ctx: the discord context
         """
         res = await greenteaneko(
-            await self.bot.get_language_dict(ctx), self.bot.session_manager)
+            self.bot.get_language_dict(ctx), self.bot.session_manager)
         await self.bot.say(res)

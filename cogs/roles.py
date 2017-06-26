@@ -27,7 +27,7 @@ class Roles:
         :param role: the role name
         :param is_add: True to assign role, False to rm role
         """
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         guild = ctx.message.server
         server_role = get_server_role(role, guild)
         role_lst = await self_role_names(guild, self.bot.data_manager)
@@ -75,10 +75,10 @@ class Roles:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
-            localize = await self.bot.get_language_dict(ctx)
+            localize = self.bot.get_language_dict(ctx)
             await self.bot.say(
                 localize['selfrole_bad_command'].format(
-                    await get_prefix(self.bot, ctx.message)
+                    get_prefix(self.bot, ctx.message)
                 )
             )
 
@@ -88,7 +88,7 @@ class Roles:
         Display the selfrole list for the server
         """
         lst = await self_role_names(ctx.message.server, self.bot.data_manager)
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         if lst:
             res = localize['has_role_list'] + '```' + '\n'.join(lst) + '```'
         else:
@@ -103,7 +103,7 @@ class Roles:
         :param is_add: True to add, False to remove
         """
         guild = ctx.message.server
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         if not get_server_role(role, guild):
             await self.bot.say(localize['role_no_exist'])
         elif is_add:

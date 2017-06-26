@@ -37,7 +37,7 @@ class BotInfo:
         Says the support server for the bot
         :param ctx: the discord context object
         """
-        base = (await self.bot.get_language_dict(ctx))['support']
+        base = self.bot.get_language_dict(ctx)['support']
         f = lambda s: str(self.bot.config['Bot extra'][s])
         await self.bot.say(
             base.format(f('support'), f('twitter'), f('website')))
@@ -48,7 +48,7 @@ class BotInfo:
         Display the donate message
         :param ctx: the discord context object
         """
-        await self.bot.say((await self.bot.get_language_dict(ctx))['donate'])
+        await self.bot.say(self.bot.get_language_dict(ctx)['donate'])
 
     @commands.command(pass_context=True)
     async def git(self, ctx):
@@ -56,7 +56,7 @@ class BotInfo:
         Display the git repo
         :param ctx: the discord context object
         """
-        await self.bot.say((await self.bot.get_language_dict(ctx))['git'])
+        await self.bot.say(self.bot.get_language_dict(ctx)['git'])
 
     # TODO Finish help command
     # @commands.command(pass_context=True)
@@ -87,7 +87,7 @@ class BotInfo:
         :param ctx: the discord context object
         """
         await self.bot.say(
-            (await self.bot.get_language_dict(ctx))['invite'].format(
+            self.bot.get_language_dict(ctx)['invite'].format(
                 self.bot.config['Bot extra']['invite']
             )
         )
@@ -99,11 +99,11 @@ class BotInfo:
         :param ctx: the discord context object
         """
         if ctx.invoked_subcommand is None:
-            localize = await self.bot.get_language_dict(ctx)
+            localize = self.bot.get_language_dict(ctx)
             await self.bot.say(
                 localize['language'].format(
                     generate_language_entry(localize['language_data']),
-                    await get_prefix(self.bot, ctx.message),
+                    get_prefix(self.bot, ctx.message),
                     self.bot.default_language
                 )
             )
@@ -126,12 +126,12 @@ class BotInfo:
         :param ctx: the discord context.
         :param language: the language to set to.
         """
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         if language not in self.bot.language:
             await self.bot.say(
                 localize['lan_no_exist'].format(
                     language,
-                    await get_prefix(self.bot, ctx.message)
+                    get_prefix(self.bot, ctx.message)
                 )
             )
         else:
@@ -165,10 +165,10 @@ class BotInfo:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
-            localize = await self.bot.get_language_dict(ctx)
+            localize = self.bot.get_language_dict(ctx)
             await self.bot.say(
                 localize['prefix'].format(
-                    await get_prefix(self.bot, ctx.message),
+                    get_prefix(self.bot, ctx.message),
                     self.bot.default_prefix
                 )
             )
@@ -179,7 +179,7 @@ class BotInfo:
         :param ctx: the discord context.
         :param prefix: the prefix to set to.
         """
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         if not prefix:
             await self.bot.say(localize['prefix_empty'])
             return
@@ -212,9 +212,9 @@ class BotInfo:
         Reset the prefix of the server
         :param ctx: the discord context
         """
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         await self.bot.data_manager.set_prefix(
             int(ctx.message.server.id), None
         )
-        prefix = await get_prefix(self.bot, ctx.message)
+        prefix = get_prefix(self.bot, ctx.message)
         await self.bot.say(localize['set_prefix'].format(prefix))

@@ -37,10 +37,10 @@ class OwnerOnly:
         Events for reading messages
         :param message: the message
         """
-        prefix = await get_prefix(self.bot, message)
+        prefix = get_prefix(self.bot, message)
         token = str(self.bot.config['Bot']['token'])
         if check_message_startwith(self.bot, message, '{}eval'.format(prefix)):
-            localize = await self.bot.get_language_dict(message)
+            localize = self.bot.get_language_dict(message)
             # FIXME Remove casting after lib rewrite
             if int(message.author.id) in self.bot.config['Bot']['owners']:
                 args = clense_prefix(message, '{}eval'.format(prefix))
@@ -68,7 +68,7 @@ class OwnerOnly:
         :param args: the bash command arguments
         """
         token = str(self.bot.config['Bot']['token'])
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         result, success = bash_script(list(args))
         str_out = ['```\n' + s.replace('`', chr(0x1fef)) + '\n```'
                    for s in result]
@@ -87,7 +87,7 @@ class OwnerOnly:
         :param ctx: the discord context
         :param url: the url to the picture
         """
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         if url is None:
             await self.bot.say(localize['avatar_fail'])
         else:
@@ -104,7 +104,7 @@ class OwnerOnly:
         Shutdown the bot process
         :param ctx: the discord context
         """
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         await self.bot.say(localize['shutdown'])
         await self.bot.logout
         exit(0)

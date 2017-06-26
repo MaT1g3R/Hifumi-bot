@@ -30,7 +30,7 @@ class Moderation:
         :param args: if args[0] is an interger it will be resolved as
         delete_message_days, else delete_message_days will be 0
         """
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         bad_num_msg = localize['delete_message_days']
         no_reason = localize['pls_provide_reason']
         try:
@@ -62,7 +62,7 @@ class Moderation:
         :param reason: the kick reason
         """
         if not reason:
-            localize = await self.bot.get_language_dict(ctx)
+            localize = self.bot.get_language_dict(ctx)
             await self.bot.say(localize['pls_provide_reason'])
         else:
             await ban_kick(self.bot, ctx, member, ' '.join(reason), False)
@@ -76,7 +76,7 @@ class Moderation:
         :param ctx: the discord context object
         :param number: the amount of messages to be deleted
         """
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         bad_num_msg = localize['clean_message_bad_num']
         if number is None:
             await self.bot.say(bad_num_msg)
@@ -95,7 +95,7 @@ class Moderation:
         :param reason: the reason.
         """
         if not reason:
-            localize = await self.bot.get_language_dict(ctx)
+            localize = self.bot.get_language_dict(ctx)
             await self.bot.say(localize['pls_provide_reason'])
         else:
             await mute_unmute(ctx, self.bot, member, is_mute, ' '.join(reason))
@@ -120,7 +120,7 @@ class Moderation:
         """
         await self.__mute(ctx, False, member, reason)
 
-    async def __warn(self, ctx, is_warn, member: Member, *reason):
+    async def __warn(self, ctx, is_warn, member: Member, reason):
         """
         Helper method to warn/pardon someone.
         :param ctx: the context.
@@ -129,7 +129,7 @@ class Moderation:
         :param reason: the reason.
         """
         if not reason:
-            localize = await self.bot.get_language_dict(ctx)
+            localize = self.bot.get_language_dict(ctx)
             await self.bot.say(localize['pls_provide_reason'])
         else:
             await warn_pardon(self.bot, ctx, ' '.join(reason), member, is_warn)
@@ -165,7 +165,7 @@ class Moderation:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
-            localize = await self.bot.get_language_dict(ctx)
+            localize = self.bot.get_language_dict(ctx)
             modlog = await get_modlog(self.bot.data_manager, ctx.message.server)
             if modlog:
                 await self.bot.say(
@@ -182,7 +182,7 @@ class Moderation:
         :param is_set: True to set, False to remove
         """
         # FIXME Remove casting when library rewrite is finished
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         guild_id = int(ctx.message.server.id)
         channel = ctx.message.channel
         channel_id = int(channel.id)

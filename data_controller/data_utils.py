@@ -1,11 +1,8 @@
 """
 Utility functions to interact with the database
 """
-from asyncio import sleep
-from logging import WARNING
 from typing import List
 
-from asyncpg import InterfaceError
 from discord import Server
 from discord.utils import get
 
@@ -34,7 +31,7 @@ async def set_language(bot, ctx, language: str) -> str:
     )
 
 
-async def get_prefix(bot, message):
+def get_prefix(bot, message):
     """
     Get the command prefix based on a discord message.
     :param bot: the bot.
@@ -46,7 +43,7 @@ async def get_prefix(bot, message):
     except AttributeError:
         return bot.default_prefix
     else:
-        r = await bot.data_manager.get_prefix(server_id)
+        r = bot.data_manager.get_prefix(server_id)
         return r if r else bot.default_prefix
 
 
@@ -58,7 +55,7 @@ async def change_balance(data_manager: DataManager, user_id: int, delta: int):
     :param delta: the amout to change.
     :raises LowBalanceError: if the user doesnt have enough balance.
     """
-    current_balance = await data_manager.get_user_balance(user_id) or 0
+    current_balance = data_manager.get_user_balance(user_id) or 0
     new_balance = current_balance + delta
     if new_balance < 0:
         raise LowBalanceError(str(current_balance))
@@ -86,8 +83,8 @@ async def transfer_balance(
     if amount > 0:
         await change_balance(data_manager, from_id, -amount)
         await change_balance(data_manager, to_id, amount)
-    return (await data_manager.get_user_balance(from_id),
-            await data_manager.get_user_balance(to_id))
+    return (data_manager.get_user_balance(from_id),
+            data_manager.get_user_balance(to_id))
 
 
 async def add_self_role(data_manager: DataManager, guild_id: int, role):
@@ -97,7 +94,7 @@ async def add_self_role(data_manager: DataManager, guild_id: int, role):
     :param guild_id: the guild id.
     :param role: the role name.
     """
-    lst = await data_manager.get_roles(guild_id) or []
+    lst = data_manager.get_roles(guild_id) or []
     if role not in lst:
         lst.append(role)
         await data_manager.set_roles(guild_id, lst)
@@ -110,7 +107,7 @@ async def remove_self_role(data_manager: DataManager, guild_id: int, role):
     :param guild_id: the guild id.
     :param role: the role name.
     """
-    lst = await data_manager.get_roles(guild_id) or []
+    lst = data_manager.get_roles(guild_id) or []
     new = [s for s in lst if s != role]
     await data_manager.set_roles(guild_id, new)
 
@@ -129,7 +126,7 @@ async def self_role_names(
     """
     # FIXME Remove casting after lib rewrite
     guild_id = int(guild.id)
-    lst = await data_manager.get_roles(guild_id) or []
+    lst = data_manager.get_roles(guild_id) or []
     # Check for any non-existing roles and remove them from the db
     new = [r for r in lst if get_server_role(r, guild)]
     if new != lst:
@@ -146,7 +143,7 @@ async def get_modlog(data_manager: DataManager, guild):
     :return: the mod log channel id
     """
     # FIXME Remove casting after library rewrite
-    modlog = await data_manager.get_mod_log(int(guild.id))
+    modlog = data_manager.get_mod_log(int(guild.id))
     guild_channel = get(guild.channels, id=str(modlog))
     if guild_channel:
         return guild_channel

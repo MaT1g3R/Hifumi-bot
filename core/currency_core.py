@@ -18,7 +18,7 @@ async def daily(data_manager: DataManager, user_id: int, localize):
     :param localize: the localization strings
     :return: the daily command message
     """
-    current_daily = await data_manager.get_user_daily(user_id)
+    current_daily = data_manager.get_user_daily(user_id)
     first_time = current_daily is None
     delta = 500 if first_time else 200
     now = datetime.now()
@@ -128,5 +128,5 @@ async def determine_slot_result(
         res = localize['slots_draw']
         await change_balance(data_manager, user_id, amount)
     return res + '\n' + localize['new_balance'].format(
-        await data_manager.get_user_balance(user_id)
+        data_manager.get_user_balance(user_id)
     )

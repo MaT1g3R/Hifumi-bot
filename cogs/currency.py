@@ -30,7 +30,7 @@ class Currency:
             await daily(
                 self.bot.data_manager,
                 int(ctx.message.author.id),
-                await self.bot.get_language_dict(ctx))
+                self.bot.get_language_dict(ctx))
         )
 
     @commands.command(pass_context=True)
@@ -51,7 +51,7 @@ class Currency:
             name = member.display_name
         balance = await self.bot.data_manager.get_user_balance(member_id) or 0
         await self.bot.say(
-            (await self.bot.get_language_dict(ctx))[localize_key].format(
+            (self.bot.get_language_dict(ctx))[localize_key].format(
                 name, balance
             )
         )
@@ -87,7 +87,7 @@ class Currency:
         :param ctx: the discord context
         :param amount: the amount of bet
         """
-        localize = await self.bot.get_language_dict(ctx)
+        localize = self.bot.get_language_dict(ctx)
         try:
             amount = round(float(amount))
             if amount <= 0:

@@ -90,7 +90,7 @@ class Hifumi(Bot):
         if isinstance(exception, CommandNotFound):
             # Ignore this case.
             return
-        localize = await self.get_language_dict(context)
+        localize = self.get_language_dict(context)
         channel = context.message.channel
         # FIXME temporary hack
         if 'NotImplementedError' in str(exception):
@@ -136,7 +136,7 @@ class Hifumi(Bot):
         else:
             header = f'**ERROR**\n{ig}'
             lvl = ERROR
-            localize = await self.get_language_dict(ctx)
+            localize = self.get_language_dict(ctx)
             await self.send_message(channel, localize['ex_error'])
         finally:
             self.logger.log(lvl, log_msg)
@@ -150,7 +150,7 @@ class Hifumi(Bot):
         """
         if message.author.bot:
             return
-        prefix = await get_prefix(self, message)
+        prefix = get_prefix(self, message)
         name = message.content.split(' ')[0][len(prefix):]
         # TODO Implement command black list
         await super().process_commands(message)
@@ -199,16 +199,16 @@ class Hifumi(Bot):
             self.config.postgres())
         await self.start(self.config['Bot']['token'])
 
-    async def get_language_dict(self, ctx_msg) -> dict:
+    def get_language_dict(self, ctx_msg) -> dict:
         """
         Get the language of the given context
         :param ctx_msg: the discord context object, or a message object
         :return: the language dict
         :rtype: dict
         """
-        return self.language[await self.get_language_key(ctx_msg)]
+        return self.language[self.get_language_key(ctx_msg)]
 
-    async def get_language_key(self, ctx_msg: Union[Context, Message]):
+    def get_language_key(self, ctx_msg: Union[Context, Message]):
         """
         Get the language key of the context
         :param ctx_msg: the discord context object, or a message object
@@ -225,7 +225,7 @@ class Hifumi(Bot):
             return self.default_language
         else:
             if type_ == ChannelType.text:
-                lan = await self.data_manager.get_language(
+                lan = self.data_manager.get_language(
                     int(message.server.id))
                 return lan or self.default_language
             return self.default_language

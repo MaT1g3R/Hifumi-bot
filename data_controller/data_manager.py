@@ -24,6 +24,11 @@ class DataManager:
         self.__guilds = {}
         self.__members = {}
         self.__users = {}
+        self.__initializers = {
+            _UserRow: get_user_row,
+            _MemberRow: get_member_row,
+            _GuildRow: get_guild_row
+        }
 
     async def init(self):
         """
@@ -45,11 +50,14 @@ class DataManager:
             key = int(user[0])
             self.__users[key] = row
 
-    def __get_row(self, dict_: dict, class_: Type[_row_types], key, *args):
+    def __get_row(self, dict_: dict, class_: Type[_row_types], key):
         try:
             return dict_[key]
         except KeyError:
-            new = class_(self.__postgres, args)
+            if isinstance(key, tuple):
+                new = self.__initializers[class_](self.__postgres, *key)
+            else:
+                new = self.__initializers[class_](self.__postgres, key)
             dict_[key] = new
             return new
 
@@ -59,8 +67,7 @@ class DataManager:
         :param guild_id: the guild id.
         :return: the row with the id guild_id.
         """
-        args = (str(guild_id), None, None, None, [])
-        return self.__get_row(self.__guilds, _GuildRow, guild_id, *args)
+        return self.__get_row(self.__guilds, _GuildRow, guild_id)
 
     def __get_member_row(
             self, member_id: int, guild_id: int) -> _MemberRow:
@@ -70,9 +77,8 @@ class DataManager:
         :param guild_id: the guild id
         :return: the row with id (member_id, guild_id)
         """
-        args = (str(member_id), str(guild_id), None)
         key = (member_id, guild_id)
-        return self.__get_row(self.__members, _MemberRow, key, *args)
+        return self.__get_row(self.__members, _MemberRow, key)
 
     def __get_user_row(
             self, user_id: int) -> _UserRow:
@@ -81,16 +87,14 @@ class DataManager:
         :param user_id: the user id.
         :return: the row with id user_id.
         """
-        args = (str(user_id), None, None)
-        return self.__get_row(self.__users, _UserRow, user_id, *args)
+        return self.__get_row(self.__users, _UserRow, user_id)
 
-    async def get_prefix(self, guild_id: int) -> str:
+    def get_prefix(self, guild_id: int) -> str:
         """
         Get the prefix of the guild
         :param guild_id: the guild id
         """
-        row = self.__get_guild_row(guild_id)
-        return row.prefix
+        return self.__get_guild_row(guild_id).prefix
 
     async def set_prefix(self, guild_id: int, prefix: str):
         """
@@ -101,13 +105,12 @@ class DataManager:
         row = self.__get_guild_row(guild_id)
         await row.set_prefix(prefix)
 
-    async def get_language(self, guild_id: int) -> str:
+    def get_language(self, guild_id: int) -> str:
         """
         Get the language of the guild
         :param guild_id: the guild id
         """
-        row = self.__get_guild_row(guild_id)
-        return row.language
+        return self.__get_guild_row(guild_id).language
 
     async def set_language(self, guild_id: int, language: str):
         """
@@ -118,13 +121,12 @@ class DataManager:
         row = self.__get_guild_row(guild_id)
         await row.set_language(language)
 
-    async def get_mod_log(self, guild_id: int) -> int:
+    def get_mod_log(self, guild_id: int) -> int:
         """
         Get the mod_log of the guild
         :param guild_id: the guild id
         """
-        row = self.__get_guild_row(guild_id)
-        return row.mod_log
+        return self.__get_guild_row(guild_id).mod_log
 
     async def set_mod_log(self, guild_id: int, channel_id: Optional[int]):
         """
@@ -135,13 +137,12 @@ class DataManager:
         row = self.__get_guild_row(guild_id)
         await row.set_mod_log(channel_id)
 
-    async def get_roles(self, guild_id: int) -> List[str]:
+    def get_roles(self, guild_id: int) -> List[str]:
         """
         Get the list of roles in the guild.
         :param guild_id: the guild id.
         """
-        row = self.__get_guild_row(guild_id)
-        res = row.roles
+        res = self.__get_guild_row(guild_id).roles
         if res is not None:
             assert_types(res, str, False)
         return res
@@ -157,15 +158,14 @@ class DataManager:
         row = self.__get_guild_row(guild_id)
         await row.set_roles(roles)
 
-    async def get_member_warns(self, member_id: int, guild_id: int) -> int:
+    def get_member_warns(self, member_id: int, guild_id: int) -> int:
         """
         Get the number of warns on the member.
         :param member_id: the member id.
         :param guild_id: the guild id.
         :return: the number of warns on the member.
         """
-        row = self.__get_member_row(member_id, guild_id)
-        return row.warns
+        return self.__get_member_row(member_id, guild_id).warns
 
     async def set_member_warns(self, member_id: int, guild_id: int, warns: int):
         """
@@ -178,14 +178,13 @@ class DataManager:
         row = self.__get_member_row(member_id, guild_id)
         await row.set_warns(warns)
 
-    async def get_user_balance(self, user_id: int) -> int:
+    def get_user_balance(self, user_id: int) -> int:
         """
         Get the balance of a user.
         :param user_id: the user id.
         :return: the balance of that user.
         """
-        row = self.__get_user_row(user_id)
-        return row.balance
+        return self.__get_user_row(user_id).balance
 
     async def set_user_balance(self, user_id: int, balance: int):
         """
@@ -197,14 +196,13 @@ class DataManager:
         row = self.__get_user_row(user_id)
         await row.set_balance(balance)
 
-    async def get_user_daily(self, user_id: int) -> datetime:
+    def get_user_daily(self, user_id: int) -> datetime:
         """
         Get the timestamp of the user's last daily..
         :param user_id: the user id.
         :return: the timestamp of the user's last daily.
         """
-        row = self.__get_user_row(user_id)
-        return row.daily
+        return self.__get_user_row(user_id).daily
 
     async def set_user_daily(self, user_id: int, time_stamp: datetime):
         """
