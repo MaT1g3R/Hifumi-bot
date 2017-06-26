@@ -17,32 +17,42 @@ class Interactions:
     async def cry():
         raise NotImplementedError
 
+    @commands.command()
     async def cuddle():
         raise NotImplementedError
-        
+    
+    @commands.command()
     async def hug():
         raise NotImplementedError
 
+    @commands.command()
     async def kiss():
         raise NotImplementedError
 
+    @commands.command()
     async def lick():
         raise NotImplementedError
 
+    @commands.command()
     async def eat():
         raise NotImplementedError
 
+    @commands.command()
     async def pat():
         raise NotImplementedError
 
+    @commands.command()
     async def pout():
         raise NotImplementedError
 
+    @commands.command()
     async def slap():
         raise NotImplementedError
-
+    
+    @commands.command()
     async def stare():
         raise NotImplementedError
 
+    @commands.command()
     async def tickle():
         raise NotImplementedError
