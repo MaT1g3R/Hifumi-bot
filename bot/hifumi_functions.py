@@ -28,6 +28,7 @@ async def get_data_manager(pg_config: dict) -> tuple:
     tag_matcher = TagMatcher(post, await post.get_tags())
     info('Connected to database: {}.{}'.format(
         pg_config['database'], pg_config['schema']['production']))
+    await data_manager.init()
     return data_manager, tag_matcher
 
 
@@ -75,19 +76,19 @@ def command_error_handler(localize, exception):
     raise exception
 
 
-def format_command_error(ex: Exception, context: Context):
+def format_command_error(ex: Exception, context: Context) -> tuple:
     """
     Format a command error to display and log.
     :param ex: the exception raised.
     :param context: the context.
-    :return: a message to be displayed and logged.
+    :return: a message to be displayed and logged, and triggered message
     """
     triggered = context.message.content
     four_space = ' ' * 4
     ex_type = type(ex).__name__
     return (f'{four_space}Triggered message: {triggered}\n'
             f'{four_space}Type: {ex_type}\n'
-            f'{four_space}Exception: {str(ex)}')
+            f'{four_space}Exception: {str(ex)}'), triggered
 
 
 def format_traceback(tb: str):

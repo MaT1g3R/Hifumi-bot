@@ -259,7 +259,9 @@ async def greenteaneko(localize, session_manager: SessionManager):
     try:
         res = await session_manager.get(url)
         js = await res.json()
-        return 'https://rra.ram.moe{}\n{}'.format(
-            js['path'], localize['gtn_artist'])
     except ClientResponseError:
         return localize['api_error'].format('rra.ram.moe')
+    except ClientConnectionError:
+        js = get(url).json()
+    return 'https://rra.ram.moe{}\n{}'.format(
+        js['path'], localize['gtn_artist'])

@@ -6,18 +6,18 @@ from typing import List
 
 from data_controller.postgres import Postgres
 
-__all__ = ['_GuildRow', '_MemberRow', '_UserRow', 'guild_row', 'member_row',
-           'user_row']
+__all__ = ['_GuildRow', '_MemberRow', '_UserRow']
 
 
 class _Row:
-    def __init__(self, postgres: Postgres):
+    def __init__(self, postgres: Postgres, row=None):
         """
         Initialize an instance of _Row
         :param postgres: the postgres controller.
+        :param row: the row value for the row, optional parameter.
         """
         self._postgres = postgres
-        self._row = []
+        self._row = row or []
 
     async def _write(self):
         """
@@ -41,24 +41,13 @@ class _GuildRow(_Row):
     Represents a row in the guild_info table
     """
 
-    def __init__(self, postgres: Postgres):
+    def __init__(self, postgres: Postgres, row_val=None):
         """
         Initialize an instance of _GuildRow
         :param postgres: the postgres controller.
+        :param row_val: the row values for this row, optional.
         """
-        super().__init__(postgres)
-
-    async def init(self, guild_id: int):
-        """
-        Set up this instance's data.
-        :param guild_id: the guild id.
-        """
-        guild_id = str(guild_id)
-        row = await self._postgres.get_guild(guild_id)
-        if row[0] is None:
-            row = (guild_id,) + row[1:]
-        self._row = list(row)
-        assert self._row[0] is not None
+        super().__init__(postgres, row_val)
 
     async def _write(self):
         """
@@ -94,7 +83,10 @@ class _GuildRow(_Row):
         await self._set(2, language)
 
     async def set_mod_log(self, mod_log: int):
-        await self._set(3, str(mod_log))
+        if isinstance(mod_log, int):
+            await self._set(3, str(mod_log))
+        else:
+            await self._set(3, None)
 
     async def set_roles(self, roles: List[str]):
         await self._set(4, roles)
@@ -105,31 +97,13 @@ class _MemberRow(_Row):
     Represents a row in member_info table
     """
 
-    def __init__(self, postgres: Postgres):
+    def __init__(self, postgres: Postgres, row_val=None):
         """
         Initialize an instance of MemberRow
         :param postgres: the postgres controller.
+        :param row_val: the row values for this row, optional.
         """
-        super().__init__(postgres)
-
-    async def init(self, member_id: int, guild_id: int):
-        """
-        Set up this instance's data.
-        :param member_id: the member id.
-        :param guild_id: the guild id of that member.
-        """
-        member_id, guild_id = str(member_id), str(guild_id)
-        row = await self._postgres.get_member(member_id, guild_id)
-        if row[0] is None and row[1] is None:
-            row = (member_id, guild_id) + row[2:]
-        elif row[0] is None or row[1] is None:
-            raise RuntimeError(
-                'One of (member_id, guild_id) read from the '
-                'database is None and the other isn\'t None.'
-            )
-        self._row = list(row)
-        assert self._row[0] is not None
-        assert self._row[1] is not None
+        super().__init__(postgres, row_val)
 
     async def _write(self):
         """
@@ -158,24 +132,13 @@ class _UserRow(_Row):
     Represents a row in user_info table
     """
 
-    def __init__(self, postgres: Postgres):
+    def __init__(self, postgres: Postgres, row_val=None):
         """
         Initialize an instance of UserRow
         :param postgres: the postgres controller.
+        :param row_val: the row values for this row, optional
         """
-        super().__init__(postgres)
-
-    async def init(self, user_id: int):
-        """
-        Set up this instance's data.
-        :param user_id: the user id
-        """
-        user_id = str(user_id)
-        row = await self._postgres.get_user(user_id)
-        if row[0] is None:
-            row = (user_id,) + row[1:]
-        self._row = list(row)
-        assert self._row[0] is not None
+        super().__init__(postgres, row_val)
 
     async def _write(self):
         """
@@ -200,22 +163,3 @@ class _UserRow(_Row):
 
     async def set_daily(self, daily: datetime):
         await self._set(2, daily)
-
-
-async def guild_row(postgres: Postgres, guild_id: int) -> _GuildRow:
-    res = _GuildRow(postgres)
-    await res.init(guild_id)
-    return res
-
-
-async def member_row(
-        postgres: Postgres, member_id: int, guild_id: int) -> _MemberRow:
-    res = _MemberRow(postgres)
-    await res.init(member_id, guild_id)
-    return res
-
-
-async def user_row(postgres: Postgres, user_id: int) -> _UserRow:
-    res = _UserRow(postgres)
-    await res.init(user_id)
-    return res

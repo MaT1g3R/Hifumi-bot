@@ -41,23 +41,12 @@ async def get_prefix(bot, message):
     :param message: the discord message.
     :return: the command prefix.
     """
-
-    async def reslove(_bot, id_):
-        try:
-            res = await _bot.data_manager.get_prefix(id_)
-            return res
-        except InterfaceError as e:
-            await sleep(0.1)
-            _bot.logger.log(WARNING, str(e))
-            res = await reslove(_bot, id_)
-            return res
-
     try:
         server_id = int(message.server.id)
     except AttributeError:
         return bot.default_prefix
     else:
-        r = await reslove(bot, server_id)
+        r = await bot.data_manager.get_prefix(server_id)
         return r if r else bot.default_prefix
 
 

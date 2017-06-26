@@ -88,7 +88,7 @@ class BotInfo:
         """
         await self.bot.say(
             (await self.bot.get_language_dict(ctx))['invite'].format(
-                self.bot.config['invite']
+                self.bot.config['Bot extra']['invite']
             )
         )
 

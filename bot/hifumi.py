@@ -108,10 +108,11 @@ class Hifumi(Bot):
             res = command_error_handler(localize, exception)
         except Exception as e:
             tb = format_exc()
-            msg = format_command_error(e, context)
+            msg, triggered = format_command_error(e, context)
             self.logger.log(WARN, f'\n{msg}\n\n{tb}')
             await self.send_message(channel, localize['ex_warn'].format(msg))
-            await self.send_traceback(tb, '**WARNING**')
+            await self.send_traceback(
+                tb, f'**WARNING** Triggered message:\n{triggered}')
         else:
             await self.send_message(channel, res)
 

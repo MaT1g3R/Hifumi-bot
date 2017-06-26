@@ -1,3 +1,4 @@
+from collections import deque
 from datetime import datetime
 from typing import Dict, List, Optional, Sequence
 
@@ -48,6 +49,8 @@ class Postgres:
         self.__get_tags: PreparedStatement = None
         self.__set_tags: PreparedStatement = None
         self.schema = schema
+        self.high_priority_q = deque()
+        self.low_priority_q = deque()
 
     async def prepare(self):
         """
@@ -101,6 +104,15 @@ class Postgres:
         assert_types(res, _guild_types, True)
         return res
 
+    async def get_all_guild(self) -> List[tuple]:
+        """
+        Get all guild rows in the db.
+        :return: A list of guild rows
+        """
+        sql = 'SELECT * FROM {}.guild_info'.format(self.schema)
+        res = await self.__conn.fetch(sql)
+        return [_parse_record(r) for r in res]
+
     async def set_guild(self, values: Sequence):
         """
         Set a guild row.
@@ -123,6 +135,15 @@ class Postgres:
         assert_types(res, _member_types, True)
         return res
 
+    async def get_all_member(self) -> List[tuple]:
+        """
+        Get all member rows from the db.
+        :return: A list of all member rows.
+        """
+        sql = 'SELECT * FROM {}.member_info'.format(self.schema)
+        res = await self.__conn.fetch(sql)
+        return [_parse_record(r) for r in res]
+
     async def set_member(self, values: Sequence):
         """
         Set a member row.
@@ -141,6 +162,15 @@ class Postgres:
                (None,) * len(_user_types))
         assert_types(res, _user_types, True)
         return res
+
+    async def get_all_user(self) -> List[tuple]:
+        """
+
+        :return:
+        """
+        sql = 'SELECT * FROM {}.user_info'.format(self.schema)
+        res = await self.__conn.fetch(sql)
+        return [_parse_record(r) for r in res]
 
     async def set_user(self, values: Sequence):
         """

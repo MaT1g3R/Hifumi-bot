@@ -24,27 +24,45 @@ class DataManager:
         self.__guilds = {}
         self.__members = {}
         self.__users = {}
-        self.__classes = {
-            _GuildRow: guild_row,
-            _MemberRow: member_row,
-            _UserRow: user_row
-        }
 
-    async def __get_row(self, dict_: dict, class_: Type[_row_types], *args):
-        if args not in dict_:
-            new = await self.__classes[class_](self.__postgres, *args)
+    async def init(self):
+        """
+        Initialize self.__guilds with some values.
+        """
+        guilds = await self.__postgres.get_all_guild()
+        members = await self.__postgres.get_all_member()
+        users = await self.__postgres.get_all_user()
+        for guild in guilds:
+            row = _GuildRow(self.__postgres, guild)
+            key = (int(guild[0]),)
+            self.__guilds[key] = row
+        for member in members:
+            row = _MemberRow(self.__postgres, member)
+            key = int(member[0]), int(member[1])
+            self.__members[key] = row
+        for user in users:
+            row = _UserRow(self.__postgres, user)
+            key = (int(user[0]),)
+            self.__users[key] = row
+
+    def __get_row(self, dict_: dict, class_: Type[_row_types], *args):
+        try:
+            return dict_[args]
+        except KeyError:
+            new = class_(self.__postgres, args)
             dict_[args] = new
-        return dict_[args]
+            return new
 
-    async def __get_guild_row(self, guild_id: int) -> _GuildRow:
+    def __get_guild_row(self, guild_id: int) -> _GuildRow:
         """
         Get a row in the guild_info table.
         :param guild_id: the guild id.
         :return: the row with the id guild_id.
         """
-        return await self.__get_row(self.__guilds, _GuildRow, guild_id)
+        args = (guild_id, None, None, None, [])
+        return self.__get_row(self.__guilds, _GuildRow, *args)
 
-    async def __get_member_row(
+    def __get_member_row(
             self, member_id: int, guild_id: int) -> _MemberRow:
         """
         Get a row in the member_info table.
@@ -52,24 +70,25 @@ class DataManager:
         :param guild_id: the guild id
         :return: the row with id (member_id, guild_id)
         """
-        return await self.__get_row(
-            self.__members, _MemberRow, member_id, guild_id)
+        args = (member_id, guild_id, None)
+        return self.__get_row(self.__members, _MemberRow, *args)
 
-    async def __get_user_row(
+    def __get_user_row(
             self, user_id: int) -> _UserRow:
         """
         Get a row in the user_info table.
         :param user_id: the user id.
         :return: the row with id user_id.
         """
-        return await self.__get_row(self.__users, _UserRow, user_id)
+        args = (user_id, None, None)
+        return  self.__get_row(self.__users, _UserRow, *args)
 
     async def get_prefix(self, guild_id: int) -> str:
         """
         Get the prefix of the guild
         :param guild_id: the guild id
         """
-        row = await self.__get_guild_row(guild_id)
+        row = self.__get_guild_row(guild_id)
         return row.prefix
 
     async def set_prefix(self, guild_id: int, prefix: str):
@@ -78,7 +97,7 @@ class DataManager:
         :param guild_id: the guild id.
         :param prefix: the prefix to set to.
         """
-        row = await self.__get_guild_row(guild_id)
+        row = self.__get_guild_row(guild_id)
         await row.set_prefix(prefix)
 
     async def get_language(self, guild_id: int) -> str:
@@ -86,7 +105,7 @@ class DataManager:
         Get the language of the guild
         :param guild_id: the guild id
         """
-        row = await  self.__get_guild_row(guild_id)
+        row =  self.__get_guild_row(guild_id)
         return row.language
 
     async def set_language(self, guild_id: int, language: str):
@@ -95,7 +114,7 @@ class DataManager:
         :param guild_id: the guild id of the guild.
         :param language: the language to set to.
         """
-        row = await self.__get_guild_row(guild_id)
+        row = self.__get_guild_row(guild_id)
         await row.set_language(language)
 
     async def get_mod_log(self, guild_id: int) -> int:
@@ -103,7 +122,7 @@ class DataManager:
         Get the mod_log of the guild
         :param guild_id: the guild id
         """
-        row = await self.__get_guild_row(guild_id)
+        row = self.__get_guild_row(guild_id)
         return row.mod_log
 
     async def set_mod_log(self, guild_id: int, channel_id: Optional[int]):
@@ -112,7 +131,7 @@ class DataManager:
         :param guild_id: the guild id.
         :param channel_id: the channel id of the mod log.
         """
-        row = await self.__get_guild_row(guild_id)
+        row = self.__get_guild_row(guild_id)
         await row.set_mod_log(channel_id)
 
     async def get_roles(self, guild_id: int) -> List[str]:
@@ -120,7 +139,7 @@ class DataManager:
         Get the list of roles in the guild.
         :param guild_id: the guild id.
         """
-        row = await self.__get_guild_row(guild_id)
+        row = self.__get_guild_row(guild_id)
         res = row.roles
         if res is not None:
             assert_types(res, str, False)
@@ -134,7 +153,7 @@ class DataManager:
         :param roles: the list of roles.
         """
         assert_types(roles, str, False)
-        row = await self.__get_guild_row(guild_id)
+        row = self.__get_guild_row(guild_id)
         await row.set_roles(roles)
 
     async def get_member_warns(self, member_id: int, guild_id: int) -> int:
@@ -144,7 +163,7 @@ class DataManager:
         :param guild_id: the guild id.
         :return: the number of warns on the member.
         """
-        row = await self.__get_member_row(member_id, guild_id)
+        row = self.__get_member_row(member_id, guild_id)
         return row.warns
 
     async def set_member_warns(self, member_id: int, guild_id: int, warns: int):
@@ -155,7 +174,7 @@ class DataManager:
         :param warns: the number of warns to set to.
         """
         assert warns >= 0
-        row = await self.__get_member_row(member_id, guild_id)
+        row = self.__get_member_row(member_id, guild_id)
         await row.set_warns(warns)
 
     async def get_user_balance(self, user_id: int) -> int:
@@ -164,7 +183,7 @@ class DataManager:
         :param user_id: the user id.
         :return: the balance of that user.
         """
-        row = await self.__get_user_row(user_id)
+        row = self.__get_user_row(user_id)
         return row.balance
 
     async def set_user_balance(self, user_id: int, balance: int):
@@ -174,7 +193,7 @@ class DataManager:
         :param balance: the balance to set to.
         """
         assert 0 <= balance < 9223372036854775807
-        row = await self.__get_user_row(user_id)
+        row = self.__get_user_row(user_id)
         await row.set_balance(balance)
 
     async def get_user_daily(self, user_id: int) -> datetime:
@@ -183,7 +202,7 @@ class DataManager:
         :param user_id: the user id.
         :return: the timestamp of the user's last daily.
         """
-        row = await self.__get_user_row(user_id)
+        row = self.__get_user_row(user_id)
         return row.daily
 
     async def set_user_daily(self, user_id: int, time_stamp: datetime):
@@ -192,5 +211,5 @@ class DataManager:
         :param user_id: the user id.
         :param time_stamp: the timestamp for the daily.
         """
-        row = await self.__get_user_row(user_id)
+        row = self.__get_user_row(user_id)
         await row.set_daily(time_stamp)
