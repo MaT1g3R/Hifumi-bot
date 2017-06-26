@@ -189,7 +189,6 @@ async def __get_lewd(
     :return: a tuple of
     (file url, tags used in the search, fuzzy, tags to write to the db)
     """
-    assert session_manager or site == 'gelbooru'
     if limit > 2:
         return (None,) * 4
     url, url_formatter, tag_key = site_params

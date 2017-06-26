@@ -37,6 +37,7 @@ class SessionManager:
                 url, allow_redirects=allow_redirects, **kwargs) as r:
             if 200 <= r.status < 300:
                 return r
-            ex = ClientResponseError(None, None, code=r.status)
-            self.logger.log(WARN, str(ex))
-            raise ex
+            else:
+                ex = ClientResponseError(None, None, code=r.status)
+                self.logger.log(WARN, str(ex))
+                raise ex
