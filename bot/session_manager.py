@@ -1,3 +1,5 @@
+from logging import WARN
+
 from aiohttp import ClientResponse, ClientResponseError, ClientSession
 
 
@@ -35,4 +37,6 @@ class SessionManager:
                 url, allow_redirects=allow_redirects, **kwargs) as r:
             if 200 <= r.status < 300:
                 return r
-            raise ClientResponseError
+            ex = ClientResponseError(None, None, code=r.status)
+            self.logger.log(WARN, str(ex))
+            raise ex
