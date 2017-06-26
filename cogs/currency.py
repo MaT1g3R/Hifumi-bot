@@ -129,3 +129,7 @@ class Currency:
                 Type, Diffculty, Category, Amount(of bet)
         """
         await TriviaGame(ctx, self.bot, args, self.trivia_api).play()
+
+    @commands.command()
+    async def shop():
+        raise NotImplementedError
