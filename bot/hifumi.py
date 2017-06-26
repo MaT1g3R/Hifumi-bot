@@ -217,11 +217,14 @@ class Hifumi(Bot):
             message = ctx_msg.message
         else:
             message = ctx_msg
+
         try:
             type_ = message.channel.type
+        except AttributeError:
+            return self.default_language
+        else:
             if type_ == ChannelType.text:
                 lan = await self.data_manager.get_language(
                     int(message.server.id))
                 return lan or self.default_language
-        except AttributeError:
             return self.default_language
