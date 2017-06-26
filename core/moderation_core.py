@@ -189,7 +189,7 @@ async def send_mod_log(ctx, bot: Hifumi, action: str, member: Member,
         entry = generate_mod_log_entry(
             action, ctx.message.author, member, reason, localize, warn_count
         )
-        channel = get_modlog(bot.data_manager, ctx.message.server)
+        channel = await get_modlog(bot.data_manager, ctx.message.server)
         if channel:
             await bot.send_message(channel, embed=entry)
 
@@ -218,7 +218,7 @@ async def warn_pardon(bot: Hifumi, ctx, reason: str, member: Member,
     else:
         new_warn_count = max(0, warn_count - 1)
         actions = 'pardon', 'pardon_success'
-    data_manager.set_member_warns(member_id, guild_id, new_warn_count)
+    await data_manager.set_member_warns(member_id, guild_id, new_warn_count)
     await bot.say(
         localize[actions[1]].format(member, reason, author) +
         str(new_warn_count)

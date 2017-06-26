@@ -173,7 +173,7 @@ class Moderation:
             else:
                 await self.bot.say(localize['mod_log_empty'])
             await self.bot.say(localize['mod_log_info'].format(
-                await get_prefix(self.bot, ctx.message)))
+                get_prefix(self.bot, ctx.message)))
 
     async def __modify_modlog(self, ctx, is_set):
         """
