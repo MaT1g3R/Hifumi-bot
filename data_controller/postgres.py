@@ -31,10 +31,11 @@ class Postgres:
     the bot. For bot use, please use the DataManager class.
     """
 
-    def __init__(self, conn: Connection):
+    def __init__(self, conn: Connection, schema):
         """
         Initialize the instance of this class.
         :param conn: the asyncpg connection.
+        :param schema: the schema name.
         """
         self.__conn: Connection = conn
 
@@ -46,13 +47,14 @@ class Postgres:
         self.__set_user: PreparedStatement = None
         self.__get_tags: PreparedStatement = None
         self.__set_tags: PreparedStatement = None
+        self.schema = schema
 
-    async def prepare(self, schema: str):
+    async def prepare(self):
         """
         Prepare the queries that will be used.
-        :param schema: the Postgres schema name.
         """
         f = self.__conn.prepare
+        schema = self.schema
 
         self.__get_guild = await f(
             'SELECT * FROM {}.guild_info WHERE guild_id = $1'.format(schema)
@@ -87,12 +89,6 @@ class Postgres:
         )
 
         self.__get_tags = await f('SELECT * FROM {}.nsfw_tags'.format(schema))
-
-        self.__set_tags = await f(
-            'INSERT INTO {}.nsfw_tags VALUES ($1, $2) '
-            'ON CONFLICT (site, tag_name) '
-            'DO NOTHING'.format(schema)
-        )
 
     async def get_guild(self, guild_id: str) -> tuple:
         """
@@ -177,11 +173,16 @@ class Postgres:
         :param site: the site name.
         :param tags: the list of tags.
         """
-        for tag in tags:
-            await self.__set_tags.fetch(site, tag)
+        sql = (
+            'INSERT INTO {}.nsfw_tags VALUES ($1, $2) '
+            'ON CONFLICT (site, tag_name) '
+            'DO NOTHING'.format(self.schema)
+        )
+        args = [(site, tag) for tag in tags]
+        await self.__conn.executemany(sql, args)
 
 
 async def get_postgres(conn: Connection, schema: str) -> Postgres:
-    res = Postgres(conn)
-    await res.prepare(schema)
+    res = Postgres(conn, schema)
+    await res.prepare()
     return res
