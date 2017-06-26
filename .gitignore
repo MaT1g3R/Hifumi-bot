@@ -20,3 +20,4 @@ data/\.DS_Store
 config/settings\.json
 
 config/settings\.yml
+lib/
