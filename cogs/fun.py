@@ -14,93 +14,93 @@ class Tags:
         self.bot = bot
     
     @commands.command(name='8ball')
-    async def _8ball():
+    async def _8ball(self):
         raise NotImplementedError
     
     @commands.command()
-    async def accordingtodevin():
+    async def accordingtodevin(self):
         raise NotImplementedError
     
     @commands.command()
-    async def choose():
+    async def choose(self):
         raise NotImplementedError
     
     @commands.command()
-    async def coinflip():
+    async def coinflip(self):
         raise NotImplementedError
     
     @commands.command()
-    async def animal():
+    async def animal(self):
         raise NotImplementedError
     
     @commands.command()
-    async def joke():
+    async def joke(self):
         raise NotImplementedError
     
     @commands.command()
-    async def garfield():
+    async def garfield(self):
         raise NotImplementedError
     
     @commands.command()
-    async def gif():
+    async def gif(self):
         raise NotImplementedError
     
     @commands.command()
-    async def imgur():
+    async def imgur(self):
         raise NotImplementedError
     
     @commands.command()
-    async def hifumi():
+    async def hifumi(self):
         raise NotImplementedError
     
     @commands.command()
-    async def waifu():
+    async def waifu(self):
         raise NotImplementedError
     
     @commands.command()
-    async def love():
+    async def love(self):
         raise NotImplementedError
     
     @commands.command()
-    async def meme():
+    async def meme(self):
         raise NotImplementedError
     
     @commands.command()
-    async def rate():
+    async def rate(self):
         raise NotImplementedError
     
     @commands.command()
-    async def reverse():
+    async def reverse(self):
         raise NotImplementedError
     
     @commands.command()
-    async def rip():
+    async def rip(self):
         raise NotImplementedError
     
     @commands.command()
-    async def roll():
+    async def roll(self):
         raise NotImplementedError
     
     @commands.command()
-    async def rps():
+    async def rps(self):
         raise NotImplementedError
     
     @commands.command()
-    async def say():
+    async def say(self):
         raise NotImplementedError
     
     @commands.command()
-    async def sayd():
+    async def sayd(self):
         raise NotImplementedError
         
     @commands.command()
-    async def triggered():
+    async def triggered(self):
         raise NotImplementedError
         
     @commands.command()
-    async def xkcd():
+    async def xkcd(self):
         raise NotImplementedError
         
     @commands.command()
-    async def yomomma():
+    async def yomomma(self):
         raise NotImplementedError

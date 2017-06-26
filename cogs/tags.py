@@ -14,5 +14,5 @@ class Tags:
         self.bot = bot
     
     @commands.command()
-    async def tag():
+    async def tag(self):
         raise NotImplementedError

@@ -14,45 +14,45 @@ class Interactions:
         self.bot = bot
     
     @commands.command()
-    async def cry():
+    async def cry(self):
         raise NotImplementedError
 
     @commands.command()
-    async def cuddle():
+    async def cuddle(self):
         raise NotImplementedError
     
     @commands.command()
-    async def hug():
+    async def hug(self):
         raise NotImplementedError
 
     @commands.command()
-    async def kiss():
+    async def kiss(self):
         raise NotImplementedError
 
     @commands.command()
-    async def lick():
+    async def lick(self):
         raise NotImplementedError
 
     @commands.command()
-    async def eat():
+    async def eat(self):
         raise NotImplementedError
 
     @commands.command()
-    async def pat():
+    async def pat(self):
         raise NotImplementedError
 
     @commands.command()
-    async def pout():
+    async def pout(self):
         raise NotImplementedError
 
     @commands.command()
-    async def slap():
+    async def slap(self):
         raise NotImplementedError
     
     @commands.command()
-    async def stare():
+    async def stare(self):
         raise NotImplementedError
 
     @commands.command()
-    async def tickle():
+    async def tickle(self):
         raise NotImplementedError

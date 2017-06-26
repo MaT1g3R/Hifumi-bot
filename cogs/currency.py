@@ -131,5 +131,5 @@ class Currency:
         await TriviaGame(ctx, self.bot, args, self.trivia_api).play()
 
     @commands.command()
-    async def shop():
+    async def shop(self):
         raise NotImplementedError
