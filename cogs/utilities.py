@@ -149,3 +149,15 @@ class Utilities:
     @commands.command()
     async def weather(self):
         raise NotImplementedError
+
+    @commands.command()
+    async def avatar(self):
+        raise NotImplementedError
+    
+    @commands.command()
+    async def serverinfo(self):
+        raise NotImplementedError
+    
+    @commands.command()
+    async def userinfo(self):
+        raise NotImplementedError
