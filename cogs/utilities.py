@@ -161,3 +161,19 @@ class Utilities:
     @commands.command()
     async def userinfo(self):
         raise NotImplementedError
+
+    @commands.command()
+    async def anime(self):
+        raise NotImplementedError
+        
+    @commands.command()
+    async def manga(self):
+        raise NotImplementedError
+        
+    @commands.command()
+    async def osu(self):
+        raise NotImplementedError
+        
+    @commands.command()
+    async def checkpp(self):
+        raise NotImplementedError
