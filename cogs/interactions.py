@@ -56,3 +56,11 @@ class Interactions:
     @commands.command()
     async def tickle():
         raise NotImplementedError
+
+    @commands.command()
+    async def smug():
+        raise NotImplementedError
+        
+    @commands.command()
+    async def lewd():
+        raise NotImplementedError
