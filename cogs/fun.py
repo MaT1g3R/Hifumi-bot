@@ -1,48 +1,106 @@
-'''
 from discord.ext import commands
 
-from bot import Hifumi
-from datetime import date
-from random import randint
-
-import time
-
-# from core.fun_core import *
-
-class Fun:
+class Tags:
     """
-    Fun cog
+    Tags cog
     """
     __slots__ = ['bot']
 
-    def __init__(self, bot: Hifumi):
+    def __init__(self, bot):
         """
-        Initialize the Fun class
+        Initialize the Tags class
         :param bot: the discord bot object
         """
         self.bot = bot
+    
+    @commands.command(name='8ball')
+    async def _8ball():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def accordingtodevin():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def choose():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def coinflip():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def animal():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def joke():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def garfield():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def gif():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def imgur():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def hifumi():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def waifu():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def love():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def meme():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def rate():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def reverse():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def rip():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def roll():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def rps():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def say():
+        raise NotImplementedError
+    
+    @commands.command()
+    async def sayd():
+        raise NotImplementedError
         
-    @commands.command(pass_context=True)  
-        async def garfield(self, ctx, *args):
-        """
-        Gets a random Garfield comic
-        :param ctx: the discord context object
-        """
-        firstdate = int(time.mktime(date(1978, 6, 19).timetuple()))
-        todaydate = int(time.mktime(date.today().timetuple()))
-        todayyear = time.strftime('%Y', time.gmtime(today))
-        res = randint(firstdate, todaydate)
-        res_year = time.strftime('%Y', time.gmtime(res))
-        res_date = time.strftime('%Y-%m-%d', time.gmtime(res))
-        archive = "https://d1ejxu6vysztl5.cloudfront.net"
+    @commands.command()
+    async def triggered():
+        raise NotImplementedError
         
-        if args is "latest":
-            await self.bot.say("https://d1ejxu6vysztl5.cloudfront.net/" +
-                               "comics/garfield/" + todayyear + "/" +
-                               todaydate + ".gif")
-        else:
-            await self.bot.say("https://d1ejxu6vysztl5.cloudfront.net/" +
-                           "comics/garfield/" + res_year + "/" +
-                           res_date + ".gif")
+    @commands.command()
+    async def xkcd():
+        raise NotImplementedError
         
-'''
+    @commands.command()
+    async def yomomma():
+        raise NotImplementedError
