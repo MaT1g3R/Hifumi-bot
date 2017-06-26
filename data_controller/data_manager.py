@@ -34,7 +34,7 @@ class DataManager:
         users = await self.__postgres.get_all_user()
         for guild in guilds:
             row = _GuildRow(self.__postgres, guild)
-            key = (int(guild[0]),)
+            key = int(guild[0])
             self.__guilds[key] = row
         for member in members:
             row = _MemberRow(self.__postgres, member)
@@ -42,15 +42,15 @@ class DataManager:
             self.__members[key] = row
         for user in users:
             row = _UserRow(self.__postgres, user)
-            key = (int(user[0]),)
+            key = int(user[0])
             self.__users[key] = row
 
-    def __get_row(self, dict_: dict, class_: Type[_row_types], *args):
+    def __get_row(self, dict_: dict, class_: Type[_row_types], key, *args):
         try:
-            return dict_[args]
+            return dict_[key]
         except KeyError:
             new = class_(self.__postgres, args)
-            dict_[args] = new
+            dict_[key] = new
             return new
 
     def __get_guild_row(self, guild_id: int) -> _GuildRow:
@@ -59,8 +59,8 @@ class DataManager:
         :param guild_id: the guild id.
         :return: the row with the id guild_id.
         """
-        args = (guild_id, None, None, None, [])
-        return self.__get_row(self.__guilds, _GuildRow, *args)
+        args = (str(guild_id), None, None, None, [])
+        return self.__get_row(self.__guilds, _GuildRow, guild_id, *args)
 
     def __get_member_row(
             self, member_id: int, guild_id: int) -> _MemberRow:
@@ -70,8 +70,9 @@ class DataManager:
         :param guild_id: the guild id
         :return: the row with id (member_id, guild_id)
         """
-        args = (member_id, guild_id, None)
-        return self.__get_row(self.__members, _MemberRow, *args)
+        args = (str(member_id), str(guild_id), None)
+        key = (member_id, guild_id)
+        return self.__get_row(self.__members, _MemberRow, key, *args)
 
     def __get_user_row(
             self, user_id: int) -> _UserRow:
@@ -80,8 +81,8 @@ class DataManager:
         :param user_id: the user id.
         :return: the row with id user_id.
         """
-        args = (user_id, None, None)
-        return  self.__get_row(self.__users, _UserRow, *args)
+        args = (str(user_id), None, None)
+        return self.__get_row(self.__users, _UserRow, user_id, *args)
 
     async def get_prefix(self, guild_id: int) -> str:
         """
@@ -105,7 +106,7 @@ class DataManager:
         Get the language of the guild
         :param guild_id: the guild id
         """
-        row =  self.__get_guild_row(guild_id)
+        row = self.__get_guild_row(guild_id)
         return row.language
 
     async def set_language(self, guild_id: int, language: str):

@@ -17,7 +17,7 @@ class _Row:
         :param row: the row value for the row, optional parameter.
         """
         self._postgres = postgres
-        self._row = row or []
+        self._row = list(row) or []
 
     async def _write(self):
         """

@@ -167,7 +167,7 @@ class BotInfo:
         if ctx.invoked_subcommand is None:
             localize = await self.bot.get_language_dict(ctx)
             await self.bot.say(
-               localize['prefix'].format(
+                localize['prefix'].format(
                     await get_prefix(self.bot, ctx.message),
                     self.bot.default_prefix
                 )
@@ -212,4 +212,9 @@ class BotInfo:
         Reset the prefix of the server
         :param ctx: the discord context
         """
-        await self.__set_prefix(ctx, self.bot.default_prefix)
+        localize = await self.bot.get_language_dict(ctx)
+        await self.bot.data_manager.set_prefix(
+            int(ctx.message.server.id), None
+        )
+        prefix = await get_prefix(self.bot, ctx.message)
+        await self.bot.say(localize['set_prefix'].format(prefix))
