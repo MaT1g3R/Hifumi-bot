@@ -1,7 +1,7 @@
 from discord.ext import commands
 
 
-class Tags:
+class Fun:
     """
     Tags cog
     """

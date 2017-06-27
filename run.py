@@ -20,9 +20,9 @@ async def run(args, loop_):
     except ValueError:
         shard_id = 0
     bot = Hifumi(config, shard_id, loop_)
-    cogs = [BotInfo(bot), OwnerOnly(bot), ChannelReader(bot), Nsfw(bot),
-            Roles(bot), Moderation(bot), Currency(bot), Utilities(bot),
-            Music(bot)]
+    cogs = [BotInfo(bot), ChannelReader(bot), Currency(bot), Fun(bot),
+            Interactions(bot), Moderation(bot), Music(bot), Nsfw(bot),
+            OwnerOnly(bot), Roles(bot), Tags(bot), Utilities(bot)]
 
     await bot.start_bot(cogs)
 
