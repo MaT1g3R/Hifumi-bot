@@ -14,10 +14,10 @@ temp\.py
 .fuse*
 data/\.DS_Store
 \.DS_Store
-\.cache/v/cache/
 /data/hifumi_db
 
 config/settings\.json
 
 config/settings\.yml
 lib/
+/.cache/
