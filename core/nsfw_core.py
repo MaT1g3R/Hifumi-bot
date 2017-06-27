@@ -97,8 +97,11 @@ def __parse_post_list(
     :return: a tuple of (file url, list of tags)
     """
     post = choice(post_list)
-    file_url = url_formatter(post)
-    return file_url, post[tag_key].split(' ')
+    try:
+        file_url = url_formatter(post)
+        return file_url, post[tag_key].split(' ')
+    except KeyError:
+        return None, None
 
 
 def __retry_search(
@@ -186,8 +189,8 @@ async def __get_lewd(
         tags, rating, url, param, site, session_manager, tag_matcher)
 
     if post_list:
-        file_url, tags_to_write = __parse_post_list(post_list, url_formatter,
-                                                    tag_key)
+        file_url, tags_to_write = __parse_post_list(
+            post_list, url_formatter, tag_key)
         return file_url, safe_queries + unsafe_queries, fuzzy, tags_to_write
     retry = __retry_search(site, safe_queries, unsafe_queries, tag_matcher)
     if retry:

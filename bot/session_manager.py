@@ -1,4 +1,3 @@
-from asyncio import get_event_loop
 from http import HTTPStatus
 from logging import WARN
 
@@ -77,7 +76,14 @@ class SessionManager:
         except HTTPStatusError as e:
             raise e
         else:
-            return res.json()
+            with res:
+                try:
+                    js = res.json()
+                except Exception as e:
+                    self.logger.log(WARN, str(e))
+                    text = res.text
+                    js = decode(text) if text else None
+                return js
 
     async def __json_async(self, url, params):
         """
@@ -92,12 +98,14 @@ class SessionManager:
         except HTTPStatusError as e:
             raise e
         else:
-            try:
-                return await res.json()
-            except Exception as e:
-                self.logger.log(WARN, str(e))
-                text = await res.text()
-                return decode(text)
+            async with res:
+                try:
+                    js = await res.json(loads=decode)
+                except Exception as e:
+                    self.logger.log(WARN, str(e))
+                    text = await res.text()
+                    js = decode(text) if text else None
+                return js
 
     async def get_json(self, url: str, params: dict = None):
         """
@@ -142,28 +150,6 @@ class SessionManager:
         :return: a client response object.
         :raises: HTTPStatusError if status code isn't 200
         """
-        async with self.session.get(
-                url, allow_redirects=allow_redirects, **kwargs) as r:
-            return self.return_response(r, r.status)
-
-
-class l:
-    def log(self, *args, **kwagrs):
-        print(args, kwagrs)
-
-
-async def foo():
-    s = SessionManager(ClientSession(), l())
-    url = 'https://rra.ram.moe/i/r?'
-    params = {
-        'type': 'nsfw-gtn',
-        'nsfw': 'true'
-    }
-    base_error = '{}'
-    r = await s.get_json(url, base_error, params)
-    print(r)
-
-
-if __name__ == '__main__':
-    loop = get_event_loop()
-    loop.run_until_complete(foo())
+        r = await self.session.get(
+            url, allow_redirects=allow_redirects, **kwargs)
+        return self.return_response(r, r.status)
