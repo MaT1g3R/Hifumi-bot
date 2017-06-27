@@ -64,6 +64,20 @@ def no_badword(ctx):
     return True
 
 
+def __try_get_member(ctx, ex):
+    """
+    Try to get a member from the context.
+    :param ctx: the context.
+    :param ex: the exception to be raised if member cannot be found.
+    :return: the member.
+    :raises: ex, see :param ex
+    """
+    try:
+        return ctx.message.server.get_member(ctx.message.author.id)
+    except:
+        raise ex
+
+
 def has_manage_role(ctx):
     """
     Check if an user has the manage_roles permissions
@@ -71,8 +85,8 @@ def has_manage_role(ctx):
     :return: True if the user has the manage_roles permissions
     :rtype: bool
     """
-    id_ = ctx.message.author.id
-    if ctx.message.server.get_member(id_).server_permissions.manage_roles:
+    member = __try_get_member(ctx, ManageRoleError)
+    if member.server_permissions.manage_roles:
         return True
     raise ManageRoleError
 
@@ -83,8 +97,8 @@ def is_admin(ctx):
     :param ctx: the discord context
     :return: True if the user has admin permissions
     """
-    id_ = ctx.message.author.id
-    if ctx.message.server.get_member(id_).server_permissions.administrator:
+    member = __try_get_member(ctx, AdminError)
+    if member.server_permissions.administrator:
         return True
     raise AdminError
 
@@ -95,8 +109,8 @@ def has_manage_message(ctx):
     :param ctx: the discord context
     :return: True if the user has manage message permissions
     """
-    id_ = ctx.message.author.id
-    if ctx.message.server.get_member(id_).server_permissions.manage_messages:
+    member = __try_get_member(ctx, ManageMessageError)
+    if member.server_permissions.manage_messages:
         return True
     raise ManageMessageError
 
