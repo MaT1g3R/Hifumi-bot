@@ -1,11 +1,8 @@
-from json import loads
-
-from aiohttp import ClientResponseError
 from discord.embeds import Embed
 from discord.ext import commands
 from imdbpie import Imdb
 
-from bot import Hifumi
+from bot import HTTPStatusError, Hifumi
 from core.utilities_core import imdb, number_fact, recipe_search
 from data_controller.data_utils import get_prefix
 
@@ -32,14 +29,13 @@ class Utilities:
         localize = self.bot.get_language_dict(ctx)
         url = 'http://api.adviceslip.com/advice'
         try:
-            resp = await self.bot.session_manager.get(url)
-            resp = await resp.read()
-            slip = loads(resp)['slip']
+            js = await self.bot.session_manager.get_json(url)
+            slip = js['slip']
             res = ':information_source: **Advice #{}**: {}'.format(
                 slip['slip_id'], slip['advice']
             )
-        except ClientResponseError:
-            res = localize['api_error'].format('Adviceslip')
+        except HTTPStatusError as e:
+            res = localize['api_error'].format('Adviceslip') + f'\n{e}'
         await self.bot.say(res)
 
     @commands.group(pass_context=True)
@@ -67,11 +63,10 @@ class Utilities:
         localize = self.bot.get_language_dict(ctx)
         url = 'http://catfacts-api.appspot.com/api/facts'
         try:
-            resp = await self.bot.session_manager.get(url)
-            resp = await resp.read()
-            res = loads(resp)['facts'][0]
-        except ClientResponseError:
-            res = localize['api_error'].format('Catfacts')
+            js = await self.bot.session_manager.get_json(url)
+            res = js['facts'][0]
+        except HTTPStatusError as e:
+            res = localize['api_error'].format('Catfacts') + f'\n{e}'
         await self.bot.say(res)
 
     @fact.command(pass_context=True)
@@ -153,11 +148,11 @@ class Utilities:
     @commands.command()
     async def avatar(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def serverinfo(self):
         raise NotImplementedError
-    
+
     @commands.command()
     async def userinfo(self):
         raise NotImplementedError
@@ -165,15 +160,15 @@ class Utilities:
     @commands.command()
     async def anime(self):
         raise NotImplementedError
-        
+
     @commands.command()
     async def manga(self):
         raise NotImplementedError
-        
+
     @commands.command()
     async def osu(self):
         raise NotImplementedError
-        
+
     @commands.command()
     async def checkpp(self):
         raise NotImplementedError

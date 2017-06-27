@@ -32,7 +32,7 @@
   "two_term": "You cannot search for more than 2 tags at a time",
   "invite": "Use this link to invite me to your guild:\n<{}>\n**NOTE: Select all permissions as needed but it's recommended to keep all enabled , so I can work fine.**",
   "nsfw_sorry": "Sorry! nothing found.",
-  "api_error": "Something went wrong with the {} API. Please report this to my owner or await a fix.",
+  "api_error": "Something went wrong with the {} API.",
   "nsfw_fuzzy": "You have entered invalid {} tags, here is the result of the search using these tags that I tried to match: `{}`\n",
   "language": "The language for this guild is: `{0}`\n`{1}language list` for a list of available languages.\n`{1}language set <insert_language_here>` to set the language for this guild.\n`{1}language reset` to reset the language of the guild to default ({2}).",
   "language_list": "The list of available languages are: ```\n{}\n```",

@@ -1,7 +1,8 @@
+from logging import WARN
 from random import shuffle
 from string import ascii_uppercase
 
-from aiohttp import ClientResponseError, ClientSession
+from aiohttp import ClientSession
 from discord.embeds import Embed
 from pytrivia import Category, Diffculty, Trivia, Type
 
@@ -131,7 +132,8 @@ class TriviaGame:
         """
         try:
             trivia_data = await _get_trivia_data(kwargs, self.api, session)
-        except ClientResponseError:
+        except Exception as e:
+            self.bot.logger.log(WARN, str(e))
             trivia_data = None
         if trivia_data is None:
             await self.bot.send_message(

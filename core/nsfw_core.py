@@ -1,15 +1,10 @@
 """
 NSFW functions
 """
-from logging import WARN
 from random import choice
-from traceback import format_exc
 from typing import List, Optional, Tuple
 
-from aiohttp import ClientConnectionError, ClientResponse, ClientResponseError
-from requests import get
-
-from bot import SessionManager
+from bot import HTTPStatusError, SessionManager
 from data_controller.tag_matcher import TagMatcher
 from scripts.helpers import flatten
 
@@ -68,13 +63,14 @@ def __process_queries(
 
 async def __request_lewd(
         tags: List[str], rating: Optional[str], url: str,
-        site: str, session_manager: SessionManager,
+        param: dict, site: str, session_manager: SessionManager,
         tag_matcher: TagMatcher) -> tuple:
     """
     Make an HTTP request to a lewd site.
     :param tags: the list of tags for the search.
     :param rating: the rating of the search.
     :param url: the request url.
+    :param param: the request parameters.
     :param site: the site name.
     :param session_manager: the aiohttp session manager
     :param tag_matcher: the TagMatcher object.
@@ -86,21 +82,9 @@ async def __request_lewd(
     safe_queries, unsafe_queries = __process_queries(
         site, tags, tag_matcher)
     combined = __combine(rating, '%20', safe_queries, unsafe_queries)
-    res = await session_manager.get(url + combined)
+    param['tags'] = combined
+    res = await session_manager.get_json(url, param)
     return res, safe_queries, unsafe_queries
-
-
-async def __parse_result(response: ClientResponse, logger) -> list:
-    """
-    Parse the HTTP response of a search and return the post list.
-    :param response: the HTTP response.
-    :return: The list of posts.
-    """
-    try:
-        return await response.json()
-    except ClientConnectionError:
-        logger.log(WARN, format_exc())
-        return get(response._url).json()
 
 
 def __parse_post_list(
@@ -147,13 +131,11 @@ def __get_site_params(
     :return: the request url, the file url formatter, the key for the tag string
     """
     request_url = {
-        'danbooru': f'https://danbooru.donmai.us//posts.json?login='
-                    f'{user}&api_key={api_key}&limit=1&random=true&tags=',
-        'konachan': 'https://konachan.com//post.json?tags=',
-        'yandere': 'https://yande.re//post.json?tags=',
-        'e621': 'https://e621.net/post/index.json?&tags=',
+        'danbooru': 'https://danbooru.donmai.us//posts.json?',
+        'konachan': 'https://konachan.com//post.json?',
+        'yandere': 'https://yande.re//post.json?',
+        'e621': 'https://e621.net/post/index.json?',
         'gelbooru': 'https://gelbooru.com//index.php?'
-                    'page=dapi&s=post&q=index&json=1&tags='
     }[site]
     url_formatter = {
         'danbooru': lambda x: 'https://danbooru.donmai.us' + x['file_url'],
@@ -169,7 +151,15 @@ def __get_site_params(
         'e621': 'tags',
         'gelbooru': 'tags'
     }[site]
-    return request_url, url_formatter, tag_key
+    param = {
+        'danbooru': {'login': user, 'api_key': api_key, 'limit': '1',
+                     'random': 'true'},
+        'konachan': {},
+        'yandere': {},
+        'e621': {},
+        'gelbooru': {'page': 'dapi', 's': 'post', 'q': 'index', 'json': '1'}
+    }[site]
+    return request_url, url_formatter, tag_key, param
 
 
 async def __get_lewd(
@@ -191,11 +181,9 @@ async def __get_lewd(
     """
     if limit > 2:
         return (None,) * 4
-    url, url_formatter, tag_key = site_params
-    res, safe_queries, unsafe_queries = await __request_lewd(
-        tags, rating, url, site, session_manager, tag_matcher)
-
-    post_list = await __parse_result(res, session_manager.logger)
+    url, url_formatter, tag_key, param = site_params
+    post_list, safe_queries, unsafe_queries = await __request_lewd(
+        tags, rating, url, param, site, session_manager, tag_matcher)
 
     if post_list:
         file_url, tags_to_write = __parse_post_list(post_list, url_formatter,
@@ -244,8 +232,9 @@ async def get_lewd(
             return msg, tags_to_write
         else:
             return localize['nsfw_sorry'], None
-    except ClientResponseError:
-        return localize['api_error'].format(site.title()), None
+    except HTTPStatusError as e:
+        error = localize['api_error'].format(site.title()) + f'\n{e}'
+        return error, None
 
 
 async def greenteaneko(localize, session_manager: SessionManager):
@@ -255,13 +244,16 @@ async def greenteaneko(localize, session_manager: SessionManager):
     :param localize: the localization strings
     :return: the green tea neko comic
     """
-    url = 'https://rra.ram.moe/i/r?type=nsfw-gtn&nsfw=true'
+    url = 'https://rra.ram.moe/i/r?'
+    params = {
+        'type': 'nsfw-gtn',
+        'nsfw': 'true'
+    }
     try:
-        res = await session_manager.get(url)
-        js = await res.json()
-    except ClientResponseError:
-        return localize['api_error'].format('rra.ram.moe')
-    except ClientConnectionError:
-        js = get(url).json()
-    return 'https://rra.ram.moe{}\n{}'.format(
-        js['path'], localize['gtn_artist'])
+        js = await session_manager.get_json(url, params)
+    except HTTPStatusError as e:
+        return localize['api_error'].format('rra.ram.moe') + f'\n{e}'
+    else:
+        return 'https://rra.ram.moe{}\n{}'.format(
+            js['path'], localize['gtn_artist']
+        )

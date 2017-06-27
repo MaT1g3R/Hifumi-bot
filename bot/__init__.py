@@ -11,7 +11,7 @@ Hifumi, a multifunctional Discord bot.
 from collections import namedtuple
 
 from bot.hifumi import Hifumi
-from bot.session_manager import SessionManager
+from bot.session_manager import HTTPStatusError, SessionManager
 
 VersionInfo = namedtuple('VersionInfo', 'major minor micro releaselevel serial')
 
@@ -29,4 +29,4 @@ __version__ = '.'.join([str(i) for i in list(version_info)[:3]])
 
 __all__ = ['__title__', '__author__', '__author_plain__', '__helper__',
            '__helper_plain__', '__license__', '__copyright__', '__version__',
-           'version_info', 'Hifumi', 'SessionManager']
+           'version_info', 'Hifumi', 'SessionManager', 'HTTPStatusError']

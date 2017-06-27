@@ -4,11 +4,10 @@ Functions for Utilities commands
 from json import JSONDecodeError
 from random import randint
 
-from aiohttp import ClientResponseError
 from discord.embeds import Embed, EmptyEmbed
 from imdbpie import Imdb
 
-from bot import SessionManager
+from bot import HTTPStatusError, SessionManager
 
 
 async def number_fact(num, localize, session_manager: SessionManager):
@@ -30,12 +29,11 @@ async def number_fact(num, localize, session_manager: SessionManager):
         return bad_num_msg
     url = f'http://numbersapi.com/{num}?json=true'
     try:
-        res = await session_manager.get(url)
-        res = await res.json()
+        res = await session_manager.get_json(url)
         return header.format(res['number']) + res['text'] if res['found'] \
             else not_found_msg
-    except ClientResponseError:
-        return localize['api_error'].format('Numbers Fact')
+    except HTTPStatusError as e:
+        return localize['api_error'].format('Numbers Fact') + f'\n{e}'
 
 
 async def imdb(query, api: Imdb, localize):
@@ -113,17 +111,21 @@ async def recipe_search(
     :param session_manager: the SessionManager
     :return: a discord embed object of the recipe
     """
-    url = f'https://api.edamam.com/search?' \
-          f'app_id={edamam_app_id}&app_key={edamam_key}&q={query}&to=1&' \
-          f'returns=label'
+    url = f'https://api.edamam.com/search?'
+    params = {
+        'app_id': edamam_app_id,
+        'app_key': edamam_key,
+        'q': query,
+        'to': '1',
+        'returns': 'label'
+    }
     try:
-        response = await session_manager.get(url)
-        js = await response.json()
+        js = await session_manager.get_json(url, params)
         res = js['hits'][0]['recipe']
     except IndexError:
         return localize['recipe_not_found']
-    except ClientResponseError:
-        return localize['api_error'].format('Edamam')
+    except HTTPStatusError as e:
+        return localize['api_error'].format('Edamam') + f'\n{e}'
 
     servings = res.get('yield', None)
     if servings and servings % 1 == 0:

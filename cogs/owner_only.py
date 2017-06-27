@@ -8,7 +8,8 @@ restart             ✕
 shutdown            ✕
 blacklist           ✕
 """
-from aiohttp import ClientResponseError
+from logging import WARN
+
 from discord.ext import commands
 from requests import get
 
@@ -94,7 +95,8 @@ class OwnerOnly:
             try:
                 avatar = get(url).content
                 await setavatar(self.bot, localize, ctx.message.channel, avatar)
-            except ClientResponseError:
+            except Exception as e:
+                self.bot.logger.log(WARN, str(e))
                 await self.bot.say(localize['avatar_fail'])
 
     @commands.command(pass_context=True)
