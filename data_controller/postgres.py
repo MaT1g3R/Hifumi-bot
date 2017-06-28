@@ -1,9 +1,9 @@
-from asyncio import sleep
 from collections import deque
 from datetime import datetime
+from logging import WARN
 from typing import Dict, List, Optional, Sequence
 
-from asyncpg import Connection, Record
+from asyncpg import Connection, InterfaceError, Record
 from asyncpg.prepared_stmt import PreparedStatement
 
 from scripts.helpers import assert_types
@@ -41,14 +41,23 @@ def execute_task(high):
             postgres.queue_task(f, high)
             if high:
                 while not postgres.high_priority_q[0] is f:
-                    await sleep(0.1)
+                    continue
                 assert f is postgres.high_priority_q[0]
             else:
                 while not (postgres.low_priority_q[0] is f
                            and len(postgres.high_priority_q) == 0):
-                    await sleep(0.1)
+                    continue
                 assert f is postgres.low_priority_q[0]
-            res = await f
+            res = None
+            while res is None:
+                try:
+                    res = await f
+                except InterfaceError as e:
+                    if 'another operation is in progress' in str(e):
+                        postgres.logger.log(WARN, str(e))
+                        continue
+                    else:
+                        raise e
             if high:
                 postgres.high_priority_q.popleft()
             else:
@@ -66,14 +75,14 @@ class Postgres:
     with the bot. For bot use, please use the DataManager class.
     """
 
-    def __init__(self, conn: Connection, schema):
+    def __init__(self, conn: Connection, schema, logger):
         """
         Initialize the instance of this class.
         :param conn: the asyncpg connection.
         :param schema: the schema name.
+        :param logger: the logger.
         """
         self.__conn: Connection = conn
-
         self.__get_guild: PreparedStatement = None
         self.__set_guild: PreparedStatement = None
         self.__get_member: PreparedStatement = None
@@ -83,6 +92,7 @@ class Postgres:
         self.__get_tags: PreparedStatement = None
         self.__set_tags: PreparedStatement = None
         self.schema = schema
+        self.logger = logger
         self.high_priority_q = deque()
         self.low_priority_q = deque()
 
@@ -272,7 +282,7 @@ class Postgres:
         await self.__conn.executemany(sql, args)
 
 
-async def get_postgres(conn: Connection, schema: str) -> Postgres:
-    res = Postgres(conn, schema)
+async def get_postgres(conn: Connection, schema: str, logger) -> Postgres:
+    res = Postgres(conn, schema, logger)
     await res.init()
     return res

@@ -1,4 +1,5 @@
 import re
+from logging import INFO
 from textwrap import wrap
 
 from asyncpg import connect
@@ -10,23 +11,23 @@ from data_controller.postgres import get_postgres
 from scripts.checks import AdminError, BadWordError, ManageMessageError, \
     ManageRoleError, NsfwError, OwnerError
 from scripts.helpers import strip_letters
-from scripts.logger import info
 
 
-async def get_data_manager(pg_config: dict) -> tuple:
+async def get_data_manager(pg_config: dict, logger) -> tuple:
     """
     Get an instance of DataManager and TagMatcher.
     :param pg_config: the postgres config info.
+    :param logger: the logger.
     :return: a tuple of (DataManager, TagMatcher)
     """
     conn = await connect(
         host=pg_config['host'], port=pg_config['port'], user=pg_config['user'],
         database=pg_config['database'], password=pg_config['password']
     )
-    post = await get_postgres(conn, pg_config['schema']['production'])
+    post = await get_postgres(conn, pg_config['schema']['production'], logger)
     data_manager = DataManager(post)
     tag_matcher = TagMatcher(post, await post.get_tags())
-    info('Connected to database: {}.{}'.format(
+    logger.log(INFO, 'Connected to database: {}.{}'.format(
         pg_config['database'], pg_config['schema']['production']))
     await data_manager.init()
     return data_manager, tag_matcher

@@ -2,7 +2,7 @@
 The Hifumi bot object
 """
 
-from logging import CRITICAL, ERROR, WARN
+from logging import CRITICAL, ERROR, INFO, WARN
 from pathlib import Path
 from time import time
 from traceback import format_exc
@@ -21,7 +21,7 @@ from config import Config
 from data_controller.data_utils import get_prefix
 from scripts.discord_functions import get_name_with_discriminator
 from scripts.language_support import read_language
-from scripts.logger import get_console_handler, info, setup_logging
+from scripts.logger import get_console_handler, setup_logging
 
 
 class Hifumi(Bot):
@@ -70,17 +70,20 @@ class Hifumi(Bot):
         """
         Event for the bot is ready
         """
+        if self.config['Bot']['console logging']:
+            self.logger.addHandler(get_console_handler())
         self.data_manager, self.tag_matcher = await get_data_manager(
-            self.config.postgres()
+            self.config.postgres(), self.logger
         )
         await self.try_change_presence(f'{self.default_prefix}help', True)
-        info(f'Logged in as {get_name_with_discriminator(self.user)}')
-        info('Bot ID: ' + self.user.id)
+        self.logger.log(
+            INFO,
+            f'Logged in as {get_name_with_discriminator(self.user)}'
+        )
+        self.logger.log(INFO, 'Bot ID: ' + self.user.id)
         self.mention_normal = '<@{}>'.format(self.user.id)
         self.mention_nick = '<@!{}>'.format(self.user.id)
         self.session_manager = SessionManager(ClientSession(), self.logger)
-        if self.config['Bot']['console logging']:
-            self.logger.addHandler(get_console_handler())
 
     async def on_command_error(self, exception, context):
         """

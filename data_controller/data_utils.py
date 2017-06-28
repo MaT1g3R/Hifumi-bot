@@ -43,6 +43,8 @@ def get_prefix(bot, message):
     except AttributeError:
         return bot.default_prefix
     else:
+        if bot.data_manager is None:
+            return bot.default_prefix
         r = bot.data_manager.get_prefix(server_id)
         return r if r else bot.default_prefix
 
