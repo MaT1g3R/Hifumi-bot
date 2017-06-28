@@ -68,6 +68,7 @@ class Hifumi(Bot):
         """
         Initialize the bot with values that needs to be awaited.
         """
+        self.session_manager = SessionManager(ClientSession(), self.logger)
         self.data_manager, self.tag_matcher = await get_data_manager(
             self.config.postgres(), self.logger
         )
@@ -88,7 +89,6 @@ class Hifumi(Bot):
         self.logger.log(INFO, 'Bot ID: ' + self.user.id)
         self.mention_normal = '<@{}>'.format(self.user.id)
         self.mention_nick = '<@!{}>'.format(self.user.id)
-        self.session_manager = SessionManager(ClientSession(), self.logger)
 
     async def on_command_error(self, exception, context):
         """
