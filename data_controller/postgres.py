@@ -97,7 +97,7 @@ class Postgres:
         else:
             self.low_priority_q.append(coro)
 
-    async def prepare(self):
+    async def init(self):
         """
         Prepare the queries that will be used.
         """
@@ -274,5 +274,5 @@ class Postgres:
 
 async def get_postgres(conn: Connection, schema: str) -> Postgres:
     res = Postgres(conn, schema)
-    await res.prepare()
+    await res.init()
     return res
