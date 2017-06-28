@@ -52,7 +52,7 @@ def execute_task(func):
                 if i > 100 or 'another operation is in progress' not in str(e):
                     raise e
                 pg.logger.log(WARN, str(e))
-                await sleep(0.1)
+                await sleep(1)
                 i += 1
 
     return wraps
