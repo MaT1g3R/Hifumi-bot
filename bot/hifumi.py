@@ -62,6 +62,13 @@ class Hifumi(Bot):
             shard_id=self.shard_id,
         )
 
+    async def init(self):
+        if self.config['Bot']['console logging']:
+            self.logger.addHandler(get_console_handler())
+        self.data_manager, self.tag_matcher = await get_data_manager(
+            self.config.postgres(), self.logger
+        )
+
     @property
     def default_prefix(self):
         return str(self.config['Bot']['prefix'])
@@ -70,11 +77,6 @@ class Hifumi(Bot):
         """
         Event for the bot is ready
         """
-        if self.config['Bot']['console logging']:
-            self.logger.addHandler(get_console_handler())
-        self.data_manager, self.tag_matcher = await get_data_manager(
-            self.config.postgres(), self.logger
-        )
         await self.try_change_presence(f'{self.default_prefix}help', True)
         self.logger.log(
             INFO,

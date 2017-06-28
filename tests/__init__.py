@@ -2,7 +2,7 @@ from asyncpg import Connection, connect
 
 from config import Config
 
-__all__ = ['_clear_db', '_get_connection', 'SCHEMA']
+__all__ = ['_clear_db', '_get_connection', 'SCHEMA', 'mock_logger']
 __config = Config().postgres()
 SCHEMA = __config['schema']['testing']
 
@@ -37,3 +37,8 @@ async def _get_connection() -> Connection:
     )
     await _clear_db(conn)
     return conn
+
+
+class mock_logger:
+    def log(self, *args, **kwargs):
+        print(args, kwargs)
