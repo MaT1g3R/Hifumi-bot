@@ -32,12 +32,11 @@ class Hifumi(Bot):
                  'default_language', 'logger', 'mention_normal', 'mention_nick',
                  'all_emojis', 'config', 'session_manager']
 
-    def __init__(self, config: Config, shard_id: int, loop, default_lan='en'):
+    def __init__(self, config: Config, shard_id: int, default_lan='en'):
         """
         Initialize the bot object.
         :param config: the Config object.
         :param shard_id: the shard id.
-        :param loop: the asyncio event loop.
         :param default_lan: the default language.
         """
         self.config = config
@@ -61,7 +60,6 @@ class Hifumi(Bot):
             command_prefix=get_prefix,
             shard_count=self.shard_count,
             shard_id=self.shard_id,
-            loop=loop
         )
 
     @property
@@ -72,6 +70,9 @@ class Hifumi(Bot):
         """
         Event for the bot is ready
         """
+        self.data_manager, self.tag_matcher = await get_data_manager(
+            self.config.postgres()
+        )
         await self.try_change_presence(f'{self.default_prefix}help', True)
         info(f'Logged in as {get_name_with_discriminator(self.user)}')
         info('Bot ID: ' + self.user.id)
@@ -186,7 +187,7 @@ class Hifumi(Bot):
             else:
                 raise e
 
-    async def start_bot(self, cogs: list):
+    def start_bot(self, cogs: list):
         """
         Start the bot
         :param cogs: a list of cogs
@@ -195,9 +196,7 @@ class Hifumi(Bot):
         # self.remove_command('help')
         for cog in cogs:
             self.add_cog(cog)
-        self.data_manager, self.tag_matcher = await get_data_manager(
-            self.config.postgres())
-        await self.start(self.config['Bot']['token'])
+        self.run(self.config['Bot']['token'])
 
     def get_language_dict(self, ctx_msg) -> dict:
         """
