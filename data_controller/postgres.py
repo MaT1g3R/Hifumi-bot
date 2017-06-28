@@ -1,5 +1,7 @@
+from collections import deque
 from datetime import datetime
 from logging import WARN
+from time import time as timestamp
 from typing import Dict, List, Optional, Sequence
 
 from asyncpg import Connection, InterfaceError, Record
@@ -33,17 +35,24 @@ def execute_task(func):
     """
 
     async def wraps(*args):
+        pg = args[0]
+        id_ = str(timestamp()) + str(args)
+        pg.queue.append(id_)
+        while True:
+            first = pg.queue.popleft()
+            if first == id_:
+                break
+            pg.appendleft(first)
         while True:
             try:
                 res = await func(*args)
                 break
             except InterfaceError as e:
                 if 'another operation is in progress' in str(e):
-                    args[0].logger.log(WARN, str(e))
+                    pg.logger.log(WARN, str(e))
                     continue
                 else:
                     raise e
-
         return res
 
     return wraps
@@ -71,6 +80,7 @@ class Postgres:
         self.__set_user: PreparedStatement = None
         self.__get_tags: PreparedStatement = None
         self.__set_tags: PreparedStatement = None
+        self.queue = deque()
         self.schema = schema
         self.logger = logger
 
