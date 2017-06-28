@@ -1,3 +1,4 @@
+from asyncio import sleep
 from collections import deque
 from datetime import datetime
 from logging import WARN
@@ -43,17 +44,16 @@ def execute_task(func):
             if first == id_:
                 break
             pg.appendleft(first)
+        i = 0
         while True:
             try:
-                res = await func(*args)
-                break
+                return await func(*args)
             except InterfaceError as e:
-                if 'another operation is in progress' in str(e):
-                    pg.logger.log(WARN, str(e))
-                    continue
-                else:
+                if i > 100 or 'another operation is in progress' not in str(e):
                     raise e
-        return res
+                pg.logger.log(WARN, str(e))
+                await sleep(0.1)
+                i += 1
 
     return wraps
 

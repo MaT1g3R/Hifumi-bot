@@ -61,10 +61,13 @@ class Hifumi(Bot):
             shard_count=self.shard_count,
             shard_id=self.shard_id,
         )
-
-    async def init(self):
         if self.config['Bot']['console logging']:
             self.logger.addHandler(get_console_handler())
+
+    async def init(self):
+        """
+        Initialize the bot with values that needs to be awaited.
+        """
         self.data_manager, self.tag_matcher = await get_data_manager(
             self.config.postgres(), self.logger
         )

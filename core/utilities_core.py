@@ -190,5 +190,12 @@ async def recipe_search(
     for t in body:
         if t[1]:
             inline = len(t) == 3 and t[-1]
-            embed.add_field(name=t[0], value=t[1], inline=inline)
+            name = str(t[0])
+            val = str(t[1])
+            if len(val) > 900:
+                too_long = localize['ing_too_long']
+                val = val[:900] + f'\n...\n{too_long}'
+            embed.add_field(name=name, value=val, inline=inline)
+            print(t[0], t[1], inline)
+    x = 0
     return embed
