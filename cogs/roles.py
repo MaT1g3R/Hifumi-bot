@@ -89,8 +89,10 @@ class Roles:
         """
         lst = await self_role_names(ctx.message.server, self.bot.data_manager)
         localize = self.bot.get_language_dict(ctx)
+        print(lst)
+        print('\n'.join(lst))
         if lst:
-            res = localize['has_role_list'] + '```' + '\n'.join(lst) + '```'
+            res = localize['has_role_list'] + '```\n' + '\n'.join(lst) + '```'
         else:
             res = localize['no_role_list']
         await self.bot.say(res)
