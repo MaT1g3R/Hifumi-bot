@@ -140,7 +140,7 @@ class Hifumi(Bot):
         if isinstance(exception, CommandNotFound):
             # Ignore this case.
             return
-        localize = self.get_language_dict(context)
+        localize = self.localize(context)
         channel = context.message.channel
         # FIXME temporary hack
         if 'NotImplementedError' in str(exception):
@@ -186,7 +186,7 @@ class Hifumi(Bot):
         else:
             header = f'**ERROR**\n{ig}'
             lvl = ERROR
-            localize = self.get_language_dict(ctx)
+            localize = self.localize(ctx)
             await self.send_message(channel, localize['ex_error'])
         finally:
             self.logger.log(lvl, log_msg)
@@ -246,16 +246,16 @@ class Hifumi(Bot):
             self.add_cog(cog)
         self.run(self.config['Bot']['token'])
 
-    def get_language_dict(self, ctx_msg) -> dict:
+    def localize(self, ctx_msg) -> dict:
         """
         Get the language of the given context
         :param ctx_msg: the discord context object, or a message object
         :return: the language dict
         :rtype: dict
         """
-        return self.language[self.get_language_key(ctx_msg)]
+        return self.language[self.lan_key(ctx_msg)]
 
-    def get_language_key(self, ctx_msg: Union[Context, Message]):
+    def lan_key(self, ctx_msg: Union[Context, Message]):
         """
         Get the language key of the context
         :param ctx_msg: the discord context object, or a message object
@@ -265,7 +265,6 @@ class Hifumi(Bot):
             message = ctx_msg.message
         else:
             message = ctx_msg
-
         try:
             type_ = message.channel.type
         except AttributeError:

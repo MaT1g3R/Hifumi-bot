@@ -177,5 +177,6 @@
   "recipe_open": "For the entire recipe, click the title above.",
   "total_ram": "Total RAM",
   "shutdown": "Turning off now! Bye bye ^-^ :wave:",
-  "ing_too_long": "The ingredients list is too long to be displayed. Please refer to the source for the rest of the ingredients."
+  "ing_too_long": "The ingredients list is too long to be displayed. Please refer to the source for the rest of the ingredients.",
+  "no_role": ":information_source: Please enter a role name."
 }

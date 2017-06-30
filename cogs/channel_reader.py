@@ -30,7 +30,7 @@ class ChannelReader:
             self.bot, message, self.bot.mention_nick + ' prefix'
         ):
             prefix = get_prefix(self.bot, message)
-            localize = self.bot.get_language_dict(message)
+            localize = self.bot.localize(message)
             await self.bot.send_message(
                 message.channel,
                 localize['prefix'].format(prefix, self.bot.default_prefix))

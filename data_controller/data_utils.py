@@ -23,7 +23,7 @@ async def set_language(bot, ctx, language: str) -> str:
     # FIXME Remove casting after library rewrite
     guild_id = int(ctx.message.server.id)
     await bot.data_manager.set_language(guild_id, language)
-    localize = bot.get_language_dict(ctx)
+    localize = bot.localize(ctx)
     language_data = localize['language_data']
     translators = language_data['translators']
     return localize['lan_set_success'].format(

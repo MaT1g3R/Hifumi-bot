@@ -40,7 +40,7 @@ class TriviaGame:
         self.channel = ctx.message.channel
         self.author = ctx.message.author
         self.user_id = int(self.author.id)
-        self.localize = bot.get_language_dict(ctx)
+        self.localize = bot.localize(ctx)
         self.bet = 0
 
     async def play(self):

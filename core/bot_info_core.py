@@ -77,7 +77,7 @@ async def build_info_embed(ctx, bot):
         logged_in=bot.is_logged_in
     )
     user = bot.user
-    lan = bot.get_language_dict(ctx)
+    lan = bot.localize(ctx)
 
     ram = stats['ram']
     guild_count = comma(stats['guild_count'])

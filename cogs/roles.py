@@ -1,3 +1,5 @@
+from typing import Optional
+
 from discord.ext import commands
 
 from bot import Hifumi
@@ -20,14 +22,17 @@ class Roles:
         """
         self.bot = bot
 
-    async def __role_me(self, ctx, role: str, is_add: bool):
+    async def __role_me(self, ctx, role: Optional[str], is_add: bool):
         """
         Helper method to assign/remove a self role from a member
         :param ctx: the discord context
         :param role: the role name
         :param is_add: True to assign role, False to rm role
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = self.bot.localize(ctx)
+        if not role:
+            await self.bot.say(localize['no_role'])
+            return
         guild = ctx.message.server
         server_role = get_server_role(role, guild)
         role_lst = await self_role_names(guild, self.bot.data_manager)
@@ -55,14 +60,14 @@ class Roles:
             )
 
     @commands.command(no_pm=True, pass_context=True)
-    async def roleme(self, ctx, *, role: str):
+    async def roleme(self, ctx, *, role: str = None):
         """
         Assign a role to the member
         """
         await self.__role_me(ctx, role, True)
 
     @commands.command(no_pm=True, pass_context=True)
-    async def unroleme(self, ctx, *, role: str):
+    async def unroleme(self, ctx, *, role: str = None):
         """
         Removes a role from a member
         """
@@ -75,7 +80,7 @@ class Roles:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
-            localize = self.bot.get_language_dict(ctx)
+            localize = self.bot.localize(ctx)
             await self.bot.say(
                 localize['selfrole_bad_command'].format(
                     get_prefix(self.bot, ctx.message)
@@ -88,14 +93,14 @@ class Roles:
         Display the selfrole list for the server
         """
         lst = await self_role_names(ctx.message.server, self.bot.data_manager)
-        localize = self.bot.get_language_dict(ctx)
+        localize = self.bot.localize(ctx)
         if lst:
             res = localize['has_role_list'] + '```\n' + '\n'.join(lst) + '```'
         else:
             res = localize['no_role_list']
         await self.bot.say(res)
 
-    async def __modify_self_role(self, ctx, role: str, is_add: bool):
+    async def __modify_self_role(self, ctx, role: Optional[str], is_add: bool):
         """
         Modify self role for a guild.
         :param ctx: the discord context.
@@ -103,7 +108,10 @@ class Roles:
         :param is_add: True to add, False to remove
         """
         guild = ctx.message.server
-        localize = self.bot.get_language_dict(ctx)
+        localize = self.bot.localize(ctx)
+        if not role:
+            await self.bot.say(localize['no_role'])
+            return
         if not get_server_role(role, guild):
             await self.bot.say(localize['role_no_exist'])
         elif is_add:
@@ -117,7 +125,7 @@ class Roles:
 
     @selfrole.command(pass_context=True)
     @commands.check(has_manage_role)
-    async def add(self, ctx, *, role: str):
+    async def add(self, ctx, *, role: str = None):
         """
         Add a self assignable role to the server
         """
@@ -125,7 +133,7 @@ class Roles:
 
     @selfrole.command(pass_context=True)
     @commands.check(has_manage_role)
-    async def remove(self, ctx, *, role: str):
+    async def remove(self, ctx, *, role: str = None):
         """
         Removes a self assignable role from the server
         """

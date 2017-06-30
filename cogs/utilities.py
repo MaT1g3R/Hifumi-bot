@@ -26,7 +26,7 @@ class Utilities:
         """
         Say a random advice lol
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = self.bot.localize(ctx)
         url = 'http://api.adviceslip.com/advice'
         try:
             js = await self.bot.session_manager.get_json(url)
@@ -47,7 +47,7 @@ class Utilities:
         :param ctx: the discord context
         """
         if ctx.invoked_subcommand is None:
-            localize = self.bot.get_language_dict(ctx)
+            localize = self.bot.localize(ctx)
             await self.bot.say(
                 localize['fact_list'].format(
                     get_prefix(self.bot, ctx.message),
@@ -60,7 +60,7 @@ class Utilities:
         """
         Say a random cat fact
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = self.bot.localize(ctx)
         url = 'http://catfacts-api.appspot.com/api/facts'
         try:
             js = await self.bot.session_manager.get_json(url)
@@ -77,7 +77,7 @@ class Utilities:
         :param ctx: the discord context
         :param num: the number
         """
-        localize = self.bot.get_language_dict(ctx)
+        localize = self.bot.localize(ctx)
         num = 'random' if num is None else num
         res = await number_fact(num, localize, self.bot.session_manager)
         await self.bot.say(res)
@@ -91,7 +91,7 @@ class Utilities:
         """
         res = await imdb(
             ' '.join(query), self.imdb_api,
-            self.bot.get_language_dict(ctx)
+            self.bot.localize(ctx)
         )
         if isinstance(res, Embed):
             await self.bot.say(embed=res)
@@ -108,7 +108,7 @@ class Utilities:
         e = self.bot.config['API keys']['edamam']
         res = await recipe_search(
             ' '.join(query),
-            self.bot.get_language_dict(ctx),
+            self.bot.localize(ctx),
             str(e['app id']),
             str(e['key']),
             self.bot.session_manager
