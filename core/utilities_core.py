@@ -198,3 +198,21 @@ async def recipe_search(
             embed.add_field(name=name, value=val, inline=inline)
             print(t[0], t[1], inline)
     return embed
+
+
+def parse_remind_arg(time: str):
+    """
+    Parse the remind command argument.
+    It should look like this hh:mm:ss
+    :param time: the time string to be parsed.
+    :return: the total time in seconds.
+    """
+    t = tuple(int(s) for s in time.split(':'))
+    if not 1 <= len(t) <= 3:
+        raise ValueError
+    res = 0
+    multi = 1
+    for i in reversed(t):
+        res += i * multi
+        multi *= 60
+    return res

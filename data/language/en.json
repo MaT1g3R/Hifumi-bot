@@ -178,5 +178,11 @@
   "total_ram": "Total RAM",
   "shutdown": "Turning off now! Bye bye ^-^ :wave:",
   "ing_too_long": "The ingredients list is too long to be displayed. Please refer to the source for the rest of the ingredients.",
-  "no_role": ":information_source: Please enter a role name."
+  "no_role": ":information_source: Please enter a role name.",
+  "no_recipe": ":information_source: Please enter a recipe name.",
+  "no_remind": ":information_source: Please enter the duration for the remind.",
+  "remind_bad": ":warning: Please enter a valid time in HH:MM:SS format.",
+  "remind_fin": ":alarm_clock: Your reminder for **{} hour(s) {} minute(s) {} second(s)** has finished.",
+  "remind_start": ":alarm_clock: You have set a reminder for **{} hour(s) {} minute(s) {} second(s)**",
+  "remind_long": ":warning: Your time is over 24 hours, the reminder might be lost if I get restarted."
 }

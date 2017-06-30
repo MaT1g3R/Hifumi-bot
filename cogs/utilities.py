@@ -1,10 +1,14 @@
+from asyncio import sleep
+
 from discord.embeds import Embed
 from discord.ext import commands
 from imdbpie import Imdb
 
 from bot import HTTPStatusError, Hifumi
-from core.utilities_core import imdb, number_fact, recipe_search
+from core.utilities_core import imdb, number_fact, parse_remind_arg, \
+    recipe_search
 from data_controller.data_utils import get_prefix
+from scripts.helpers import get_time_elapsed
 
 
 class Utilities:
@@ -99,16 +103,20 @@ class Utilities:
             await self.bot.say(res)
 
     @commands.command(pass_context=True)
-    async def recipe(self, ctx, *query):
+    async def recipe(self, ctx, *, query=None):
         """
         Search for a recipe
         :param ctx: the discord context
         :param query: the search query
         """
         e = self.bot.config['API keys']['edamam']
+        localize = self.bot.localize(ctx)
+        if not query:
+            await self.bot.say(localize['no_recipe'])
+            return
         res = await recipe_search(
-            ' '.join(query),
-            self.bot.localize(ctx),
+            query,
+            localize,
             str(e['app id']),
             str(e['key']),
             self.bot.session_manager
@@ -119,11 +127,29 @@ class Utilities:
             await self.bot.say(res)
 
     @commands.command(pass_context=True)
-    async def remindme(self, ctx, t):
+    async def remind(self, ctx, *, time: str = None):
         """
-        Set a reminder and notify the user when time is up
+        Set a reminder and notify the user when time is up.
         """
-        raise NotImplementedError
+        localize = self.bot.localize(ctx)
+        if not time:
+            await self.bot.say(localize['no_remind'])
+            return
+        try:
+            seconds = parse_remind_arg(time)
+            d, h, m, s = get_time_elapsed(0, seconds)
+            h += d * 24
+            if d > 0:
+                await self.bot.say(localize['remind_long'])
+        except ValueError:
+            await self.bot.say(localize['remind_bad'])
+            return
+        await self.bot.say(localize['remind_start'].format(h, m, s))
+        await sleep(seconds)
+        fin = localize['remind_fin']
+        await self.bot.send_message(
+            ctx.message.channel,
+            f'{ctx.message.author.mention} {fin.format(h,m,s)}')
 
     @commands.command()
     async def strawpoll(self):

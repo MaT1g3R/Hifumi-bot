@@ -69,7 +69,7 @@ fact cat            ✔
 fact number *new    ✔
 imdb                ✔
 recipe              ✔
-remindme            ✕
+remind              ✔
 strawpoll           ✕
 time                ✕
 twitch              ✕
