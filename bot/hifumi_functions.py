@@ -2,12 +2,12 @@ import re
 from logging import INFO
 from textwrap import wrap
 
-from asyncpg import connect
+from asyncpg import create_pool
 from discord.ext.commands import BadArgument, CommandOnCooldown, Context, \
     MissingRequiredArgument
 
 from data_controller import DataManager, TagMatcher
-from data_controller.postgres import get_postgres
+from data_controller.postgres import Postgres
 from scripts.checks import AdminError, BadWordError, ManageMessageError, \
     ManageRoleError, NsfwError, OwnerError
 from scripts.helpers import strip_letters
@@ -20,11 +20,11 @@ async def get_data_manager(pg_config: dict, logger) -> tuple:
     :param logger: the logger.
     :return: a tuple of (DataManager, TagMatcher)
     """
-    conn = await connect(
+    pool = await create_pool(
         host=pg_config['host'], port=pg_config['port'], user=pg_config['user'],
         database=pg_config['database'], password=pg_config['password']
     )
-    post = await get_postgres(conn, pg_config['schema']['production'], logger)
+    post = Postgres(pool, pg_config['schema']['production'], logger)
     data_manager = DataManager(post)
     tag_matcher = TagMatcher(post, await post.get_tags())
     logger.log(INFO, 'Connected to database: {}.{}'.format(

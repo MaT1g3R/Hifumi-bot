@@ -1,8 +1,9 @@
-from asyncpg import Connection, connect
+from asyncpg import Connection, create_pool
+from asyncpg.pool import Pool
 
 from config import Config
 
-__all__ = ['_clear_db', '_get_connection', 'SCHEMA', 'mock_logger']
+__all__ = ['_clear_db', '_get_pool', 'SCHEMA', 'mock_logger']
 __config = Config().postgres()
 SCHEMA = __config['schema']['testing']
 
@@ -26,17 +27,18 @@ async def _clear_db(conn: Connection):
         await conn.execute(f'TRUNCATE {SCHEMA}.{table}')
 
 
-async def _get_connection() -> Connection:
+async def _get_pool() -> Pool:
     """
     Get a asyncpg Connection object
     :return: the Connection object
     """
-    conn = await connect(
+    pool = await create_pool(
         host=__config['host'], port=__config['port'], user=__config['user'],
         database=__config['database'], password=__config['password']
     )
-    await _clear_db(conn)
-    return conn
+    async with pool.acquire() as conn:
+        await _clear_db(conn)
+    return pool
 
 
 class mock_logger:

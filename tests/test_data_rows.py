@@ -6,7 +6,7 @@ from time import time as now
 import pytest
 
 from data_controller.data_rows import *
-from data_controller.postgres import get_postgres
+from data_controller.postgres import Postgres
 from scripts.helpers import random_word
 from tests import *
 
@@ -19,38 +19,41 @@ __default_user = ('1', 100, datetime.now())
 
 @pytest.fixture(scope='function')
 async def guild_row():
-    conn = await _get_connection()
-    pos = await get_postgres(conn, SCHEMA, mock_logger())
+    pool = await _get_pool()
+    pos = Postgres(pool, SCHEMA, mock_logger())
     await pos.set_guild(__default_guild)
     d = await pos.get_guild('1')
     r0 = get_guild_row(pos, 0)
     r1 = get_guild_row(pos, 1, d)
     yield r0, r1, pos
-    await _clear_db(conn)
+    async with pool.acquire() as conn:
+        await _clear_db(conn)
 
 
 @pytest.fixture(scope='function')
 async def member_row():
-    conn = await _get_connection()
-    pos = await get_postgres(conn, SCHEMA, mock_logger())
+    pool = await _get_pool()
+    pos = Postgres(pool, SCHEMA, mock_logger())
     await pos.set_member(__default_member)
     d = await pos.get_member('1', '1')
     r0 = get_member_row(pos, 0, 0)
     r1 = get_member_row(pos, 1, 1, d)
     yield r0, r1, pos
-    await _clear_db(conn)
+    async with pool.acquire() as conn:
+        await _clear_db(conn)
 
 
 @pytest.fixture(scope='function')
 async def user_row():
-    conn = await _get_connection()
-    pos = await get_postgres(conn, SCHEMA, mock_logger())
+    pool = await _get_pool()
+    pos = Postgres(pool, SCHEMA, mock_logger())
     await pos.set_user(__default_user)
     d = await pos.get_user('1')
     r0 = get_user_row(pos, 0)
     r1 = get_user_row(pos, 1, d)
     yield r0, r1, pos
-    await _clear_db(conn)
+    async with pool.acquire() as conn:
+        await _clear_db(conn)
 
 
 async def test_guild_properties(guild_row):
