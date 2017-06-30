@@ -184,5 +184,8 @@
   "remind_bad": ":warning: Please enter a valid time in HH:MM:SS format.",
   "remind_fin": ":alarm_clock: Your reminder for **{} hour(s) {} minute(s) {} second(s)** has finished.",
   "remind_start": ":alarm_clock: You have set a reminder for **{} hour(s) {} minute(s) {} second(s)**",
-  "remind_long": ":warning: Your time is over 24 hours, the reminder might be lost if I get restarted."
+  "remind_long": ":warning: Your time is over 24 hours, the reminder might be lost if I get restarted.",
+  "no_tz": ":warning: Please enter a valid timezone.",
+  "bad_tz": ":information_source: Timezone **{}** could not be found.",
+  "tz_res": ":information_source: Local time for **{}** is **{}**"
 }

@@ -1,8 +1,11 @@
+import datetime
 from asyncio import sleep
+from difflib import get_close_matches
 
 from discord.embeds import Embed
 from discord.ext import commands
 from imdbpie import Imdb
+from pytz import all_timezones, timezone
 
 from bot import HTTPStatusError, Hifumi
 from core.utilities_core import imdb, number_fact, parse_remind_arg, \
@@ -15,7 +18,7 @@ class Utilities:
     """
     Class for Utilities/Search commands
     """
-    __slots__ = ['bot', 'imdb_api']
+    __slots__ = ['bot', 'imdb_api', 'tzs']
 
     def __init__(self, bot: Hifumi):
         """
@@ -24,6 +27,7 @@ class Utilities:
         """
         self.bot = bot
         self.imdb_api = Imdb()
+        self.tzs = all_timezones
 
     @commands.command(pass_context=True)
     async def advice(self, ctx):
@@ -151,9 +155,24 @@ class Utilities:
             ctx.message.channel,
             f'{ctx.message.author.mention} {fin.format(h,m,s)}')
 
-    @commands.command()
-    async def time(self):
-        raise NotImplementedError
+    @commands.command(pass_context=True)
+    async def time(self, ctx, *, tz=None):
+        """
+        Time zone conversion.
+        """
+        localize = self.bot.localize(ctx)
+        if not tz:
+            await self.bot.say(localize['no_tz'])
+            return
+        matched = get_close_matches(tz, self.tzs, 1)
+        if not matched:
+            await self.bot.say(localize['bad_tz'].format(tz))
+            return
+        matched = matched[0]
+        zone = timezone(matched)
+        dt = datetime.datetime.now(tz=zone)
+        fmt = '%Y-%m-%d %H:%M:%S'
+        await self.bot.say(localize['tz_res'].format(zone, dt.strftime(fmt)))
 
     @commands.command()
     async def twitch(self):

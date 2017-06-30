@@ -16,6 +16,7 @@ PyNaCl>=1.1.2
 pytest>=3.1.2
 pytest-asyncio>=0.6.0
 Python-Trivia-API>=4.0.0
+pytz>=2017.2
 requests>=2.18.1
 ruamel.yaml>=0.15.10
 uvloop>=0.8.0
