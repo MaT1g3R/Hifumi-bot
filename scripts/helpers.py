@@ -2,11 +2,13 @@
 Useful helper functions/classes
 """
 import re
+from _codecs import decode
 from collections import Iterable
 from datetime import date, timedelta
 from pathlib import Path
 from platform import platform
 from random import choice
+from subprocess import PIPE, Popen, STDOUT
 from typing import Collection, List, Sequence
 
 
@@ -218,3 +220,21 @@ def read_all_files(path: Path) -> List[Path]:
     :rtype: list
     """
     return [Path(Path.joinpath(f)) for f in path.iterdir() if f.is_file()]
+
+
+def shell_command(cmd: str, print_output=True):
+    """
+    Run a shell command and prints its output to stdout
+    :param cmd: the shell command
+    :param print_output: if True this will print the output, if false this will
+    yield the output
+    """
+    process = Popen(cmd, stdout=PIPE, stderr=STDOUT, shell=True)
+    lines = []
+    for line in process.stdout:
+        res = decode(line)
+        if print_output:
+            print(res)
+        else:
+            lines.append(res)
+    return lines

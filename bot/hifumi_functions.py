@@ -24,11 +24,11 @@ async def get_data_manager(pg_config: dict, logger) -> tuple:
         host=pg_config['host'], port=pg_config['port'], user=pg_config['user'],
         database=pg_config['database'], password=pg_config['password']
     )
-    post = Postgres(pool, pg_config['schema']['production'], logger)
+    post = Postgres(pool, pg_config['schema'], logger)
     data_manager = DataManager(post)
     tag_matcher = TagMatcher(post, await post.get_tags())
     logger.log(INFO, 'Connected to database: {}.{}'.format(
-        pg_config['database'], pg_config['schema']['production']))
+        pg_config['database'], pg_config['schema']))
     await data_manager.init()
     return data_manager, tag_matcher
 

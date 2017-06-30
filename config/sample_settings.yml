@@ -95,7 +95,5 @@ Postgres:
   # Password used for authentication.
   password: ""
 
-  # Schema names testing and production schemas.
-  schema:
-    testing: "testing"
-    production: "production"
+  # Schema name for the database.
+  schema: ""
