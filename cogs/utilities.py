@@ -152,10 +152,6 @@ class Utilities:
             f'{ctx.message.author.mention} {fin.format(h,m,s)}')
 
     @commands.command()
-    async def strawpoll(self):
-        raise NotImplementedError
-
-    @commands.command()
     async def time(self):
         raise NotImplementedError
 
