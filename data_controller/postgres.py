@@ -1,6 +1,5 @@
 from collections import deque
 from datetime import datetime
-from time import time as timestamp
 from typing import Dict, List, Optional, Sequence
 
 from asyncpg import Record
@@ -25,27 +24,6 @@ def _parse_record(record: Record) -> Optional[tuple]:
         return tuple(record.values())
     except AttributeError:
         return None
-
-
-def execute_task(func):
-    """
-    A decorator to ensure only one task in class Postgres is being executed
-    at once.
-    """
-
-    async def wraps(*args):
-        pg = args[0]
-        id_ = str(timestamp()) + str(args)
-        pg.queue.append(id_)
-        while True:
-            first = pg.queue.popleft()
-            if first == id_:
-                break
-            pg.appendleft(first)
-
-        return await func(*args)
-
-    return wraps
 
 
 class Postgres:

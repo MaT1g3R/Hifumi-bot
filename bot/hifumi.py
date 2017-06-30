@@ -18,6 +18,7 @@ from bot.hifumi_functions import command_error_handler, format_command_error, \
     format_traceback, get_data_manager
 from bot.session_manager import SessionManager
 from config import Config
+from data_controller import DataManager, TagMatcher
 from data_controller.data_utils import get_prefix
 from scripts.discord_functions import get_name_with_discriminator
 from scripts.language_support import read_language
@@ -28,67 +29,107 @@ class Hifumi(Bot):
     """
     The Hifumi bot class
     """
-    __slots__ = ['shard_id', 'shard_count', 'start_time', 'language',
-                 'default_language', 'logger', 'mention_normal', 'mention_nick',
-                 'all_emojis', 'config', 'session_manager']
 
-    def __init__(self, config: Config, shard_id: int, default_lan='en'):
+    def __init__(self, *,
+                 version: str,
+                 start_time: int,
+                 config: Config,
+                 shard_id: int,
+                 shard_count: int,
+                 session_manager: SessionManager,
+                 tag_matcher: TagMatcher,
+                 data_manager: DataManager,
+                 language_dict: dict,
+                 logger,
+                 emojis: list,
+                 default_lan):
         """
-        Initialize the bot object.
-        :param config: the Config object.
+        Initialize an instance of this bot.
+        :param start_time: the start time.
+        :param config: the Config instance.
         :param shard_id: the shard id.
+        :param shard_count: the shard count.
+        :param session_manager: the SessionManager instance.
+        :param tag_matcher: the TagMatcher instance.
+        :param data_manager: the DataManager instance.
+        :param language_dict: the dict containing all localization strings.
+        :param logger: the logger.
+        :param emojis: the list of emojis.
         :param default_lan: the default language.
         """
+        self.version = version
         self.config = config
-        self.session_manager = None
-        self.shard_count = config['Bot']['shard count']
-        self.shard_id = shard_id
-        self.tag_matcher = None
-        self.data_manager = None
-        self.start_time = int(time())
-        self.language = read_language(Path('./data/language'))
+        self.session_manager = session_manager
+        self.tag_matcher = tag_matcher
+        self.data_manager = data_manager
+        self.start_time = start_time
+        self.language = language_dict
         self.default_language = default_lan
-        self.logger = setup_logging(
-            self.start_time, Path('./data/logs')
-        )
-        self.mention_normal = ''
-        self.mention_nick = ''
-        with Path('./data/emojis.txt').open() as f:
-            self.all_emojis = f.read().splitlines()
-            f.close()
+        self.logger = logger
+        self.all_emojis = emojis
         super().__init__(
             command_prefix=get_prefix,
-            shard_count=self.shard_count,
-            shard_id=self.shard_id,
+            shard_count=shard_count,
+            shard_id=shard_id,
         )
-        if self.config['Bot']['console logging']:
-            self.logger.addHandler(get_console_handler())
 
-    async def init(self):
+    @classmethod
+    async def get_bot(cls, version, shard_id, default_lan='en'):
         """
-        Initialize the bot with values that needs to be awaited.
+        Get an instance of the bot.
+        :param version: the bot version.
+        :param shard_id: the shard id.
+        :param default_lan: the default language.
+        :return: an instance of the bot.
         """
-        self.session_manager = SessionManager(ClientSession(), self.logger)
-        self.data_manager, self.tag_matcher = await get_data_manager(
-            self.config.postgres(), self.logger
+        data_path = Path(Path(__file__).parent.parent.joinpath('data'))
+        config = Config()
+        log_path = data_path.joinpath('logs')
+        start_time = int(time())
+        language = read_language(data_path.joinpath('language'))
+        with data_path.joinpath('emojis.txt').open() as f:
+            all_emojis = f.read().splitlines()
+        logger = setup_logging(start_time, log_path)
+        if config['Bot']['console logging']:
+            logger.addHandler(get_console_handler())
+        session_manager = SessionManager(ClientSession(), logger)
+        data_manager, tag_matcher = await get_data_manager(
+            config.postgres(), logger
         )
+        shard_count = config['Bot']['shard count']
+        bot = cls(
+            version=version, start_time=start_time, config=config,
+            shard_id=shard_id, shard_count=shard_count,
+            session_manager=session_manager, tag_matcher=tag_matcher,
+            data_manager=data_manager, language_dict=language, logger=logger,
+            emojis=all_emojis, default_lan=default_lan
+        )
+
+        return bot
 
     @property
     def default_prefix(self):
         return str(self.config['Bot']['prefix'])
 
+    @property
+    def mention_normal(self):
+        return '<@{}>'.format(self.user.id)
+
+    @property
+    def mention_nick(self):
+        return '<@!{}>'.format(self.user.id)
+
     async def on_ready(self):
         """
         Event for the bot is ready
         """
-        await self.try_change_presence(f'{self.default_prefix}help', True)
+        await self.try_change_presence(
+            f'{self.version} | {self.default_prefix}help', True)
         self.logger.log(
             INFO,
             f'Logged in as {get_name_with_discriminator(self.user)}'
         )
         self.logger.log(INFO, 'Bot ID: ' + self.user.id)
-        self.mention_normal = '<@{}>'.format(self.user.id)
-        self.mention_nick = '<@!{}>'.format(self.user.id)
 
     async def on_command_error(self, exception, context):
         """
@@ -195,13 +236,12 @@ class Hifumi(Bot):
             else:
                 raise e
 
-    def start_bot(self, cogs: list):
+    def start_bot(self, cogs):
         """
-        Start the bot
-        :param cogs: a list of cogs
+        Start the bot.
         """
         # TODO remove default help when custom help is finished
-        # self.remove_command('help')
+        # bot.remove_command('help')
         for cog in cogs:
             self.add_cog(cog)
         self.run(self.config['Bot']['token'])
