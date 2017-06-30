@@ -1,4 +1,3 @@
-from collections import deque
 from datetime import datetime
 from typing import Dict, List, Optional, Sequence
 
@@ -31,6 +30,10 @@ class Postgres:
     A Postgres database controller, this is not meant to be accessed directly
     with the bot. For bot use, please use the DataManager class.
     """
+    __slots__ = ['logger', 'pool', '__get_guild', '__set_guild', '__get_member',
+                 '__set_member', '__get_user', '__set_user', '__get_tags',
+                 '__set_tags', '__get_all_guild', '__get_all_member',
+                 '__get_all_user']
 
     def __init__(self, pool: Pool, schema, logger):
         """
@@ -38,7 +41,6 @@ class Postgres:
         :param pool: the asyncpg connection pool.
         :param logger: the logger.
         """
-        self.queue = deque()
         self.logger = logger
         self.pool = pool
         self.__get_guild = (

@@ -9,6 +9,7 @@ class TagMatcher:
     A class that holds all the tags and attempt to fuzzy match user inputs
     with exsiting tags in the db.
     """
+    __slots__ = ['__postgres', '__tags']
 
     def __init__(self, postgres: Postgres, tags: dict):
         """

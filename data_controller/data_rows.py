@@ -11,6 +11,8 @@ __all__ = ['_GuildRow', '_MemberRow', '_UserRow', 'get_guild_row',
 
 
 class _Row:
+    __slots__ = ['_postgres', '_row']
+
     def __init__(self, postgres: Postgres, row=None):
         """
         Initialize an instance of _Row

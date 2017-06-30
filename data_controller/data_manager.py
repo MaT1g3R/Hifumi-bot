@@ -14,6 +14,8 @@ class DataManager:
     A class that layer between the bot and the sqlite db. The bot should
     read/write to this class and the class will write to the db.
     """
+    __slots__ = ['__postgres', '__guilds', '__members', '__users',
+                 '__initializers']
 
     def __init__(self, postgres: Postgres):
         """

@@ -29,6 +29,9 @@ class Hifumi(Bot):
     """
     The Hifumi bot class
     """
+    __slots__ = ['version', 'config', 'session_manager', 'tag_matcher',
+                 'data_manager', 'start_time', 'language', 'default_language',
+                 'logger', 'all_emojis']
 
     def __init__(self, *,
                  version: str,

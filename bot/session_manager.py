@@ -7,7 +7,7 @@ from requests import get
 
 
 class HTTPStatusError(Exception):
-    def __init__(self, code: int, msg):
+    def __init__(self, code: int, msg: str):
         self.code = code
         self.msg = msg
 
@@ -22,6 +22,7 @@ class SessionManager:
     """
     An aiohttp client session manager.
     """
+    __slots__ = ['session', 'logger', 'codes']
 
     def __init__(self, session: ClientSession, logger):
         """

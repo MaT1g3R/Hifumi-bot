@@ -1,5 +1,6 @@
 from discord.ext import commands
 
+
 class Tags:
     """
     Tags cog
@@ -12,7 +13,7 @@ class Tags:
         :param bot: the discord bot object
         """
         self.bot = bot
-    
+
     @commands.command()
     async def tag(self):
         raise NotImplementedError
