@@ -7,7 +7,7 @@ from time import time as now
 import pytest
 
 from data_controller.data_manager import DataManager
-from data_controller.postgres import get_postgres
+from data_controller.postgres import Postgres
 from scripts.helpers import random_word
 from tests import *
 
@@ -16,10 +16,11 @@ pytestmark = pytest.mark.asyncio
 
 @pytest.fixture(scope='function')
 async def manager():
-    conn = await _get_connection()
-    pos = await get_postgres(conn, SCHEMA, mock_logger())
+    pool = await _get_pool()
+    pos = Postgres(pool, SCHEMA, mock_logger())
     yield DataManager(pos)
-    await _clear_db(conn)
+    async with pool.acquire() as conn:
+        await _clear_db(conn)
 
 
 async def __simple_test(

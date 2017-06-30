@@ -197,5 +197,4 @@ async def recipe_search(
                 val = val[:900] + f'\n...\n{too_long}'
             embed.add_field(name=name, value=val, inline=inline)
             print(t[0], t[1], inline)
-    x = 0
     return embed
