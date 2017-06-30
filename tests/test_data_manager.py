@@ -152,7 +152,7 @@ async def test_roles(manager):
     roles0 = []
     roles1 = []
     id0, id1 = __unique_ints()
-    for _ in range(randint(0, 100)):
+    for _ in range(randint(1, 100)):
         s0, s1 = __unique_strs()
         if s0 not in roles0:
             roles0.append(s0)
