@@ -62,6 +62,7 @@ tickle              ✕
 * dog facts removed due to no good api  
 * yesno removed because shit api
 * strawpoll removed. I think it's too much of a hassle to use a discord bot to make a strawpoll instead of using the website.
+* Twitch command removed for now, will consider later.
 
 ```
 advice              ✔
@@ -71,8 +72,7 @@ fact number *new    ✔
 imdb                ✔
 recipe              ✔
 remind              ✔
-time                ✕
-twitch              ✕
+time                ✔
 urban               ✕
 weather             ✕
 ```

@@ -175,10 +175,6 @@ class Utilities:
         await self.bot.say(localize['tz_res'].format(zone, dt.strftime(fmt)))
 
     @commands.command()
-    async def twitch(self):
-        raise NotImplementedError
-
-    @commands.command()
     async def urban(self):
         raise NotImplementedError
 
