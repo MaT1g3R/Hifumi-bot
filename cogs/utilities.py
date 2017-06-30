@@ -168,11 +168,10 @@ class Utilities:
         if not matched:
             await self.bot.say(localize['bad_tz'].format(tz))
             return
-        matched = matched[0]
-        zone = timezone(matched)
+        zone = timezone(matched[0])
         dt = datetime.datetime.now(tz=zone)
-        fmt = '%Y-%m-%d %H:%M:%S'
-        await self.bot.say(localize['tz_res'].format(zone, dt.strftime(fmt)))
+        await self.bot.say(localize['tz_res'].format(
+            zone, dt.strftime('%Y-%m-%d %H:%M:%S')))
 
     @commands.command()
     async def urban(self):
@@ -180,32 +179,4 @@ class Utilities:
 
     @commands.command()
     async def weather(self):
-        raise NotImplementedError
-
-    @commands.command()
-    async def avatar(self):
-        raise NotImplementedError
-
-    @commands.command()
-    async def serverinfo(self):
-        raise NotImplementedError
-
-    @commands.command()
-    async def userinfo(self):
-        raise NotImplementedError
-
-    @commands.command()
-    async def anime(self):
-        raise NotImplementedError
-
-    @commands.command()
-    async def manga(self):
-        raise NotImplementedError
-
-    @commands.command()
-    async def osu(self):
-        raise NotImplementedError
-
-    @commands.command()
-    async def checkpp(self):
         raise NotImplementedError
