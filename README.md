@@ -1,7 +1,8 @@
-# hifumibot
+## Hifumibot [![Build Status](https://travis-ci.org/hifumibot/hifumibot.svg?branch=master)](https://travis-ci.org/hifumibot/hifumibot)
+
 Rewrite for Hifumi, the Discord bot
 
-**DISCLAIMER: THIS HIFUMI REWRITE IT'S IN ALPHA STATUS (NOT COMPLETE). PLEASE DON'T DOWNLOAD IT OR FORK IT UNTIL WE DO THE FINAL RELEASE THAT WILL BE ANNOUNCED IN DISCORD SERVER.**
+**DISCLAIMER: THIS HIFUMI REWRITE IT'S IN ALPHA STATUS (NOT COMPLETE).**
 
 Current roadmap can be viewed [here](https://github.com/hifumibot/Hifumi-plus/blob/master/TODO.md)
 
