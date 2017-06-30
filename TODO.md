@@ -129,12 +129,14 @@ tag edit            ✕
 tag owner           ✕
 ```
 #### NSFW :white_check_mark:
-* rule34 is removed due to dead api
+* ~~rule34 is removed due to dead api~~
+* It seems like rule34 api is back up again, re-added command.
 
 ```
 e621                ✔
 konachan            ✔
 yandere             ✔
+rule34              ✔
 danbooru *new       ○
 gelbooru *new       ○
 greenteaneko        ✔

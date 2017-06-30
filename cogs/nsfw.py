@@ -98,6 +98,18 @@ class Nsfw:
 
     @commands.command(pass_context=True)
     @commands.check(is_nsfw)
+    @commands.check(no_badword)
+    @commands.cooldown(rate=1, per=5, type=commands.BucketType.server)
+    async def rule34(self, ctx, *query: str):
+        """
+       rule34 search command
+       :param ctx: the discord context
+       :param query: the sarch queries
+       """
+        await self.__process_search(ctx, 'rule34', query)
+
+    @commands.command(pass_context=True)
+    @commands.check(is_nsfw)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.server)
     async def greenteaneko(self, ctx):
         """

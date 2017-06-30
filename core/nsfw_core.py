@@ -138,21 +138,25 @@ def __get_site_params(
         'konachan': 'https://konachan.com//post.json?',
         'yandere': 'https://yande.re//post.json?',
         'e621': 'https://e621.net/post/index.json?',
-        'gelbooru': 'https://gelbooru.com//index.php?'
+        'gelbooru': 'https://gelbooru.com//index.php?',
+        'rule34': 'http://rule34.xxx/index.php?'
     }[site]
     url_formatter = {
         'danbooru': lambda x: 'https://danbooru.donmai.us' + x['file_url'],
         'konachan': lambda x: 'https:' + x['file_url'],
         'yandere': lambda x: x['file_url'],
         'e621': lambda x: x['file_url'],
-        'gelbooru': lambda x: 'https:' + x['file_url']
+        'gelbooru': lambda x: 'https:' + x['file_url'],
+        'rule34': lambda x: ('https://img.rule34.xxx//images/'
+                             + x['directory'] + '/' + x['image'])
     }[site]
     tag_key = {
         'danbooru': 'tag_string',
         'konachan': 'tags',
         'yandere': 'tags',
         'e621': 'tags',
-        'gelbooru': 'tags'
+        'gelbooru': 'tags',
+        'rule34': 'tags'
     }[site]
     param = {
         'danbooru': {'login': user, 'api_key': api_key, 'limit': '1',
@@ -160,7 +164,8 @@ def __get_site_params(
         'konachan': {},
         'yandere': {},
         'e621': {},
-        'gelbooru': {'page': 'dapi', 's': 'post', 'q': 'index', 'json': '1'}
+        'gelbooru': {'page': 'dapi', 's': 'post', 'q': 'index', 'json': '1'},
+        'rule34': {'page': 'dapi', 's': 'post', 'q': 'index', 'json': '1'}
     }[site]
     return request_url, url_formatter, tag_key, param
 
@@ -217,7 +222,11 @@ async def get_lewd(
     :return: a tuple of
     (the message with the file url to send, a list of tags to write to the db)
     """
-    assert site in ('danbooru', 'konachan', 'yandere', 'e621', 'gelbooru')
+    assert (
+        site in (
+            'danbooru', 'konachan', 'yandere', 'e621', 'gelbooru', 'rule34'
+        )
+    )
     assert (user and api_key) or site != 'danbooru'
     tags, rating = __parse_query(search_query)
     site_params = __get_site_params(site, api_key, user)
