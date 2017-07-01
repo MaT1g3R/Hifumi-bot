@@ -186,6 +186,18 @@ class Utilities:
         for s in res:
             await self.bot.say(s)
 
-    @commands.command()
-    async def weather(self):
-        raise NotImplementedError
+    @commands.command(pass_context=True)
+    async def weather(self, ctx, *query):
+        """
+        Search for weather.
+        """
+        localize = self.bot.localize(ctx)
+        if not query:
+            await self.bot.say(localize['no_weather'])
+            return
+        api = self.bot.config['API keys']['openweathermap']
+
+
+
+
+        await self.bot.say(':information_source: Look outside.')

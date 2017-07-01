@@ -190,5 +190,6 @@
   "tz_res": ":information_source: Local time for **{}** is **{}**",
   "no_urban": ":information_source: Please enter a word.",
   "urban_head": ":notebook_with_decorative_cover: **{}**:",
-  "urban_tail":":thumbsup: {} | :thumbsdown: {}"
+  "urban_tail":":thumbsup: {} | :thumbsdown: {}",
+  "no_weather": ":warning: Please enter a valid location."
 }
