@@ -1,6 +1,6 @@
-import datetime
 from asyncio import sleep
 from difflib import get_close_matches
+from time import time
 
 from discord.embeds import Embed
 from discord.ext import commands
@@ -8,17 +8,19 @@ from imdbpie import Imdb
 from pytz import all_timezones, timezone
 
 from bot import HTTPStatusError, Hifumi
+from core.tzwhere_fix import TzWhere
 from core.utilities_core import imdb, number_fact, parse_remind_arg, \
     recipe_search, urban
+from core.weather_core import weather
 from data_controller.data_utils import get_prefix
-from scripts.helpers import get_time_elapsed
+from scripts.helpers import get_time_elapsed, time_with_zone
 
 
 class Utilities:
     """
     Class for Utilities/Search commands
     """
-    __slots__ = ['bot', 'imdb_api', 'tzs']
+    __slots__ = ['bot', 'imdb_api', 'tzs', 'tzw']
 
     def __init__(self, bot: Hifumi):
         """
@@ -28,6 +30,7 @@ class Utilities:
         self.bot = bot
         self.imdb_api = Imdb()
         self.tzs = all_timezones
+        self.tzw = TzWhere()
 
     @commands.command(pass_context=True)
     async def advice(self, ctx):
@@ -169,7 +172,7 @@ class Utilities:
             await self.bot.say(localize['bad_tz'].format(tz))
             return
         zone = timezone(matched[0])
-        dt = datetime.datetime.now(tz=zone)
+        dt = time_with_zone(time(), zone)
         await self.bot.say(localize['tz_res'].format(
             zone, dt.strftime('%Y-%m-%d %H:%M:%S')))
 
@@ -187,7 +190,7 @@ class Utilities:
             await self.bot.say(s)
 
     @commands.command(pass_context=True)
-    async def weather(self, ctx, *query):
+    async def weather(self, ctx, *, query=None):
         """
         Search for weather.
         """
@@ -196,8 +199,12 @@ class Utilities:
             await self.bot.say(localize['no_weather'])
             return
         api = self.bot.config['API keys']['openweathermap']
-
-
-
-
-        await self.bot.say(':information_source: Look outside.')
+        res = await weather(
+            api, self.bot.config['Bot']['colour'],
+            self.bot.session_manager, self.tzw, query, localize
+        )
+        if isinstance(res, Embed):
+            await self.bot.say(embed=res)
+        else:
+            await self.bot.say(res)
+       

@@ -4,12 +4,15 @@ Useful helper functions/classes
 import re
 from _codecs import decode
 from collections import Iterable
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from platform import platform
 from random import choice
 from subprocess import PIPE, Popen, STDOUT
-from typing import Collection, List, Sequence
+from textwrap import wrap
+from typing import Collection, List, Sequence, Union
+
+from pytz import timezone, utc
 
 
 def combine_dicts(dicts):
@@ -238,3 +241,48 @@ def shell_command(cmd: str, print_output=True):
         else:
             lines.append(res)
     return lines
+
+
+def time_with_zone(time: Union[float, int, datetime], tz: str) -> datetime:
+    """
+    Get the time with timezone.
+    :param time: the time.
+    :param tz: the timezone.
+    :return: the datetime with timezone.
+    """
+    zone = timezone(tz)
+    if isinstance(time, (int, float)):
+        return datetime.fromtimestamp(time, zone)
+    elif isinstance(time, datetime):
+        local_dt = time.replace(tzinfo=utc).astimezone(zone)
+        return zone.normalize(local_dt)
+
+
+def code_block(in_: str, language=''):
+    """
+    Convert a string into a code block.
+    :param in_: the input string.
+    :param language: the programming language, optional.
+    :return: a list of code blocks to not go over 2000 chars.
+    """
+    return [f'\n{language}' + s.replace('`', chr(0x1fef)) + '\n' for s in
+            wrap(in_, 1800, replace_whitespace=False)]
+
+
+def is_num(obj):
+    """
+    Check if an object is an number.
+    :param obj: the input object.
+    :return: True if obj is an int or float.
+    """
+    return isinstance(obj, (int, float))
+
+
+def round_place(place: int) -> callable:
+    """
+    Return a callable that rounds a number to a certain decimal point and
+    convert it to a string.
+    :param place: the decimal point.
+    :return: the callable.
+    """
+    return lambda x: str(round(x, place))

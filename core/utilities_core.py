@@ -3,12 +3,12 @@ Functions for Utilities commands
 """
 from json import JSONDecodeError
 from random import randint
-from textwrap import wrap
 
 from discord.embeds import Embed, EmptyEmbed
 from imdbpie import Imdb
 
 from bot import HTTPStatusError, SessionManager
+from scripts.helpers import code_block
 
 
 async def number_fact(num, localize, session_manager: SessionManager):
@@ -201,14 +201,14 @@ async def recipe_search(
     return embed
 
 
-def parse_remind_arg(time: str):
+def parse_remind_arg(time_: str):
     """
     Parse the remind command argument.
     It should look like this hh:mm:ss
-    :param time: the time string to be parsed.
+    :param time_: the time string to be parsed.
     :return: the total time in seconds.
     """
-    t = tuple(int(s) for s in time.split(':'))
+    t = tuple(int(s) for s in time_.split(':'))
     if not 1 <= len(t) <= 3:
         raise ValueError
     res = 0
@@ -239,15 +239,12 @@ async def urban(localize, session_manager: SessionManager, query):
             word = entry['word']
             upboats = entry['thumbs_up']
             downboatds = entry['thumbs_down']
-            if entry['example']:
-                example = entry['example']
-            else:
-                example = "No example was found."
-            example = ['\n' + s.replace('`', chr(0x1fef)) + '\n' for s in
-                    wrap(def_, 1800, replace_whitespace=False)]
-            return ([localize['urban_head'].format(word)]
-                    + definition
-                    + example
-                    + [localize['urban_tail'].format(upboats, downboatds)])
+            example = entry.get('example', None)
+            res = ([localize['urban_head'].format(word)]
+                   + code_block(definition))
+            if example:
+                res += [localize['example']] + code_block(example)
+            res += [localize['urban_tail'].format(upboats, downboatds)]
+            return res
         else:
             return [localize['nothing_found']]
