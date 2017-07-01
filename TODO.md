@@ -53,7 +53,7 @@ slap                ✕
 stare               ✕
 tickle              ✕
 ```
-#### Utilities/Search
+#### Utilities/Search :white_check_mark:
 * osu/setosu moved to its own category
 * shorten removed cuz I said so
 * anime/manga moved to its own category
@@ -73,8 +73,8 @@ imdb                ✔
 recipe              ✔
 remind              ✔
 time                ✔
-urban               ✕
-weather             ✕
+urban               ✔
+weather             ✔
 ```
 
 #### Roles :white_check_mark:
