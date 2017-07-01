@@ -265,7 +265,7 @@ def code_block(in_: str, language=''):
     :param language: the programming language, optional.
     :return: a list of code blocks to not go over 2000 chars.
     """
-    return [f'\n{language}' + s.replace('`', chr(0x1fef)) + '\n' for s in
+    return [f'```{language}\n' + s.replace('`', chr(0x1fef)) + '\n```' for s in
             wrap(in_, 1800, replace_whitespace=False)]
 
 
