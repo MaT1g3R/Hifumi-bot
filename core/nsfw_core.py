@@ -243,7 +243,7 @@ async def get_lewd(
                 msg = localize['random_nsfw'] + '\n' + file_url
             return msg, tags_to_write
         else:
-            return localize['nsfw_sorry'], None
+            return localize['nothing_found'], None
     except HTTPStatusError as e:
         error = localize['api_error'].format(site.title()) + f'\n{e}'
         return error, None

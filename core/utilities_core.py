@@ -3,6 +3,7 @@ Functions for Utilities commands
 """
 from json import JSONDecodeError
 from random import randint
+from textwrap import wrap
 
 from discord.embeds import Embed, EmptyEmbed
 from imdbpie import Imdb
@@ -216,3 +217,32 @@ def parse_remind_arg(time: str):
         res += i * multi
         multi *= 60
     return res
+
+
+async def urban(localize, session_manager: SessionManager, query):
+    """
+    Search urbandictionary for a word.
+    :param localize: the localization strings.
+    :param session_manager: the session manager.
+    :param query: the search query.
+    :return: the search result.
+    """
+    try:
+        url = f'http://api.urbandictionary.com/v0/define?term={query}'
+        res = await session_manager.get_json(url)
+    except HTTPStatusError as e:
+        return [localize['api_error'].format('Urbandictionary') + f'\n{e}']
+    else:
+        if res['tags']:
+            entry = res['list'][0]
+            def_ = entry['definition']
+            word = entry['word']
+            upboats = entry['thumbs_up']
+            downboatds = entry['thumbs_down']
+            def_ = ['```\n' + s.replace('`', chr(0x1fef)) + '\n```' for s in
+                    wrap(def_, 1800, replace_whitespace=False)]
+            return ([localize['urban_head'].format(word)]
+                    + def_
+                    + [localize['urban_tail'].format(upboats, downboatds)])
+        else:
+            return [localize['nothing_found']]
