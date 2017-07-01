@@ -239,9 +239,10 @@ async def urban(localize, session_manager: SessionManager, query):
             word = entry['word']
             upboats = entry['thumbs_up']
             downboatds = entry['thumbs_down']
+            example = entry['example']
             def_ = ['```\n' + s.replace('`', chr(0x1fef)) + '\n```' for s in
                     wrap(def_, 1800, replace_whitespace=False)]
-            return ([localize['urban_head'].format(word)]
+            return ([localize['urban_head'].format(word, example)]
                     + def_
                     + [localize['urban_tail'].format(upboats, downboatds)])
         else:
