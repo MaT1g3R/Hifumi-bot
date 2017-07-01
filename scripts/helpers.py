@@ -243,14 +243,15 @@ def shell_command(cmd: str, print_output=True):
     return lines
 
 
-def time_with_zone(time: Union[float, int, datetime], tz: str) -> datetime:
+def time_with_zone(time: Union[float, int, datetime],
+                   tz: Union[str, timezone]) -> datetime:
     """
     Get the time with timezone.
     :param time: the time.
     :param tz: the timezone.
     :return: the datetime with timezone.
     """
-    zone = timezone(tz)
+    zone = timezone(tz) if isinstance(tz, str) else tz
     if isinstance(time, (int, float)):
         return datetime.fromtimestamp(time, zone)
     elif isinstance(time, datetime):

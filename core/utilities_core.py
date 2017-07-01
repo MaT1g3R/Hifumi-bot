@@ -240,11 +240,18 @@ async def urban(localize, session_manager: SessionManager, query):
             upboats = entry['thumbs_up']
             downboatds = entry['thumbs_down']
             example = entry.get('example', None)
-            res = ([localize['urban_head'].format(word)]
-                   + code_block(definition))
+            def_out = code_block(definition)
+            def_out[0] = localize['urban_head'].format(word) + def_out[0]
+            ex_out = []
+            res = def_out[:]
             if example:
-                res += [localize['example']] + code_block(example)
-            res += [localize['urban_tail'].format(upboats, downboatds)]
-            return res
+                ex_out = code_block(example)
+                ex_out[0] = localize['example'] + ex_out[0]
+                res += ex_out
+            res[-1] += localize['urban_tail'].format(upboats, downboatds)
+            if len(ex_out) > 1 or len(def_out) > 1:
+                return res
+            else:
+                return [''.join(res)]
         else:
             return [localize['nothing_found']]

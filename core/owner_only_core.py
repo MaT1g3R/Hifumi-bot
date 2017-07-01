@@ -27,7 +27,7 @@ def handle_eval(code):
     except Exception as e:
         success = False
         res = format(e.__class__.__name__ + ': ' + str(e))
-    return wrap(res, 1800, replace_whitespace=False), success
+    return res, success
 
 
 def bash_script(command: list):

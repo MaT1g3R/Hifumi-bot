@@ -18,6 +18,7 @@ from core.owner_only_core import bash_script, handle_eval, setavatar
 from data_controller.data_utils import get_prefix
 from scripts.checks import is_owner
 from scripts.discord_functions import check_message_startwith, clense_prefix
+from scripts.helpers import code_block
 
 
 class OwnerOnly:
@@ -46,19 +47,16 @@ class OwnerOnly:
             if int(message.author.id) in self.bot.config['Bot']['owners']:
                 args = clense_prefix(message, '{}eval'.format(prefix))
                 res, success = handle_eval(args)
-                str_out = ['```Python\n' + s.replace('`', chr(0x1fef)) + '\n```'
-                           for s in res]
+                str_out = code_block(res, 'Python')
                 header = localize['bash_success'] if success else localize[
                     'bash_fail']
                 await self.bot.send_message(message.channel, header)
                 for s in str_out:
-                    if token in s:
-                        s = s.replace(token, "You will not know, baka >_<")
+                    s = s.replace(token, localize['lewd_token'])
                     await self.bot.send_message(message.channel, s)
             else:
-                await self.bot.send_message(
-                    message.channel, localize['owner_only']
-                )
+                await self.bot.send_message(message.channel, localize[
+                    'owner_only'])
 
     @commands.command(pass_context=True)
     @commands.check(is_owner)
@@ -74,11 +72,10 @@ class OwnerOnly:
         str_out = ['```\n' + s.replace('`', chr(0x1fef)) + '\n```'
                    for s in result]
         header = localize['bash_success'] if success else localize['bash_fail']
-        await self.bot.say(header)
         for s in str_out:
             if token in s:
-                s = s.replace(token, "You will not know, baka >_<")
-            await self.bot.say(s)
+                s = s.replace(token, localize['lewd_token'])
+            await self.bot.say(header + s)
 
     @commands.command(pass_context=True)
     @commands.check(is_owner)
@@ -108,5 +105,5 @@ class OwnerOnly:
         """
         localize = self.bot.localize(ctx)
         await self.bot.say(localize['shutdown'])
-        await self.bot.logout
+        await self.bot.logout()
         exit(0)
