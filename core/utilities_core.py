@@ -231,11 +231,11 @@ async def urban(localize, session_manager: SessionManager, query):
         url = f'http://api.urbandictionary.com/v0/define?term={query}'
         res = await session_manager.get_json(url)
     except HTTPStatusError as e:
-        return [localize['api_error'].format('Urbandictionary') + f'\n{e}']
+        return [localize['api_error'].format('Urban Dictionary') + f'\n{e}']
     else:
         if res['tags']:
             entry = res['list'][0]
-            def_ = entry['definition']
+            definition = entry['definition']
             word = entry['word']
             upboats = entry['thumbs_up']
             downboatds = entry['thumbs_down']
@@ -243,10 +243,11 @@ async def urban(localize, session_manager: SessionManager, query):
                 example = entry['example']
             else:
                 example = "No example was found."
-            def_ = ['```\n' + s.replace('`', chr(0x1fef)) + '\n```' for s in
+            example = ['\n' + s.replace('`', chr(0x1fef)) + '\n' for s in
                     wrap(def_, 1800, replace_whitespace=False)]
-            return ([localize['urban_head'].format(word, example)]
-                    + def_
+            return ([localize['urban_head'].format(word)]
+                    + definition
+                    + example
                     + [localize['urban_tail'].format(upboats, downboatds)])
         else:
             return [localize['nothing_found']]
