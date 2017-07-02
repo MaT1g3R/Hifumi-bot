@@ -16,7 +16,7 @@ from bot.session_manager import HTTPStatusError, SessionManager
 VersionInfo = namedtuple('VersionInfo', 'major minor micro releaselevel serial')
 
 version_info = VersionInfo(
-    major=0, minor=2, micro=0, releaselevel='alpha', serial=0
+    major=0, minor=2, micro=0, releaselevel='alpha', serial=1
 )
 
 __title__ = 'Hifumi'
