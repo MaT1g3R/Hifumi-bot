@@ -55,8 +55,11 @@ async def weather(api: str, colour, session_manager: SessionManager,
     local_time, sunrise_str, sunset_str = __time_info(
         res, tzw, sunrise, sunset)
 
+    title = localize['weather_info'] + (name or '')
+    if country:
+        title = f':flag_{country.lower()}: ' + title
     embed = Embed(
-        title=f':flag_{country.lower()}: ' + localize['weather_info'] + name,
+        title=title,
         colour=colour,
         description=__get_des(local_time, main, des, clouds, localize)
     )
