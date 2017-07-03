@@ -197,7 +197,6 @@ async def recipe_search(
                 too_long = localize['ing_too_long']
                 val = val[:900] + f'\n...\n{too_long}'
             embed.add_field(name=name, value=val, inline=inline)
-            print(t[0], t[1], inline)
     return embed
 
 
