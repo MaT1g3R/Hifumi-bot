@@ -28,7 +28,6 @@ def run(args):
         Fun(bot),
         Interactions(bot),
         Moderation(bot),
-        Music(bot),
         Nsfw(bot),
         OwnerOnly(bot),
         Roles(bot),
