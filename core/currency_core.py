@@ -39,21 +39,21 @@ async def daily(data_manager: DataManager, user_id: int, localize):
 
 async def transfer(
         data_manager: DataManager, sender,
-        reciver, amount: int, localize: dict) -> str:
+        receiver, amount: int, localize: dict) -> str:
     """
-    Transfer x amout of money from root to reciver
+    Transfer x amout of money from root to receiver
     :param data_manager: the data manager.
     :param sender: the sender user
-    :param reciver: the reciver user
+    :param receiver: the receiver user
     :param amount: the amount of transfer
     :param localize: the localize strings
     :return: the result message
     """
     try:
-        new_sender, new_reciver = await transfer_balance(
-            data_manager, int(sender.id), int(reciver.id), amount)
+        new_sender, new_receiver = await transfer_balance(
+            data_manager, int(sender.id), int(receiver.id), amount)
         return localize['transfer_success'].format(
-            amount, reciver.display_name, new_sender, new_reciver
+            amount, receiver.display_name, new_sender, new_receiver
         )
     except LowBalanceError as e:
         return localize['low_balance'].format(str(e))
