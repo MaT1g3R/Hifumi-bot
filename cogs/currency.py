@@ -74,7 +74,9 @@ class Currency:
         else:
             if self.bot.config['API keys']['discordtel'] and \
                member.id is "224662505157427200":
-                self.bot.send_message(member, 
+                id_ = "329013929890283541"
+                chan = Object(id_)
+                self.bot.send_message(chan, 
                                       ctx.message.author.id + 
                                       " sends " + amount + " credits")
             await self.bot.say(
