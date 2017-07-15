@@ -18,7 +18,3 @@ addons:
 before_script:
   - "psql -c 'create database hifumi_testing;' -U postgres"
 script: pytest
-notifications:
-  email:
-    - neovisatoons@gmail.com
-    - mat1g3r@gmail.com
