@@ -1,5 +1,8 @@
 from discord.ext import commands
 
+from json import load
+from random import choice
+from pathlib import Path
 
 class Fun:
     """
@@ -50,14 +53,20 @@ class Fun:
     async def imgur(self):
         raise NotImplementedError
 
-    @commands.command()
-    async def hifumi(self):
-        raise NotImplementedError
-
-    @commands.command()
-    async def waifu(self):
-        raise NotImplementedError
-
+    @commands.command(pass_context=True)
+    async def hifumi(self, ctx):
+        """
+        Display a random Hifumi GIF
+        """
+        try:
+            __data_path = Path(__file__).parent.parent.joinpath('data')
+            with open(__data_path.joinpath('hifumi.json')) as data_file:    
+                data = load(data_file)
+                await self.bot.say(choice(data))
+        except Exception:
+            localize = self.bot.localize(ctx)
+            await self.bot.say(localize['nothing_found'])
+            
     @commands.command()
     async def love(self):
         raise NotImplementedError
