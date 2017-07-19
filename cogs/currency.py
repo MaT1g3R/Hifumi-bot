@@ -1,4 +1,4 @@
-from discord import Member
+from discord import Member, Object
 from discord.ext import commands
 from pytrivia import Trivia
 
@@ -72,13 +72,12 @@ class Currency:
         except (ValueError, TypeError):
             await self.bot.say(localize['currency_bad_num'])
         else:
-            if self.bot.config['API keys']['discordtel'] and \
-               member.id is "224662505157427200":
-                id_ = "329013929890283541"
-                chan = Object(id_)
-                self.bot.send_message(chan, 
-                                      ctx.message.author.id + 
-                                      " sends " + amount + " credits")
+            if self.bot.config['API keys']['discordtel'] \
+                    and member.id == '224662505157427200':
+                await self.bot.send_message(
+                    Object('329013929890283541'),
+                    f'{ctx.message.author.id} sends {amount} credits.'
+                )
             await self.bot.say(
                 await transfer(
                     self.bot.data_manager, ctx.message.author,

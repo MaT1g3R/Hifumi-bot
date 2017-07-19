@@ -10,7 +10,6 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq libgeos*
 install:
-  - "pip install aiohttp requests"
   - "pip install -r requirements.txt"
 services:
   - postgresql
