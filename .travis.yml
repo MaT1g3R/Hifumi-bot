@@ -9,6 +9,7 @@ matrix:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq libgeos*
+  - sudo apt-get install -qq wget
 install:
   - "pip install -r requirements.txt"
 services:
@@ -18,3 +19,6 @@ addons:
 before_script:
   - "psql -c 'create database hifumi_testing;' -U postgres"
 script: pytest
+after_script: 
+    - "wget https://gist.githubusercontent.com/MaT1g3R/d95fe71ffff15e7a551d0e8a0449f486/raw/2612889b0af2e78163f78dbfefd8fa4f6b4cd13c/travis_discord.py"
+    - "python3.6 travis_discord.py"
