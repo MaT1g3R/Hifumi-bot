@@ -17,10 +17,17 @@ class Fun:
         """
         self.bot = bot
 
-    @commands.command(name='8ball')
-    async def _8ball(self):
-        raise NotImplementedError
-
+    @commands.command(name='8ball', pass_context=True)
+    async def _8ball(self, ctx, *question):
+        localize = self.bot.localize(ctx)
+        if not question:
+            await self.bot.say(localize['8ball_no_question'])
+        else:
+            await self.bot.say(localize['8ball'].format(
+                                      ' '.join(question), 
+                       choice(localize['8ball_answers']))
+                              )
+            
     @commands.command()
     async def accordingtodevin(self):
         raise NotImplementedError
