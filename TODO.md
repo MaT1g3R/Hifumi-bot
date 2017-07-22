@@ -4,8 +4,7 @@
 
 ## 2. Bot base and command handler
 - mostly finished, contiune to add onto it if needed
-- [ ] Check wether there are news about discord.py library rewrite
-- [ ] If needed, restructure the functions if that happens
+- [ ] Port bot to [discord.py rewrite](https://github.com/Rapptz/discord.py/tree/rewrite)
 
 ## 3. Current hifumi commands transfering
 #### Fun
