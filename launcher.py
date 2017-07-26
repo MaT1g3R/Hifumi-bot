@@ -1,3 +1,8 @@
+# DISCLAIMER:
+# This launcher has old functions which will be reworked
+# soon. Please don't run this script yet, unless you want
+# to do it on your own risk and discretion.
+
 import ctypes
 import hashlib
 import os
@@ -75,12 +80,24 @@ def is_internet_on():
     :return: True if Internet is present, otherwise return False.
     """
     try:
-        host = socket.gethostbyname('www.google.ca')
+        host = socket.gethostbyname('www.google.com')
         socket.create_connection((host, 80), 2)
         return True
     except socket.error:
         return False
 
+def is_command():
+    """
+    Checks if Hifumi is a bash command.
+    :return: True if command is present, otherwise return False.
+    """
+    try:
+        subprocess.call(["git", "--version"], stdout=subprocess.DEVNULL,
+                        stdin=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL)
+        return True
+    except subprocess.CalledProcessError:
+        return False
 
 def pause():
     """
@@ -696,13 +713,13 @@ def edit_settings():
     Opens settings.py file in the notepad if present.
     :return: The action or an exception if an error ocurred.
     """
-    path = Path('./config/settings.py')
-    sample_path = Path('./config/sample_settings.py')
+    path = Path('./config/settings.yml')
+    sample_path = Path('./config/sample_settings.yml')
     if path.is_file():
         __edit_settings(path)
     elif not path.is_file() and sample_path.is_file():
         info("It looks like it's your first time running Hifumi launcher.\n"
-             "sample_settings.py is going to be renamed to settings.py.\n")
+             "sample_settings.yml is going to be renamed to settings.yml.\n")
         pause()
         sample_path.rename(str(path))
         edit_settings()
@@ -760,8 +777,8 @@ def user_pick_yes_no():
     :return: An input request, can be yes or no.
     """
     choice = None
-    yes = ("yes", "y", "Y", "YES")
-    no = ("no", "n", "N", "NO")
+    yes = ("yes", "y", "Y", "YES", "yup", "Yup")
+    no = ("no", "n", "N", "NO", "Nope", "nope")
     while choice not in yes and choice not in no:
         choice = input("Yes/No > ").lower().strip()
     return choice in yes
@@ -802,71 +819,15 @@ def calculate_md5(filename):
     return hash_md5.hexdigest()
 
 
-def faster_bash():
-    """
-    Creates scripts for fast boot of Hifumi without going
-    through the launcher
-    :return: The files created if successful
-    """
-    interpreter = sys.executable.split('/')[-1]
-    if not interpreter:
-        return
-
-    call = "\"{}\" run.py".format(interpreter)
-    modified = False
-
-    if IS_WINDOWS:
-        echo_disabler = "@echo off\n"
-        ccd = "pushd %~dp0\n"
-        bot_loop = ":hifumi:\n"
-        exit_trigger = "\necho Hifumi has been terminated."
-        pause_str = "\necho Press any key to continue...\npause>nul"
-        goto_loop = "\ngoto hifumi"
-        ext = ".bat"
-    else:
-        echo_disabler = ''
-        exit_trigger = ''
-        bot_loop = ''
-        goto_loop = ''
-        ccd = 'cd "$(dirname "$0")"\n'
-        pause_str = "\nread -rsp $'Press ENTER to continue...\\n'"
-        if not IS_MAC:
-            ext = ".sh"
-        else:
-            ext = ".command"
-
-    start_hifumi = echo_disabler + call + exit_trigger + pause_str
-    start_hifumi_autorestart = echo_disabler + bot_loop + call + goto_loop
-    files = [
-        (Path("run_normal" + ext), start_hifumi),
-        (Path("run_autorestart" + ext), start_hifumi_autorestart)
-    ]
-    if not IS_WINDOWS:
-        files.append((Path("start_launcher" + ext), ccd + call))
-
-    for file, content in files:
-        if not file.is_file():
-            info("Creating fast start scripts (.bat)")
-            modified = True
-            with file.open(mode='w') as f:
-                f.write(content)
-                f.close()
-
-    if not IS_WINDOWS and modified:  # Let's make them executable on Unix
-        for script in files:
-            st = os.stat(str(script[0]))
-            os.chmod(str(script[0]), st.st_mode | stat.S_IEXEC)
-
-
 def admin_running():
     """
     Checks if process is running as administrator
     :return: True if yes, False if not.
     """
-    try:
-        return os.getuid() == 0
-    except AttributeError:
+    if IS_WINDOWS:
         return ctypes.windll.shell32.IsUserAnAdmin() != 0
+    else:
+        return os.getuid() == 0
 
 
 def is_git():
@@ -943,6 +904,12 @@ def string_errors():
                 "permissions are disabled. Please restart Hifumi by " + note +
                 ".\n\n")
 
+        
+def bash_command():
+    with open("/root/.bashrc", "w") as f:
+        f.write("alias hifumi='" + sys.path[0] + "/" + sys.argv[0] + "'")
+        f.close()
+
 
 def main():
     """
@@ -953,7 +920,7 @@ def main():
         print("You're not connected to Internet! Please check your "
               "connection and try again.")
         exit(1)
-    title_text = __title__ + ' Version ' + BOT_VERSION + ' ~ Launcher'
+    title_text = __title__ + ' v' + BOT_VERSION + ' ~ Launcher'
     if IS_WINDOWS:
         os.system("TITLE {}".format(title_text))
     elif IS_MAC:
@@ -965,11 +932,6 @@ def main():
             "\033]30;{}\007".format(title_text))
     while True:
         clear_screen()
-        try:
-            faster_bash()
-        except Exception as e:
-            error("Failed making fast start scripts: {}\n".format(e))
-        warning("This launcher is deprecated. It will be worked ASAP.")
         print(" __    __   __   _______  __    __   ___  ___   __\n"
               "|  |  |  | |  | |   ____||  |  |  | |   \/   | |  |    _\n"
               "|  |__|  | |  | |  |__   |  |  |  | |  \  /  | |  |  _| |_\n"
@@ -1054,14 +1016,20 @@ def run():
         exit(1)
     else:
         info("Initializating...")
-        if detect_errors():
+        if IS_LINUX and not is_command():
+            info("We detected this launcher is not a bash command. Would you like "
+                 "to create a bash command to execute this launcher?")
+            if user_pick_yes_no():
+                bash_command()
+        elif detect_errors():
             clear_screen()
             print("You got some warnings/errors. It's highly recommended "
                   "to fix them before you continue.\n")
             string_errors()
             pause()
             clear_screen()
-        main()
+        else:
+            main()
 
 
 if __name__ == '__main__':
