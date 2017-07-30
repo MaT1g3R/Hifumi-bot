@@ -72,7 +72,7 @@ class Fun:
                 await self.bot.say(choice(data))
         except Exception:
             localize = self.bot.localize(ctx)
-            await self.bot.say(localize['nothing_found'])
+            await self.bot.say(localize['hifumi_shy'])
             
     @commands.command()
     async def love(self):

@@ -67,9 +67,8 @@ def command_error_handler(localize, exception):
             res = localize['empty_member']
         elif ex_str.startswith('channel'):
             res = localize['empty_channel']
-        # FIXME for the temporary Music cog, change after Music is finished
         elif ex_str.startswith('song'):
-            res = 'Please provide a song name/link for me to play.'
+            res = localize['no_song']
     elif isinstance(exception, OwnerError):
         res = localize['owner_only']
     if res:

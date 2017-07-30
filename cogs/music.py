@@ -43,6 +43,7 @@ class VoiceState:
         self.playlist = []
         self.queuelength = 0
         self.voice = None
+        self.waitplayer = None
         self.bot = bot
         self.bot.localize = bot.localize
         self.play_next_song = asyncio.Event()
@@ -66,7 +67,6 @@ class VoiceState:
         self.skip_votes.clear()
         if self.is_playing():
             self.player.stop()
-        await self.toggle_next()
     
     def safe_coro(self):
         coro = self.toggle_next()
@@ -98,15 +98,28 @@ class VoiceState:
     
     async def toggle_next(self):
         try:
+            self.playlist.remove(self.playlist[0])
             if self.current.player.duration:
                 self.queuelength -= self.current.player.duration
-            self.playlist.remove(self.playlist[0])
             self.bot.loop.call_soon_threadsafe(self.play_next_song.set)
-            if len(self.playlist) == 0:
+            if self.songs.empty():
                 await self.leave()
         except IndexError:
             pass
 
+    async def wait_play(self):
+        self.waitplayer = self.voice.create_ffmpeg_player('./music.mp3',
+                                              after=self.safe_coro_two)
+        self.waitplayer.start()
+
+    async def wait_stop(self):
+        if self.waitplayer.is_playing():
+            self.waitplayer.pause()
+            self.waitplayer.volume = 0
+            # FIXME Stop player without invoking timeout leaving function
+        else:
+            pass
+        
     async def audio_player_task(self):
         while True:
             self.play_next_song.clear()
@@ -120,11 +133,14 @@ class VoiceState:
     async def leave(self):
         if self.is_playing():
             self.current.player.stop()
-        self.audio_player.cancel()
-        await self.voice.disconnect()
-        await self.bot.send_message(self.current.channel,
-              self.bot.localize(self.current.message)['music_leave'])
-        self.reassign(self.bot)
+        if not self.waitplayer.is_playing():
+            self.audio_player.cancel()
+            await self.voice.disconnect()
+            await self.bot.send_message(self.current.channel,
+                  self.bot.localize(self.current.message)['music_self_leave'])
+            self.reassign(self.bot)
+        else:
+            pass
         
     async def timeout_leave(self):
         if self.is_playing():
@@ -144,7 +160,6 @@ class Music:
     def __init__(self, bot):
         self.bot = bot
         self.voice_states = {}
-        self.waitplayer = None
 
     def get_voice_state(self, server):
         state = self.voice_states.get(server.id)
@@ -182,9 +197,7 @@ class Music:
             await self.bot.say(localize['music_join'].format(get_prefix(
                                                              self.bot,
                                                              ctx.message)))
-            self.waitplayer = state.voice.create_ffmpeg_player('./music.mp3',
-                                                   after=state.safe_coro_two)
-            self.waitplayer.start()
+            await state.wait_play()
         else:
             await self.bot.say(localize['music_already_joined'])
 
@@ -223,10 +236,8 @@ class Music:
             else:
                 player.volume = 2
                 entry = VoiceEntry(ctx.message, player, self.bot)
-                self.waitplayer.pause()
-                self.waitplayer.volume = 0
-                # FIXME Stop player without invoking timeout leaving function
                 await self.bot.say(localize['song_queued'].format(str(entry)))
+                await state.wait_stop()
                 await state.songs.put(entry)
                 state.playlist.append(str(entry))
                 if player.duration:
@@ -292,13 +303,10 @@ class Music:
                 player.stop()
         
             try:
-                if self.waitplayer.is_playing():
-                    state.audio_player.cancel()
-                    del self.voice_states[server.id]
-                    await state.voice.disconnect()
-                    await self.bot.say(localize['music_leave'])
-                # Only in this condition because there's already
-                # a function with same purpose when music is queued
+                state.audio_player.cancel()
+                del self.voice_states[server.id]
+                await state.voice.disconnect()
+                await self.bot.say(localize['music_leave'])
             except:
                 pass
         else:
@@ -348,7 +356,7 @@ class Music:
         else:
             temp = []
             temp.append(localize['np'].format(state.playlist[0]))
-            page_playlist = state.playlist[20*page-19:20*page]
+            page_playlist = state.playlist[20*page-20:20*page]
             for index in range(len(page_playlist)):
                 if page == 1 and index == 0:
                     pass

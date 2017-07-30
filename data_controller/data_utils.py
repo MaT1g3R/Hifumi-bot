@@ -2,6 +2,7 @@
 Utility functions to interact with the database
 """
 from typing import List
+from json import load
 
 from discord import Server
 from discord.utils import get
@@ -45,7 +46,7 @@ def get_prefix(bot, message):
     else:
         r = bot.data_manager.get_prefix(server_id)
         return r if r else bot.default_prefix
-
+ 
 
 async def change_balance(data_manager: DataManager, user_id: int, delta: int):
     """

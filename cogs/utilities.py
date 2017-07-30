@@ -134,13 +134,16 @@ class Utilities:
             await self.bot.say(res)
 
     @commands.command(pass_context=True)
-    async def remind(self, ctx, *, time_: str = None):
+    async def remind(self, ctx, *, time_: str = None, task: str = None):
         """
         Set a reminder and notify the user when time is up.
         """
         localize = self.bot.localize(ctx)
         if not time_:
             await self.bot.say(localize['no_remind'])
+            return
+        if not task:
+            task = self.bot.say(localize['unknown'])
             return
         try:
             seconds = parse_remind_arg(time_)
@@ -156,7 +159,7 @@ class Utilities:
         fin = localize['remind_fin']
         await self.bot.send_message(
             ctx.message.channel,
-            f'{ctx.message.author.mention} {fin.format(h,m,s)}')
+            f'{ctx.message.author.mention}, {fin.format(h,m,s)}\n```{task}```')
 
     @commands.command(pass_context=True)
     async def time(self, ctx, *, tz=None):

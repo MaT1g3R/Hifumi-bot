@@ -24,10 +24,12 @@ def run(args):
     cogs = [
         BotInfo(bot),
         ChannelReader(bot),
+        Custom(bot),
         Currency(bot),
         Fun(bot),
         Interactions(bot),
         Moderation(bot),
+        Music(bot),
         Nsfw(bot),
         OwnerOnly(bot),
         Roles(bot),
