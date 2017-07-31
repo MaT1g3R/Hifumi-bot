@@ -270,7 +270,7 @@
     "music_error": ":no_entry_sign: Sorry, this song can't be queued! This can happen due to one of the following reasons:\n- Something went wrong.\n- The video is not available/private/deleted/country-restricted.\n- This URL is not supported by the encoder (supported sites: <https://rg3.github.io/youtube-dl/supportedsites.html>).\n- The playlist is too huge to be encoded.\n- If the link is a livestream, then might returned an error.\n\nPlease try again with another search.",
     "np": ":musical_note: **Now playing:** {}",
     "total_duration": "Estimated duration: {}:{}:{}",
-    "shuffle": ":revolving_hearts: Music queue has been suffled, tracks will now play in random order."
+    "shuffle": ":revolving_hearts: Music queue has been suffled, tracks will now play in random order.",
     "song_display": "**{0.title}** uploaded by {0.uploader} and requested by {1.display_name}",
     "song_duration": "[length: {0[0]}m {0[1]}s]",
     "invalid_page": ":no_entry_sign: This page is not in the playlist!",
