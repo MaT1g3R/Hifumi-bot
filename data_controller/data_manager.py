@@ -151,7 +151,7 @@ class DataManager:
 
     async def set_roles(self, guild_id: int, roles: List[str]):
         """
-        Set the role list for the guild.    @assert_outputs(str, False)
+        Set the role list for the guild.
 
         :param guild_id: the guild id.
         :param roles: the list of roles.
