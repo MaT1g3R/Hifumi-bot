@@ -2,7 +2,6 @@
 Utility functions to interact with the database
 """
 from typing import List
-from json import load
 
 from discord import Server
 from discord.utils import get
@@ -46,7 +45,7 @@ def get_prefix(bot, message):
     else:
         r = bot.data_manager.get_prefix(server_id)
         return r if r else bot.default_prefix
- 
+
 
 async def change_balance(data_manager: DataManager, user_id: int, delta: int):
     """
@@ -95,7 +94,7 @@ async def add_self_role(data_manager: DataManager, guild_id: int, role):
     :param guild_id: the guild id.
     :param role: the role name.
     """
-    lst = data_manager.get_roles(guild_id) or []
+    lst = list(data_manager.get_roles(guild_id) or [])
     if role not in lst:
         lst.append(role)
         await data_manager.set_roles(guild_id, lst)
