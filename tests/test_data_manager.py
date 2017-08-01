@@ -17,10 +17,11 @@ pytestmark = pytest.mark.asyncio
 @pytest.fixture(scope='function')
 async def manager():
     pool = await _get_pool()
-    pos = Postgres(pool, SCHEMA, mock_logger())
+    pos = Postgres(pool, SCHEMA, MockLogger())
     yield DataManager(pos)
     async with pool.acquire() as conn:
         await _clear_db(conn)
+    await pool.close()
 
 
 async def __simple_test(
