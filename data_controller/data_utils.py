@@ -94,7 +94,7 @@ async def add_self_role(data_manager: DataManager, guild_id: int, role):
     :param guild_id: the guild id.
     :param role: the role name.
     """
-    lst = list(data_manager.get_roles(guild_id) or [])
+    lst = data_manager.get_roles(guild_id)
     if role not in lst:
         lst.append(role)
         await data_manager.set_roles(guild_id, lst)
