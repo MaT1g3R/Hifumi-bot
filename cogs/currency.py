@@ -72,18 +72,22 @@ class Currency:
         except (ValueError, TypeError):
             await self.bot.say(localize['currency_bad_num'])
         else:
-            if self.bot.config['API keys']['discordtel'] \
+            try:
+                await self.bot.say(
+                    await transfer(
+                        self.bot.data_manager, ctx.message.author,
+                        member, amount, localize
+                    )
+                )
+                if self.bot.config['API keys']['discordtel'] \
                     and member.id == '224662505157427200':
-                await self.bot.send_message(
-                    Object('329013929890283541'),
-                    f'{ctx.message.author.id} sends {amount} credits.'
-                )
-            await self.bot.say(
-                await transfer(
-                    self.bot.data_manager, ctx.message.author,
-                    member, amount, localize
-                )
-            )
+                    await self.bot.send_message(
+                        Object('329013929890283541'),
+                        f'{ctx.message.author.id} sends {amount} credits.'
+                    )
+            except LowBalanceError as e:
+                await self.bot.say(localize['low_balance'].format(str(e)))
+                return
 
     @commands.command(pass_context=True)
     @commands.cooldown(rate=1, per=6, type=commands.BucketType.user)

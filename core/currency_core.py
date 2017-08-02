@@ -49,14 +49,11 @@ async def transfer(
     :param localize: the localize strings
     :return: the result message
     """
-    try:
-        new_sender, new_receiver = await transfer_balance(
-            data_manager, int(sender.id), int(receiver.id), amount)
-        return localize['transfer_success'].format(
-            amount, receiver.display_name, new_sender, new_receiver
-        )
-    except LowBalanceError as e:
-        return localize['low_balance'].format(str(e))
+    new_sender, new_receiver = await transfer_balance(
+        data_manager, int(sender.id), int(receiver.id), amount)
+    return localize['transfer_success'].format(
+        amount, receiver.display_name, new_sender, new_receiver
+    )
 
 
 def slots_setup(emojis, lower, upper):
