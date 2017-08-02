@@ -3,7 +3,7 @@ from asyncpg.pool import Pool
 
 from scripts.helpers import shell_command
 
-__all__ = ['_clear_db', '_get_pool', 'SCHEMA', 'mock_logger']
+__all__ = ['_clear_db', '_get_pool', 'SCHEMA', 'MockLogger']
 SCHEMA = 'testing'
 
 
@@ -101,6 +101,6 @@ async def _get_pool() -> Pool:
     return pool
 
 
-class mock_logger:
+class MockLogger:
     def log(self, *args, **kwargs):
         print(args, kwargs)

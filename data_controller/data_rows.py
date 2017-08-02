@@ -77,7 +77,8 @@ class _GuildRow(_Row):
 
     @property
     def roles(self) -> list:
-        return self._row[4]
+        lst = self._row[4]
+        return lst[:] if lst else None
 
     async def set_prefix(self, prefix: str):
         await self._set(1, prefix)

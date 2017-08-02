@@ -20,7 +20,7 @@ __default_user = ('1', 100, datetime.now())
 @pytest.fixture(scope='function')
 async def guild_row():
     pool = await _get_pool()
-    pos = Postgres(pool, SCHEMA, mock_logger())
+    pos = Postgres(pool, SCHEMA, MockLogger())
     await pos.set_guild(__default_guild)
     d = await pos.get_guild('1')
     r0 = get_guild_row(pos, 0)
@@ -28,12 +28,13 @@ async def guild_row():
     yield r0, r1, pos
     async with pool.acquire() as conn:
         await _clear_db(conn)
+    await pool.close()
 
 
 @pytest.fixture(scope='function')
 async def member_row():
     pool = await _get_pool()
-    pos = Postgres(pool, SCHEMA, mock_logger())
+    pos = Postgres(pool, SCHEMA, MockLogger())
     await pos.set_member(__default_member)
     d = await pos.get_member('1', '1')
     r0 = get_member_row(pos, 0, 0)
@@ -41,12 +42,13 @@ async def member_row():
     yield r0, r1, pos
     async with pool.acquire() as conn:
         await _clear_db(conn)
+    await pool.close()
 
 
 @pytest.fixture(scope='function')
 async def user_row():
     pool = await _get_pool()
-    pos = Postgres(pool, SCHEMA, mock_logger())
+    pos = Postgres(pool, SCHEMA, MockLogger())
     await pos.set_user(__default_user)
     d = await pos.get_user('1')
     r0 = get_user_row(pos, 0)
@@ -54,6 +56,7 @@ async def user_row():
     yield r0, r1, pos
     async with pool.acquire() as conn:
         await _clear_db(conn)
+    await pool.close()
 
 
 async def test_guild_properties(guild_row):
