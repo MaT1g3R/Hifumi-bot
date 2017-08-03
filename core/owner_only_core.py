@@ -30,26 +30,6 @@ def handle_eval(code):
     return res, success
 
 
-def bash_script(command: list):
-    """
-    Run a bash script
-    :param command: the bash command
-    :return: (the result of the command in a list, success)
-    :rtype: tuple
-    """
-    try:
-        output = check_output(command, stderr=STDOUT)
-        res_str = output.decode()
-        success = True
-    except CalledProcessError as ex:
-        res_str = ex.output.decode()
-        success = False
-    except Exception as ex:
-        res_str = str(ex)
-        success = False
-    return wrap(res_str, 1800, replace_whitespace=False), success
-
-
 async def setavatar(bot, localize, channel, avatar, retry=0):
     """
     I'm going to hell with this.

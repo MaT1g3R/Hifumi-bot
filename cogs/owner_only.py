@@ -14,7 +14,7 @@ from discord.ext import commands
 from requests import get
 
 from bot import Hifumi
-from core.owner_only_core import bash_script, handle_eval, setavatar
+from core.owner_only_core import handle_eval, setavatar
 from data_controller.data_utils import get_prefix
 from scripts.checks import is_owner
 from scripts.discord_functions import check_message_startwith, clense_prefix
@@ -57,25 +57,6 @@ class OwnerOnly:
             else:
                 await self.bot.send_message(message.channel, localize[
                     'owner_only'])
-
-    @commands.command(pass_context=True)
-    @commands.check(is_owner)
-    async def bash(self, ctx, *args):
-        """
-        Run a bash command
-        :param ctx: the discord context
-        :param args: the bash command arguments
-        """
-        token = str(self.bot.config['Bot']['token'])
-        localize = self.bot.localize(ctx)
-        result, success = bash_script(list(args))
-        str_out = ['```\n' + s.replace('`', chr(0x1fef)) + '\n```'
-                   for s in result]
-        header = localize['bash_success'] if success else localize['bash_fail']
-        for s in str_out:
-            if token in s:
-                s = s.replace(token, localize['lewd_token'])
-            await self.bot.say(header + s)
 
     @commands.command(pass_context=True)
     @commands.check(is_owner)
