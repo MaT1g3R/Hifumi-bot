@@ -23,10 +23,12 @@ class Fun:
         if not question:
             await self.bot.say(localize['8ball_no_question'])
         else:
-            await self.bot.say(localize['8ball'].format(
-                                      ' '.join(question), 
-                       choice(localize['8ball_answers']))
-                              )
+            await self.bot.say(
+                localize['8ball'].format(
+                    ' '.join(question),
+                    choice(localize['8ball_answers'])
+                )
+            )
             
     @commands.command()
     async def accordingtodevin(self):
@@ -87,8 +89,13 @@ class Fun:
         raise NotImplementedError
 
     @commands.command()
-    async def reverse(self):
-        raise NotImplementedError
+    async def reverse(self, *input):
+		"""
+		Takes the input string and reverses it
+		"""
+        await self.bot.say(
+			' '.join(input)[::-1]
+		)
 
     @commands.command()
     async def rip(self):
