@@ -3,7 +3,7 @@
 <header>
         <img align="left" src="http://static.zerochan.net/Takimoto.Hifumi.full.2072772.jpg" height="25%" width="25%">
         <h1>Hifumi contribution criteria</h1>
-        <p>So you wanna contribute into Hifumi development? That's awesome! Thanks for helping us in making Hifumi such a great tool for Discord and another entertainment media for everyone. Before you contribute, you should keep in mind: <b>you must follow the rules and guidelines</b> specified below and know what are you doing for the contribution in question. For larger additions or restructurations, please consult with the development staff. The criteria written below applies for <b>hifumibot</b> repository adapted specifically for "Python" language, this means other repositories may have different criteria for their language. Please consult this file in another repository if you wish to do so for more information.</p><br /><br />
+        <p>So you wanna contribute into Hifumi development? That's awesome! Thanks for helping us in making Hifumi such a great tool for Discord and another entertainment media for everyone. Before you contribute, you should keep in mind: <b>you must follow the rules and guidelines</b> specified below and know what are you doing for the contribution in question. For larger additions or restructurations, please consult with the development staff. The criteria written below applies for <b>hifumibot</b> repository adapted specifically for <b>Python</b> language with <b>Discord bot management</b> purposes, this means other repositories may have different criteria for their language. Please consult this file in another repository if you wish to do so for more information.</p><br /><br />
 </header>
 
 <header>
