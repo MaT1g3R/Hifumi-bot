@@ -54,6 +54,4 @@ Please take in account this file as further reference for contributions into bot
 
 <h1 align="center">Thank you for helping this project!</h1>
 <p align="center">~ Hifumi Development Team</p>
-
-<a href="javascript:window.history.go(-1)"><img src="http://www.interupgrade.com/images/pfeil-backbutton.png" width="16" height="16"></img> <b>Return to previous page</b></a>
 </html>
