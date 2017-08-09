@@ -14,8 +14,7 @@
         <li>Go to <code>development</code> branch. This is the alpha version of Hifumi.</li>
         <li>Pass successfully the Travis CI build test and should not present conflicts with <code>master</code> branch files.</li>
         <li>Follow the "Contributions guidelines" section.</li>
-        <li>Be tested and be runnable in Python v3.6.2 and above before submission. Also we highly recommend to follow the official <a href="https://www.python.org/dev/peps/pep-0008/">PEP 8</p> for coding style.</li>
-        <li>Not contain "troll code", you can get banned from accesing this organization's repositories.</li>
+        <li>Be tested and be runnable in Python v3.6.2 and above before submission. Also we highly recommend to follow the official <a href="https://www.python.org/dev/peps/pep-0008/">PEP 8</a> for coding style.</li>
         </ul>
         <b>Issues must...</b>
         <ul>
@@ -23,7 +22,6 @@
         <li>Not be a duplicated issue. Check "Troubleshooting" section in documentation or search for open/closed issues related to your problem.</li>
         <li>Follow the "Contributions guidelines" section.</li>
         <li>Not relate to programming questions, for something exists a really great searching tool called "Google".</li>
-        <li>Not contain "troll questions" or go off-topic, you can get banned from accesing this organization's repositories.</li>
         </ul>
         </header>
 
