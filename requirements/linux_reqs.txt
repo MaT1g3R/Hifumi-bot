@@ -1,0 +1,3 @@
+-r requirements/requirements.txt
+uvloop>=0.8.0
+distro>=1.0.4

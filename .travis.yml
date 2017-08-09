@@ -4,7 +4,7 @@ language: python
 python:
   - "3.6"
 install:
-  - "pip install -Ur requirements.txt"
+  - "pip install -Ur requirements/test_reqs.txt"
 services:
   - postgresql
 addons:
