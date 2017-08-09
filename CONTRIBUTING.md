@@ -50,7 +50,9 @@
         </ul>
 </header>
 
+<p>
 Please take in account this file as further reference for contributions into bot development and interface improvement.<br />Remember you can ask for any questions about this in the official support server in Discord: https://discord.gg/FtDbNrd
+</p>
 
 <h1 align="center">Thank you for helping this project!</h1>
 <p align="center">~ Hifumi Development Team</p>
