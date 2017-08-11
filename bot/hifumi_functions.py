@@ -1,16 +1,11 @@
-import re
-from logging import INFO
-from textwrap import wrap
+from itertools import chain
+from logging import CRITICAL, ERROR, INFO
 
 from asyncpg import create_pool
-from discord.ext.commands import BadArgument, CommandOnCooldown, Context, \
-    MissingRequiredArgument
+from discord.ext.commands import Context
 
 from data_controller import DataManager, TagMatcher
 from data_controller.postgres import Postgres
-from scripts.checks import AdminError, BadWordError, ManageMessageError, \
-    ManageRoleError, NsfwError, OwnerError
-from scripts.helpers import strip_letters
 
 
 async def get_data_manager(pg_config: dict, logger) -> tuple:
@@ -33,71 +28,24 @@ async def get_data_manager(pg_config: dict, logger) -> tuple:
     return data_manager, tag_matcher
 
 
-def command_error_handler(localize, exception):
+def handle_error(tb, event_method, *args, **kwargs) -> tuple:
     """
-    A function that handles command errors
-    :param localize: the localization strings
-    :param exception: the exception raised
-    :return: the message to be sent based on the exception type
-    """
-    ex_str = str(exception)
-    res = None
-    if isinstance(exception, CommandOnCooldown):
-        res = localize['time_out'].format(strip_letters(ex_str)[0])
-    elif isinstance(exception, NsfwError):
-        res = localize['nsfw_str']
-    elif isinstance(exception, BadWordError):
-        res = localize['bad_word'].format(
-            str(exception)) + '\nhttps://imgur.com/8Noy9TH.png'
-    elif isinstance(exception, ManageRoleError):
-        res = localize['not_manage_role']
-    elif isinstance(exception, AdminError):
-        res = localize['not_admin']
-    elif isinstance(exception, ManageMessageError):
-        res = localize['no_manage_messages']
-    elif isinstance(exception, BadArgument):
-        regex = re.compile('\".*\"')
-        name = regex.findall(ex_str)[0].strip('"')
-        if ex_str.lower().startswith('member'):
-            res = localize['member_not_found'].format(name)
-        elif ex_str.lower().startswith('channel'):
-            res = localize['channel_not_found'].format(name)
-    elif isinstance(exception, MissingRequiredArgument):
-        if ex_str.startswith('member'):
-            res = localize['empty_member']
-        elif ex_str.startswith('channel'):
-            res = localize['empty_channel']
-        elif ex_str.startswith('song'):
-            res = localize['no_song']
-    elif isinstance(exception, OwnerError):
-        res = localize['owner_only']
-    if res:
-        return res
-    raise exception
+    Handle error passed to ``on_error``
 
+    Check :func:`discord.Client.on_error` for more details.
 
-def format_command_error(ex: Exception, context: Context) -> tuple:
+    :return: a tuple of
+        (Log level, log message, error header, error context if any)
     """
-    Format a command error to display and log.
-    :param ex: the exception raised.
-    :param context: the context.
-    :return: a message to be displayed and logged, and triggered message
-    """
-    triggered = context.message.content
-    four_space = ' ' * 4
-    ex_type = type(ex).__name__
-    return (f'{four_space}Triggered message: {triggered}\n'
-            f'{four_space}Type: {ex_type}\n'
-            f'{four_space}Exception: {str(ex)}'), triggered
-
-
-def format_traceback(tb: str):
-    """
-    Format a traceback to be able to display in discord.
-    :param tb: the traceback.
-    :return: the traceback divided up into sections of max 1800 chars.
-    """
-    res = wrap(tb, 1800, replace_whitespace=False)
-    str_out = ['```py\n' + s.replace('`', chr(0x1fef)) + '\n```'
-               for s in res]
-    return str_out
+    ig = f'Ignoring exception in {event_method}\n'
+    log_msg = f'\n{ig}\n{tb}'
+    header = f'**CRITICAL**\n{ig}'
+    lvl = CRITICAL
+    ctx = None
+    for arg in chain(args, kwargs.values()):
+        if isinstance(arg, Context):
+            ctx = arg
+            header = f'**ERROR**\n{ig}'
+            lvl = ERROR
+            break
+    return lvl, log_msg, header, ctx
