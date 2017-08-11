@@ -23,9 +23,6 @@ Bot:
   # Whether the bot is a private instance or not.
   private: false
 
-  # The shard count for the bot. 1000 guilds per shard is recommended.
-  shard count: 1
-
   # True to enable console logging.
   console logging: true
 
@@ -57,6 +54,7 @@ Bot extra:
 Bot lists:
   abal discord list: ""
   discord bots dot org: ""
+  bots_discord_pw: ""
   carbonitex:
     compliant: false
     key: ""
