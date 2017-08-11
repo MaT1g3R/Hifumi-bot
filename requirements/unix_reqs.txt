@@ -1,2 +1,2 @@
--r requirements/requirements.txt
+-r requirements.txt
 uvloop>=0.8.0
