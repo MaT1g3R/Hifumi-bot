@@ -1,9 +1,8 @@
 from http import HTTPStatus
-from logging import WARN
+from io import BytesIO
+from json import loads
 
 from aiohttp import ClientResponse, ClientSession
-from demjson import decode
-from requests import get
 
 
 class HTTPStatusError(Exception):
@@ -12,7 +11,7 @@ class HTTPStatusError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return f'HTTPStatusError: Code: {self.code} Message: {self.msg}'
+        return f'HTTPStatusError:\nCode: {self.code}\nMessage: {self.msg}'
 
     def __repr__(self):
         return f'HTTPStatusError({self.code}, {self.msg})'
@@ -22,7 +21,7 @@ class SessionManager:
     """
     An aiohttp client session manager.
     """
-    __slots__ = ['session', 'logger', 'codes']
+    __slots__ = ('session', 'logger', 'codes')
 
     def __init__(self, session: ClientSession, logger):
         """
@@ -41,17 +40,6 @@ class SessionManager:
         """
         self.session.close()
 
-    def get_msg(self, code: int):
-        """
-        Get the message from an HTTP status code.
-        :param code: the status code.
-        :return: the message.
-        """
-        try:
-            return self.codes[code]
-        except KeyError:
-            return None
-
     def return_response(self, res, code):
         """
         Return an Aiohttp or Request response object.
@@ -62,31 +50,9 @@ class SessionManager:
         """
         if 200 <= code < 300:
             return res
-        raise HTTPStatusError(code, self.get_msg(code))
+        raise HTTPStatusError(code, self.codes.get(code, None))
 
-    def __json_sync(self, url, params):
-        """
-        Return the json content from an HTTP request using requests.
-        :param url: the url.
-        :param params: the request params.
-        :return: the json content in a python dict.
-        :raises HTTPStatusError: if the status code isn't in the 200s
-        """
-        try:
-            res = self.sync_get(url, params)
-        except HTTPStatusError as e:
-            raise e
-        else:
-            with res:
-                try:
-                    js = res.json()
-                except Exception as e:
-                    self.logger.log(WARN, str(e))
-                    text = res.text
-                    js = decode(text) if text else None
-                return js
-
-    async def __json_async(self, url, params):
+    async def __json_async(self, url, params, **kwargs):
         """
         Return the json content from an HTTP request using Aiohttp.
         :param url: the url.
@@ -95,20 +61,14 @@ class SessionManager:
         :raises HTTPStatusError: if the status code isn't in the 200s
         """
         try:
-            res = await self.get(url, params=params)
+            res = await self.get(url, params=params, **kwargs)
         except HTTPStatusError as e:
             raise e
-        else:
-            async with res:
-                try:
-                    js = await res.json(loads=decode)
-                except Exception as e:
-                    self.logger.log(WARN, str(e))
-                    text = await res.text()
-                    js = decode(text) if text else None
-                return js
+        async with res:
+            content = await res.read()
+            return loads(content) if content else None
 
-    async def get_json(self, url: str, params: dict = None):
+    async def get_json(self, url: str, params: dict = None, **kwargs):
         """
         Get the json content from an HTTP request.
         :param url: the url.
@@ -116,41 +76,60 @@ class SessionManager:
         :return: the json content in a dict if success, else the error message.
         :raises HTTPStatusError: if the status code isn't in the 200s
         """
-        try:
-            return await self.__json_async(url, params)
-        except Exception as e:
-            if isinstance(e, HTTPStatusError):
-                raise e
-            else:
-                self.logger.log(WARN, str(e))
-                return self.__json_sync(url, params)
-
-    def sync_get(self, url, params, **kwargs):
-        """
-        A fall back get method using requests.get
-        :param url: URL for the new :class:`Request` object.
-        :param params: (optional) Dictionary or bytes to be sent in the query
-        string for the :class:`Request`.
-        :param kwargs: Optional arguments that ``request`` takes.
-        :return: :class:`Response <Response>` object
-        :rtype: requests.Response
-        :raises: HTTPStatusError if status code isn't 200
-        """
-        res = get(url, params=params, **kwargs)
-        return self.return_response(res, code=res.status_code)
+        return await self.__json_async(url, params, **kwargs)
 
     async def get(
             self, url, *, allow_redirects=True, **kwargs) -> ClientResponse:
         """
         Make HTTP GET request
+
         :param url: Request URL, str or URL
+
         :param allow_redirects: If set to False, do not follow redirects.
         True by default (optional).
+
         :param kwargs: In order to modify inner request parameters,
         provide kwargs.
+
         :return: a client response object.
-        :raises: HTTPStatusError if status code isn't 200
+
+        :raises: HTTPStatusError if status code isn't between 200-299
         """
         r = await self.session.get(
             url, allow_redirects=allow_redirects, **kwargs)
         return self.return_response(r, r.status)
+
+    async def post(self, url, *, data=None, **kwargs) -> ClientResponse:
+        """
+        Make HTTP POST request.
+
+        :param url: Request URL, str or URL
+
+        :param data: Dictionary, bytes, or file-like object to send in the
+        body of the request (optional)
+
+        :param kwargs: In order to modify inner request parameters,
+        provide kwargs.
+
+        :return: a client response object.
+
+        :raises: HTTPStatusError if status code isn't between 200-299
+        """
+        resp = await self.session.post(url, data=data, **kwargs)
+        return self.return_response(resp, resp.status)
+
+    async def bytes_img(self, url) -> BytesIO:
+        """
+        Convert an url image to BytesIO
+        :param url: the url.
+        :return: a BytesIO object from the get request of the url.
+        """
+        resp = await self.get(url)
+        async with resp:
+            try:
+                content = await resp.read()
+            except Exception as e:
+                self.logger.warn(str(e))
+                raise e
+            else:
+                return BytesIO(content)
