@@ -8,4 +8,4 @@ Current roadmap can be viewed [here](https://github.com/hifumibot/Hifumi-plus/bl
 
 Interested in updated changes, check "development" branch.
 
-If there are any unclear doc strings in the code please open an issue or send a message to Underforest#1284 on Discord and we will fix it. 
+If there are any issues with the bot, please open an issue [here](https://github.com/hifumibot/hifumibot/issues/new)

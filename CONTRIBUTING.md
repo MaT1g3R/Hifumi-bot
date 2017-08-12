@@ -18,7 +18,6 @@
         </ul>
         <b>Issues must...</b>
         <ul>
-        <li>Relate with the bot development. For command issues or any public version bugs, please let us know in our <a href="https://discord.gg/FtDbNrd">Discord support server</a> instead.</li>
         <li>Not be a duplicated issue. Check "Troubleshooting" section in documentation or search for open/closed issues related to your problem.</li>
         <li>Follow the "Contributions guidelines" section.</li>
         <li>Not relate to programming questions, for something exists a really great searching tool called "Google".</li>
